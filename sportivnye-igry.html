@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Картотека спортивных игр</title>
+<style>
+  :root{
+    --paper: #efe9da;
+    --paper-line: #d9cfb8;
+    --ink: #2a2723;
+    --ink-soft: #6b6154;
+    --wood: #8b5e3c;
+    --c-mladshaya: #c1614f;
+    --c-srednyaya: #b98b2e;
+    --c-starshaya: #3e7a6e;
+    --c-podgot: #4b5a82;
+    --card-bg: #f8f4e9;
+    --shadow: 0 1px 0 rgba(42,39,35,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f5efe0 0%, var(--paper) 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  header.top{
+    padding:34px 20px 18px;
+    text-align:center;
+    border-bottom:1px solid var(--paper-line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  }
+
+  header.top .kicker{
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+
+  header.top h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:400;
+    font-size:clamp(26px,4.2vw,38px);
+    margin:0 0 8px;
+    letter-spacing:.01em;
+  }
+
+  header.top p.sub{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+
+  .drawer{
+    margin-top:22px;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    box-shadow:0 2px 10px rgba(42,39,35,0.06);
+    overflow:hidden;
+  }
+
+  .drawer-label{
+    background:linear-gradient(180deg,#efe4c9,#e6d9b8);
+    border-bottom:1px solid var(--paper-line);
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .drawer-label .pull{
+    width:34px;height:8px;border-radius:6px;
+    background:var(--wood);
+    opacity:.55;
+  }
+
+  .drawer-label input[type="search"]{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:Georgia,serif;
+    font-size:17px;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px;
+  }
+  .drawer-label input[type="search"]::placeholder{color:#8a7f6c; font-style:italic;}
+
+  .facets{
+    padding:14px 16px 6px;
+  }
+
+  .facets-drawer{
+    border-bottom:1px solid var(--paper-line);
+  }
+  .facets-drawer summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 16px;
+    font-size:14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    user-select:none;
+  }
+  .facets-drawer summary::-webkit-details-marker{display:none;}
+  .facets-drawer summary:before{
+    content:"▸";
+    color:var(--wood);
+    font-size:12px;
+  }
+  .facets-drawer[open] summary:before{content:"▾";}
+  #activeFilterCount{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#e9e1cc;
+    padding:1px 8px;
+    border-radius:10px;
+  }
+  #activeFilterCount:empty{display:none;}
+
+  .facet-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:8px 10px;
+    padding:8px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .facet-row:last-child{border-bottom:none;}
+
+  .facet-row .flabel{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    min-width:96px;
+    padding-top:5px;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+
+  .chip{
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+    font-size:13px;
+    padding:5px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    user-select:none;
+    transition:background .12s, border-color .12s, color .12s;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:#bcae8e;}
+  .chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fbf7ec;
+  }
+  .chip.active[data-group="младшая"]{background:var(--c-mladshaya);border-color:var(--c-mladshaya);}
+  .chip.active[data-group="средняя"]{background:var(--c-srednyaya);border-color:var(--c-srednyaya);}
+  .chip.active[data-group="старшая"]{background:var(--c-starshaya);border-color:var(--c-starshaya);}
+  .chip.active[data-group="подготовительная"]{background:var(--c-podgot);border-color:var(--c-podgot);}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:12px 16px 16px;
+  }
+
+  .toolbar .count{font-size:13px;color:var(--ink-soft);}
+  .toolbar .reset{
+    font-size:13px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  select#sortSelect{
+    font-family:inherit;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:14px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+  }
+
+  .grid{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+  }
+
+  .card .tab{
+    position:absolute;
+    top:-1px;
+    left:16px;
+    height:6px;
+    width:44px;
+    border-radius:0 0 3px 3px;
+  }
+  .tab.младшая{background:var(--c-mladshaya);}
+  .tab.средняя{background:var(--c-srednyaya);}
+  .tab.старшая{background:var(--c-starshaya);}
+  .tab.подготовительная{background:var(--c-podgot);}
+
+  .card .no{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  .card h3{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:19px;
+    margin:6px 0 8px;
+    line-height:1.25;
+  }
+
+  .card .rule{
+    border-top:1px dashed var(--paper-line);
+    margin:0 0 10px;
+  }
+
+  .meta-line{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+    line-height:1.5;
+  }
+  .meta-line b{color:var(--ink);font-weight:600;}
+
+  .groups-list{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 10px;}
+  .glabel{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    color:#fff;
+  }
+
+  .qtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .qtag{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    background:#e9e1cc;
+    color:var(--ink);
+  }
+
+  details.desc{margin-top:2px;}
+  details.desc summary{
+    cursor:pointer;
+    font-size:13px;
+    color:var(--wood);
+    list-style:none;
+  }
+  details.desc summary::-webkit-details-marker{display:none;}
+  details.desc summary:before{content:"▸ ";}
+  details.desc[open] summary:before{content:"▾ ";}
+  details.desc p{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a3630;
+    margin:8px 0 0;
+  }
+
+  .rhyme{
+    margin:10px 0 0;
+    padding:9px 12px;
+    background:#f1e9d3;
+    border-left:2px solid var(--wood);
+    border-radius:0 2px 2px 0;
+  }
+  .rhyme .rlabel{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .rhyme .rtext{
+    font-family:Georgia,serif;
+    font-style:italic;
+    font-size:13px;
+    line-height:1.6;
+    white-space:pre-line;
+    color:#3a3630;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  .card-actions{
+    display:flex;
+    gap:14px;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .card-actions button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    color:var(--wood);
+    text-decoration:underline;
+  }
+  .card-actions button.danger{color:#a4453a;}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:8px;
+    background:#e3ddc6;
+    color:var(--ink-soft);
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  .addbar{
+    display:flex;
+    justify-content:flex-end;
+    margin:18px 0 -4px;
+  }
+  .btn-primary{
+    font-family:inherit;
+    font-size:13.5px;
+    background:var(--ink);
+    color:#fbf7ec;
+    border:none;
+    padding:9px 16px;
+    border-radius:18px;
+    cursor:pointer;
+  }
+  .btn-primary:hover{opacity:.9;}
+
+  .databar{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    margin:14px 0 0;
+    font-size:12.5px;
+  }
+  .databar button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(30,27,22,0.45);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 14px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+
+  .modal{
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    max-width:560px;
+    width:100%;
+    padding:22px 22px 20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .modal h2{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .field input[type="text"], .field textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    background:#fffdf7;
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field textarea{min-height:64px;}
+  .checkrow{display:flex;flex-wrap:wrap;gap:12px;}
+  .checkrow label{
+    display:flex; align-items:center; gap:5px;
+    font-size:13px; color:var(--ink);
+  }
+  .inline2{display:flex; gap:10px; align-items:center;}
+  .inline2 input[type="text"]{flex:1;}
+
+  .tagpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:#e3ddc6;
+    border-radius:12px;
+    padding:3px 6px 3px 10px;
+    font-size:12.5px;
+  }
+  .pill button{
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);font-size:13px;line-height:1;
+    padding:0 2px;
+  }
+  .tag-add-row{display:flex; gap:6px;}
+  .tag-add-row input{flex:1;}
+  .tag-add-row button{
+    font-family:inherit;font-size:13px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:4px;
+    padding:6px 10px;
+    cursor:pointer;
+  }
+  .tag-suggest{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;
+  }
+  .tag-suggest span{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px dashed var(--paper-line);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tag-suggest span:hover{border-color:var(--wood);color:var(--ink);}
+
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .modal-actions .right{display:flex;gap:10px;}
+  .btn-ghost{
+    font-family:inherit;font-size:13.5px;
+    background:none;border:1px solid var(--paper-line);
+    border-radius:18px; padding:8px 15px; cursor:pointer;
+    color:var(--ink);
+  }
+  .btn-danger{
+    font-family:inherit;font-size:13px;
+    background:none;border:none;
+    color:#a4453a; text-decoration:underline;
+    cursor:pointer; padding:0;
+  }
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+  @media (max-width:520px){
+    .facet-row{flex-direction:column;align-items:flex-start;}
+    .facet-row .flabel{min-width:auto;padding-top:0;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="top">
+  <p class="kicker">офлайн-справочник для воспитателя</p>
+  <h1>Картотека спортивных игр</h1>
+  <p class="sub">26 подводящих упражнений и игр по правилам — баскетбол, футбол, бадминтон, городки, хоккей, настольный теннис (старшая и подготовительная группы)</p>
+</header>
+
+<div class="wrap">
+
+  <div class="drawer">
+    <div class="drawer-label">
+      <div class="pull"></div>
+      <input type="search" id="searchInput" placeholder="искать упражнение по названию…">
+    </div>
+
+    <details class="facets-drawer">
+      <summary>Фильтры <span id="activeFilterCount"></span></summary>
+      <div class="facets">
+        <div class="facet-row">
+          <span class="flabel">Группа</span>
+          <div class="chips" id="f-group"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Вид спорта</span>
+          <div class="chips" id="f-category"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Тип</span>
+          <div class="chips" id="f-propcat"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Направленность</span>
+          <div class="chips" id="f-quality"></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar">
+      <span class="count" id="countLabel"></span>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="reset" id="resetBtn">сбросить фильтры</button>
+        <select id="sortSelect">
+          <option value="name">сортировать: по названию</option>
+          <option value="group">сортировать: по возрасту</option>
+          <option value="category">сортировать: по виду спорта</option>
+          <option value="purpose">сортировать: по направленности</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="addbar">
+    <button class="btn-primary" id="addGameBtn">+ Добавить упражнение/игру</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">Ничего не найдено — попробуйте снять часть фильтров.</div>
+
+  <div class="databar">
+    <span id="storageStatus"></span>
+    <button id="exportBtn">экспорт резервной копии</button>
+    <button id="importBtn">импорт из файла</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+  </div>
+
+</div>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Новое упражнение / игра</h2>
+    <form id="gameForm">
+      <div class="field">
+        <label for="fName">Название</label>
+        <input type="text" id="fName" required>
+      </div>
+
+      <div class="field">
+        <label>Группа</label>
+        <div class="checkrow" id="fGroups"></div>
+      </div>
+
+      <div class="field">
+        <label for="fCategory">Вид спорта</label>
+        <input type="text" id="fCategory" list="categoryList" placeholder="например: Баскетбол, Футбол, Бадминтон, Городки, Хоккей, Настольный теннис…">
+        <datalist id="categoryList"></datalist>
+      </div>
+
+      <div class="field">
+        <label for="fPropCat">Тип</label>
+        <input type="text" id="fPropCat" list="propcatList" placeholder="Подводящее упражнение или Игра по правилам">
+        <datalist id="propcatList"></datalist>
+      </div>
+
+      <div class="field">
+        <label>Направленность (что развивает)</label>
+        <div class="tagpills" id="qualityPills"></div>
+        <div class="tag-add-row">
+          <input type="text" id="qualityInput" placeholder="ввести новое качество и нажать «Добавить»">
+          <button type="button" id="qualityAddBtn">Добавить</button>
+        </div>
+        <div class="tag-suggest" id="qualitySuggest"></div>
+      </div>
+
+      <div class="field">
+        <div class="checkrow">
+          <label><input type="checkbox" id="fProps"> есть предметы</label>
+        </div>
+      </div>
+
+      <div class="field" id="propsNoteField" style="display:none;">
+        <label for="fPropsNote">Какие предметы</label>
+        <input type="text" id="fPropsNote" placeholder="например: мяч, кубики, обруч">
+      </div>
+
+      <div class="field">
+        <label for="fDesc">Техника выполнения и дозировка</label>
+        <textarea id="fDesc" required placeholder="И.п. ..., само движение ..., дозировка/дистанция/повторы по возрастам."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="fOrgTip">Совет по организации (необязательно)</label>
+        <textarea id="fOrgTip" placeholder="Способ организации (фронтальный/поточный/посменный/групповой), размер подгрупп, техника безопасности, подготовка инвентаря."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" id="deleteGameBtn" style="display:none;">Удалить</button>
+        <div class="right">
+          <button type="button" class="btn-ghost" id="cancelFormBtn">Отмена</button>
+          <button type="submit" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const GROUP_COLORS = {
+  "младшая":"var(--c-mladshaya)",
+  "средняя":"var(--c-srednyaya)",
+  "старшая":"var(--c-starshaya)",
+  "подготовительная":"var(--c-podgot)"
+};
+const GROUP_ORDER = ["младшая","средняя","старшая","подготовительная"];
+
+const items = [
+
+{ name:"Ловля и передача мяча в парах", groups:["старшая","подготовительная"], category:"Баскетбол", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"мяч баскетбольный или средний, по одному на пару",
+  desc:"Дети стоят парами на расстоянии 1,5–2 м, передают мяч друг другу двумя руками от груди, стараясь не уронить и ловить мяч кистями, не прижимая к телу.",
+  orgTip:"Групповой способ — все пары действуют одновременно; расставить пары в шахматном порядке, чтобы траектории передач не пересекались." },
+
+{ name:"Ведение мяча на месте", groups:["старшая","подготовительная"], category:"Баскетбол", propCategory:"Подводящее упражнение", quality:["Координация движений","Ловкость"], props:true, propsNote:"мяч баскетбольный, по одному на ребёнка",
+  desc:"Отбивание мяча об пол одной рукой на месте, кисть накрывает мяч сверху, взгляд не опущен постоянно на мяч, а периодически поднимается вперёд.",
+  orgTip:"Фронтальный способ, каждому ребёнку — личное пространство около 1 м в каждую сторону, чтобы мячи не сталкивались." },
+
+{ name:"Ведение мяча в движении", groups:["подготовительная"], category:"Баскетбол", propCategory:"Подводящее упражнение", quality:["Координация движений","Ловкость","Быстрота"], props:true, propsNote:"мяч баскетбольный, по одному на ребёнка",
+  desc:"Ведение мяча одной рукой шагом, а затем медленным бегом по прямой, сохраняя контроль над мячом и не теряя направление движения.",
+  orgTip:"Поточный способ по размеченным дорожкам; дистанция небольшая (5–6 м), чтобы не терять контроль над техникой на скорости." },
+
+{ name:"Бросок мяча в кольцо двумя руками от груди", groups:["старшая","подготовительная"], category:"Баскетбол", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер"], props:true, propsNote:"мяч малый или средний, кольцо-мишень на регулируемой стойке",
+  desc:"И.п. — мяч у груди в обеих руках. Бросок в кольцо снизу вверх с небольшого расстояния (1,5–2 м), высота кольца регулируется под рост детей.",
+  orgTip:"Посменный способ по одному-двое у каждой стойки; для увеличения моторной плотности организовать 2–3 стойки одновременно." },
+
+{ name:"Баскетбол по упрощённым правилам", groups:["старшая","подготовительная"], category:"Баскетбол", propCategory:"Игра по правилам", quality:["Меткость и глазомер","Взаимодействие в команде","Быстрота"], props:true, propsNote:"мяч баскетбольный, кольца или обручи-мишени",
+  desc:"Две команды передают мяч друг другу и стараются забросить его в кольцо соперника; ведение мяча — только одной рукой, бежать с мячом в руках нельзя.",
+  orgTip:"Групповой способ, команды по 4–6 человек; для старшей группы — упрощённые правила без пробежек и фолов, для подготовительной — ближе к настоящим правилам." },
+
+{ name:"Отбивание мяча ногой друг другу в парах", groups:["старшая","подготовительная"], category:"Футбол", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"мяч футбольный, по одному на пару",
+  desc:"Дети стоят парами на расстоянии 2–3 м, точно передают мяч друг другу внутренней стороной стопы по земле.",
+  orgTip:"Групповой способ, пары одновременно по всему залу или площадке; следить, чтобы удар был несильным — контроль важнее силы." },
+
+{ name:"Ведение мяча между предметами", groups:["старшая","подготовительная"], category:"Футбол", propCategory:"Подводящее упражнение", quality:["Ловкость","Координация движений"], props:true, propsNote:"мяч футбольный, 4–5 кеглей или кубиков",
+  desc:"Ведение мяча ногой змейкой между расставленными предметами, не задевая их, с постоянным контролем мяча вблизи стопы.",
+  orgTip:"Поточный способ, дети стартуют по одному с интервалом; расстояние между предметами 1–1,5 м." },
+
+{ name:"Удар по воротам", groups:["старшая","подготовительная"], category:"Футбол", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Сила"], props:true, propsNote:"мяч футбольный, ворота или обозначенная цель",
+  desc:"Удар по неподвижному мячу с небольшого разбега в направлении ворот или обозначенной цели, стараясь попасть точно между стойками.",
+  orgTip:"Посменный способ по одному; за воротами не должно быть других детей — обязательна безопасная зона позади цели." },
+
+{ name:"Остановка катящегося мяча ногой", groups:["подготовительная"], category:"Футбол", propCategory:"Подводящее упражнение", quality:["Координация движений","Ловкость"], props:true, propsNote:"мяч футбольный",
+  desc:"Партнёр катит мяч, ребёнок останавливает его подошвой или внутренней стороной стопы, не давая укатиться дальше.",
+  orgTip:"Работа в парах, groupovой способ; вариант для более сильных детей — приём мяча с воздуха." },
+
+{ name:"Футбол по упрощённым правилам", groups:["старшая","подготовительная"], category:"Футбол", propCategory:"Игра по правилам", quality:["Взаимодействие в команде","Быстрота","Меткость и глазомер"], props:true, propsNote:"мяч футбольный, обозначенные или переносные ворота",
+  desc:"Две команды передают мяч ногами и стараются забить в ворота соперника; руками касаться мяча нельзя (кроме вратаря, если он есть).",
+  orgTip:"Групповой способ, команды по 4–6 человек, площадка ограничена ориентирами по периметру, чтобы мяч не укатывался далеко." },
+
+{ name:"Отбивание волана ракеткой на месте", groups:["старшая","подготовительная"], category:"Бадминтон", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетка и волан, по комплекту на ребёнка",
+  desc:"Ребёнок подбрасывает волан и отбивает его ракеткой вверх, стараясь удержать волан в воздухе как можно дольше подряд.",
+  orgTip:"Фронтальный способ, каждому ребёнку достаточно личного пространства около 1,5 м, чтобы волан и ракетка не мешали соседям." },
+
+{ name:"Отбивание волана в заданном направлении", groups:["старшая","подготовительная"], category:"Бадминтон", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер"], props:true, propsNote:"ракетка и волан",
+  desc:"Ребёнок отбивает волан ракеткой не просто вверх, а стараясь направить его в определённую сторону или к обозначенной цели на полу.",
+  orgTip:"Посменный или фронтальный способ; можно организовать как игру «попади в обруч» с воланом вместо мяча." },
+
+{ name:"Игра в бадминтон с педагогом или партнёром", groups:["старшая","подготовительная"], category:"Бадминтон", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетки и волан на двоих",
+  desc:"Перебрасывание волана ракетками друг другу через небольшое расстояние без сетки, стараясь не дать волану упасть.",
+  orgTip:"Работа в парах или с педагогом по очереди — на группу обычно хватает 2–3 комплектов ракеток, поэтому организовать сменами." },
+
+{ name:"Бадминтон через сетку по упрощённым правилам", groups:["подготовительная"], category:"Бадминтон", propCategory:"Игра по правилам", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетки, волан, сетка на стойках",
+  desc:"Игра парами через невысоко натянутую сетку: перебросить волан на сторону соперника так, чтобы он не смог его отбить.",
+  orgTip:"Посменный способ, одна-две сетки на группу; пока одна пара играет, остальные отрабатывают отбивание волана на месте." },
+
+{ name:"Бросание биты сбоку", groups:["старшая","подготовительная"], category:"Городки", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Сила"], props:true, propsNote:"городошная бита (облегчённая)",
+  desc:"И.п. — стоя боком к цели, бита в отведённой руке. Бросок сбоку с разворотом корпуса, стараясь придать бите вращение вдоль своей оси.",
+  orgTip:"Посменный способ по одному, обязательна безопасная зона — за спиной и сбоку от бросающего не должно быть детей." },
+
+{ name:"Бросание биты от плеча", groups:["подготовительная"], category:"Городки", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Сила"], props:true, propsNote:"городошная бита (облегчённая)",
+  desc:"И.п. — бита у плеча. Бросок вперёд от плеча с небольшим шагом, стараясь направить биту точно на фигуру из городков.",
+  orgTip:"Посменный способ; вводится после уверенного освоения броска сбоку как второй, более сложный способ." },
+
+{ name:"Знакомство с фигурами городков", groups:["старшая","подготовительная"], category:"Городки", propCategory:"Подводящее упражнение", quality:["Внимание","Кругозор"], props:true, propsNote:"городки (чурки), схемы фигур",
+  desc:"Педагог показывает и вместе с детьми выкладывает простые фигуры из городков («пушка», «звезда», «колодец» и другие), проговаривая их названия.",
+  orgTip:"Хорошо проводить как отдельный познавательный момент перед первой игрой в городки — прежде чем бросать биту, важно понимать, что именно нужно выбить." },
+
+{ name:"Городки по упрощённым правилам", groups:["старшая","подготовительная"], category:"Городки", propCategory:"Игра по правилам", quality:["Меткость и глазомер","Сила"], props:true, propsNote:"биты, городки, размеченная площадка (город и кон)",
+  desc:"Дети по очереди выбивают фигуру из городков за пределы города, бросая биту с обозначенной черты (кона), с ограниченным числом бросков на фигуру.",
+  orgTip:"Посменный способ по одному или по двое; для старшей группы — упрощённые фигуры и близкий кон, для подготовительной — дальше и больше фигур." },
+
+{ name:"Ведение шайбы клюшкой по прямой", groups:["подготовительная"], category:"Хоккей", propCategory:"Подводящее упражнение", quality:["Координация движений","Ловкость"], props:true, propsNote:"клюшка (облегчённая), шайба или плоский диск",
+  desc:"Ведение шайбы клюшкой по прямой линии, стараясь удерживать её близко к клюшке и не терять контроль на ходу.",
+  orgTip:"Поточный способ на ровной твёрдой поверхности (не на снегу с настом); дистанция небольшая, 5–8 м." },
+
+{ name:"Прокатывание шайбы друг другу", groups:["подготовительная"], category:"Хоккей", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"клюшка, шайба",
+  desc:"Дети стоят парами на расстоянии 2–3 м, точно прокатывают шайбу клюшкой друг другу по поверхности.",
+  orgTip:"Групповой способ, все пары одновременно; расставить пары так, чтобы траектории шайб не пересекались." },
+
+{ name:"Забрасывание шайбы в ворота", groups:["подготовительная"], category:"Хоккей", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер"], props:true, propsNote:"клюшка, шайба, небольшие переносные ворота",
+  desc:"Удар или точный толчок шайбы клюшкой в направлении небольших ворот с близкого расстояния.",
+  orgTip:"Посменный способ по одному; за воротами обязательна свободная безопасная зона." },
+
+{ name:"Хоккей по упрощённым правилам", groups:["подготовительная"], category:"Хоккей", propCategory:"Игра по правилам", quality:["Взаимодействие в команде","Меткость и глазомер","Быстрота"], props:true, propsNote:"клюшки, шайба, переносные ворота",
+  desc:"Две небольшие команды передают шайбу клюшками и стараются забросить её в ворота соперника на ограниченной площадке.",
+  orgTip:"Групповой способ, команды по 3–4 человека; проводится на ровной твёрдой площадке или в спортивном зале облегчённым инвентарём, не обязательно на льду." },
+
+{ name:"Подача мяча ракеткой через стол", groups:["подготовительная"], category:"Настольный теннис", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетка, мяч для настольного тенниса, стол",
+  desc:"Ребёнок подаёт мяч ракеткой так, чтобы он перелетел через сетку на другую половину стола, отработка мягкого контролируемого удара.",
+  orgTip:"Посменный способ парами у стола; при отсутствии стола можно тренироваться на полу через натянутый невысокий шнур." },
+
+{ name:"Удержание мяча на ракетке", groups:["подготовительная"], category:"Настольный теннис", propCategory:"Подводящее упражнение", quality:["Координация движений","Внимание"], props:true, propsNote:"ракетка, мяч для настольного тенниса",
+  desc:"Ребёнок удерживает мяч на ракетке в статичном положении, а затем — во время ходьбы, стараясь не уронить мяч.",
+  orgTip:"Фронтальный способ, хорошее упражнение на развитие концентрации внимания и мелкой моторики кисти." },
+
+{ name:"Отбивание мяча от стены ракеткой", groups:["подготовительная"], category:"Настольный теннис", propCategory:"Подводящее упражнение", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетка, мяч для настольного тенниса",
+  desc:"Ребёнок отбивает мяч ракеткой в стену и ловит его после отскока или отбивает повторно, стараясь удержать серию ударов.",
+  orgTip:"Посменный способ у стены; расстояние от стены 1,5–2 м, между детьми — не менее 1 м во избежание столкновений мячей." },
+
+{ name:"Игра в настольный теннис по упрощённым правилам", groups:["подготовительная"], category:"Настольный теннис", propCategory:"Игра по правилам", quality:["Меткость и глазомер","Координация движений"], props:true, propsNote:"ракетки, мяч, стол с сеткой",
+  desc:"Игра парами через стол: перебросить мяч на сторону соперника так, чтобы он не успел его отбить, с упрощённым правилом подачи.",
+  orgTip:"Посменный способ, один-два стола на группу; пока пара играет, остальные дети отрабатывают удержание мяча на ракетке или отбивание от стены." }
+
+];
+
+</script>
+<script>
+// ---------- extra prop categories available even without a pre-built complex yet ----------
+const EXTRA_CATEGORY_SUGGESTIONS = ["Подводящее упражнение","Игра по правилам"];
+
+// ---------- id assignment ----------
+items.forEach((g,i)=>{ g.id = 'b'+String(i+1).padStart(2,'0'); });
+
+// ---------- local storage layer ----------
+const LS_KEYS = { overrides:'sportgames_overrides_v1', custom:'sportgames_custom_v1', deleted:'sportgames_deleted_v1' };
+let storageOK = true;
+
+function lsGet(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ storageOK = false; return fallback; }
+}
+function lsSet(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ storageOK = false; return false; }
+}
+
+let overrides = lsGet(LS_KEYS.overrides, {});
+let customGames = lsGet(LS_KEYS.custom, []);
+let deletedIds = lsGet(LS_KEYS.deleted, []);
+
+function getAllGames(){
+  const base = items
+    .filter(g=>!deletedIds.includes(g.id))
+    .map(g=> Object.assign({}, g, overrides[g.id]||{}));
+  const custom = customGames.filter(g=>!deletedIds.includes(g.id));
+  return base.concat(custom);
+}
+
+function persistAll(){
+  lsSet(LS_KEYS.overrides, overrides);
+  lsSet(LS_KEYS.custom, customGames);
+  lsSet(LS_KEYS.deleted, deletedIds);
+  updateStorageStatus();
+}
+
+function updateStorageStatus(){
+  const el = document.getElementById('storageStatus');
+  if(!el) return;
+  el.textContent = storageOK ? '' : 'хранилище браузера недоступно — делайте экспорт после изменений';
+}
+
+// ---------- facet state ----------
+const allGroups = GROUP_ORDER;
+const state = { search:"", groups:new Set(), categories:new Set(), propCategories:new Set(), qualities:new Set(), sort:"name" };
+
+function buildChips(containerId, values, dataAttr, onToggle, labelFn, activeSet){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  values.forEach(v=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = labelFn ? labelFn(v) : v;
+    if(dataAttr) chip.setAttribute('data-'+dataAttr, v);
+    if(activeSet && activeSet.has(v)) chip.classList.add('active');
+    chip.addEventListener('click', ()=>{
+      chip.classList.toggle('active');
+      onToggle(v, chip.classList.contains('active'));
+      render();
+    });
+    el.appendChild(chip);
+  });
+}
+
+function refreshFacetChips(){
+  const all = getAllGames();
+  const categories = [...new Set(all.map(g=>g.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const propCats = [...new Set(all.map(g=>g.propCategory).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const qualities = [...new Set(all.flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+
+  buildChips('f-group', allGroups, 'group', (v,on)=>{ on? state.groups.add(v): state.groups.delete(v); }, null, state.groups);
+  buildChips('f-category', categories, null, (v,on)=>{ on? state.categories.add(v): state.categories.delete(v); }, null, state.categories);
+  buildChips('f-propcat', propCats, null, (v,on)=>{ on? state.propCategories.add(v): state.propCategories.delete(v); }, null, state.propCategories);
+  buildChips('f-quality', qualities, null, (v,on)=>{ on? state.qualities.add(v): state.qualities.delete(v); }, null, state.qualities);
+
+  const catList = document.getElementById('categoryList');
+  catList.innerHTML = categories.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">`).join('');
+  const propcatList = document.getElementById('propcatList');
+  const allPropOptions = [...new Set(propCats.concat(EXTRA_CATEGORY_SUGGESTIONS))].sort((a,b)=>a.localeCompare(b,'ru'));
+  propcatList.innerHTML = allPropOptions.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">`).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('sortSelect').addEventListener('change', e=>{ state.sort = e.target.value; render(); });
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.search=""; state.groups.clear(); state.categories.clear(); state.propCategories.clear(); state.qualities.clear(); state.sort="name";
+  document.getElementById('searchInput').value="";
+  document.getElementById('sortSelect').value="name";
+  refreshFacetChips();
+  render();
+});
+
+function matches(g){
+  if(state.search && !g.name.toLowerCase().includes(state.search)) return false;
+  if(state.groups.size && !g.groups.some(x=>state.groups.has(x))) return false;
+  if(state.categories.size && !state.categories.has(g.category)) return false;
+  if(state.propCategories.size && !state.propCategories.has(g.propCategory)) return false;
+  if(state.qualities.size && !g.quality.some(x=>state.qualities.has(x))) return false;
+  return true;
+}
+
+function sortGames(list){
+  const copy=[...list];
+  if(state.sort==='name') copy.sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='group') copy.sort((a,b)=> GROUP_ORDER.indexOf(a.groups[0]) - GROUP_ORDER.indexOf(b.groups[0]) || a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='category') copy.sort((a,b)=> (a.category||'').localeCompare(b.category||'','ru') || a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='purpose') copy.sort((a,b)=> (a.quality[0]||'').localeCompare(b.quality[0]||'','ru') || a.name.localeCompare(b.name,'ru'));
+  return copy;
+}
+
+function render(){
+  const all = getAllGames();
+  const filtered = sortGames(all.filter(matches));
+  const grid = document.getElementById('grid');
+  grid.innerHTML='';
+  document.getElementById('countLabel').textContent = `показано ${filtered.length} из ${all.length}`;
+  const activeCount = state.groups.size + state.categories.size + state.propCategories.size + state.qualities.size;
+  document.getElementById('activeFilterCount').textContent = activeCount ? String(activeCount) : '';
+  document.getElementById('emptyMsg').style.display = filtered.length? 'none':'block';
+
+  filtered.forEach((g, i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+
+    const tab = document.createElement('div');
+    tab.className = 'tab ' + g.groups[0];
+    card.appendChild(tab);
+
+    const no = document.createElement('div');
+    no.className='no';
+    no.textContent = '№ ' + String(i+1).padStart(2,'0');
+    if(g.id.startsWith('c')){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='добавлено вами'; no.appendChild(b);
+    } else if(overrides[g.id]){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='изменено'; no.appendChild(b);
+    }
+    card.appendChild(no);
+
+    const h3 = document.createElement('h3');
+    h3.textContent = g.name;
+    card.appendChild(h3);
+
+    const rule = document.createElement('div');
+    rule.className='rule';
+    card.appendChild(rule);
+
+    const glist = document.createElement('div');
+    glist.className='groups-list';
+    g.groups.forEach(gr=>{
+      const lab = document.createElement('span');
+      lab.className='glabel';
+      lab.style.background = GROUP_COLORS[gr] || '#8b5e3c';
+      lab.textContent = gr;
+      glist.appendChild(lab);
+    });
+    if(g.category){
+      const cat = document.createElement('span');
+      cat.className='glabel';
+      cat.style.background = '#8b5e3c';
+      cat.textContent = g.category;
+      glist.appendChild(cat);
+    }
+    if(g.propCategory){
+      const pc = document.createElement('span');
+      pc.className='glabel';
+      pc.style.background = '#6b6154';
+      pc.textContent = g.propCategory;
+      glist.appendChild(pc);
+    }
+    card.appendChild(glist);
+
+    const qwrap = document.createElement('div');
+    qwrap.className='qtags';
+    g.quality.forEach(q=>{
+      const t=document.createElement('span');
+      t.className='qtag';
+      t.textContent=q;
+      qwrap.appendChild(t);
+    });
+    card.appendChild(qwrap);
+
+    if(g.propsNote){
+      const meta = document.createElement('p');
+      meta.className='meta-line';
+      meta.innerHTML = `<b>Инвентарь:</b> ${g.propsNote}`;
+      card.appendChild(meta);
+    }
+
+    const details = document.createElement('details');
+    details.className='desc';
+    const summary = document.createElement('summary');
+    summary.textContent = g.exercises ? 'Комплекс упражнений (' + g.exercises.length + ')' : 'Техника выполнения';
+    details.appendChild(summary);
+
+    if(g.exercises && g.exercises.length){
+      const ol = document.createElement('ol');
+      ol.style.margin = '8px 0 0';
+      ol.style.paddingLeft = '20px';
+      g.exercises.forEach(ex=>{
+        const li = document.createElement('li');
+        li.style.marginBottom = '8px';
+        li.style.fontSize = '13.5px';
+        li.style.lineHeight = '1.5';
+        const strong = document.createElement('strong');
+        strong.textContent = ex.title + '. ';
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(ex.text));
+        ol.appendChild(li);
+      });
+      details.appendChild(ol);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = g.desc || '';
+      details.appendChild(p);
+    }
+    if(g.orgTip){
+      const rblock = document.createElement('div');
+      rblock.className='rhyme';
+      const rlabel = document.createElement('span');
+      rlabel.className='rlabel';
+      rlabel.textContent = 'Совет по организации:';
+      const rtext = document.createElement('div');
+      rtext.className='rtext';
+      rtext.style.fontStyle = 'normal';
+      rtext.textContent = g.orgTip;
+      rblock.appendChild(rlabel);
+      rblock.appendChild(rtext);
+      details.appendChild(rblock);
+    }
+    card.appendChild(details);
+
+    const actions = document.createElement('div');
+    actions.className='card-actions';
+    const editBtn = document.createElement('button');
+    editBtn.type='button'; editBtn.textContent='Изменить';
+    editBtn.addEventListener('click', ()=> openForm(g));
+    actions.appendChild(editBtn);
+    const delBtn = document.createElement('button');
+    delBtn.type='button'; delBtn.textContent='Удалить'; delBtn.className='danger';
+    delBtn.addEventListener('click', ()=>{
+      if(confirm(`Удалить «${g.name}»?`)){
+        deletedIds.push(g.id);
+        persistAll();
+        refreshFacetChips();
+        render();
+      }
+    });
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+
+    grid.appendChild(card);
+  });
+}
+
+// ---------- modal form ----------
+const overlay = document.getElementById('modalOverlay');
+const formEl = document.getElementById('gameForm');
+let editingId = null;
+let formQuality = [];
+
+function fillGroupCheckboxes(selected){
+  const wrap = document.getElementById('fGroups');
+  wrap.innerHTML='';
+  GROUP_ORDER.forEach(gr=>{
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type='checkbox'; cb.value=gr; cb.checked = selected.includes(gr);
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' '+gr));
+    wrap.appendChild(label);
+  });
+}
+
+function renderTagPills(pillsId, values, onRemove){
+  const wrap = document.getElementById(pillsId);
+  wrap.innerHTML='';
+  values.forEach(v=>{
+    const pill = document.createElement('span');
+    pill.className='pill';
+    pill.textContent = v;
+    const rm = document.createElement('button');
+    rm.type='button'; rm.textContent='×';
+    rm.addEventListener('click', ()=>{ onRemove(v); });
+    pill.appendChild(rm);
+    wrap.appendChild(pill);
+  });
+}
+
+function renderTagSuggestions(suggestId, all, current, onAdd){
+  const wrap = document.getElementById(suggestId);
+  wrap.innerHTML='';
+  all.filter(v=>!current.includes(v)).forEach(v=>{
+    const s = document.createElement('span');
+    s.textContent = '+ ' + v;
+    s.addEventListener('click', ()=> onAdd(v));
+    wrap.appendChild(s);
+  });
+}
+
+function refreshQualityUI(){
+  const all = [...new Set(getAllGames().flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+  renderTagPills('qualityPills', formQuality, v=>{ formQuality = formQuality.filter(x=>x!==v); refreshQualityUI(); });
+  renderTagSuggestions('qualitySuggest', all, formQuality, v=>{ formQuality.push(v); refreshQualityUI(); });
+}
+
+document.getElementById('qualityAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('qualityInput');
+  const v = inp.value.trim();
+  if(v && !formQuality.includes(v)){ formQuality.push(v); inp.value=''; refreshQualityUI(); }
+});
+document.getElementById('qualityInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('qualityAddBtn').click(); }
+});
+
+document.getElementById('fProps').addEventListener('change', e=>{
+  document.getElementById('propsNoteField').style.display = e.target.checked ? 'block' : 'none';
+});
+
+function openForm(game){
+  editingId = game ? game.id : null;
+  document.getElementById('modalTitle').textContent = game ? 'Изменить запись' : 'Новая запись';
+  document.getElementById('fName').value = game ? game.name : '';
+  fillGroupCheckboxes(game ? game.groups : []);
+  document.getElementById('fCategory').value = game ? (game.category||'') : '';
+  document.getElementById('fPropCat').value = game ? (game.propCategory||'') : '';
+  formQuality = game ? [...game.quality] : [];
+  refreshQualityUI();
+  document.getElementById('fProps').checked = game ? !!game.props : false;
+  document.getElementById('propsNoteField').style.display = (game && game.props) ? 'block' : 'none';
+  document.getElementById('fPropsNote').value = (game && game.propsNote) ? game.propsNote : '';
+  // for editing a structured complex, flatten exercises into the plain-text textarea for editing;
+  // saving will overwrite it as plain desc (structured per-exercise editing isn't available in the form)
+  if(game && game.exercises && game.exercises.length){
+    document.getElementById('fDesc').value = game.exercises.map((ex,idx)=> (idx+1)+'. '+ex.title+' — '+ex.text).join('\n');
+  } else {
+    document.getElementById('fDesc').value = game ? (game.desc||'') : '';
+  }
+  document.getElementById('fOrgTip').value = (game && game.orgTip) ? game.orgTip : '';
+  document.getElementById('deleteGameBtn').style.display = game ? 'inline' : 'none';
+  overlay.classList.add('open');
+  document.getElementById('fName').focus();
+}
+function closeForm(){
+  overlay.classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('addGameBtn').addEventListener('click', ()=> openForm(null));
+document.getElementById('cancelFormBtn').addEventListener('click', closeForm);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeForm(); });
+
+document.getElementById('deleteGameBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  if(confirm('Удалить эту запись из картотеки?')){
+    deletedIds.push(editingId);
+    persistAll();
+    refreshFacetChips();
+    render();
+    closeForm();
+  }
+});
+
+formEl.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('fName').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  if(!name || !desc){ return; }
+  const groups = [...document.querySelectorAll('#fGroups input:checked')].map(cb=>cb.value);
+  const props = document.getElementById('fProps').checked;
+  const type = 'ОРУ';
+  const fields = {
+    name,
+    type,
+    groups: groups.length? groups : [GROUP_ORDER[0]],
+    category: document.getElementById('fCategory').value.trim() || 'Без категории',
+    propCategory: document.getElementById('fPropCat').value.trim() || 'Подводящее упражнение',
+    quality: formQuality.length? formQuality : ['Без указания'],
+    props,
+    propsNote: props ? (document.getElementById('fPropsNote').value.trim() || null) : null,
+    desc,
+    orgTip: document.getElementById('fOrgTip').value.trim() || null,
+    exercises: null
+  };
+
+  if(editingId){
+    if(editingId.startsWith('c')){
+      const idx = customGames.findIndex(g=>g.id===editingId);
+      if(idx>-1) customGames[idx] = Object.assign({id:editingId}, fields);
+    } else {
+      overrides[editingId] = fields;
+    }
+  } else {
+    const newId = 'c' + Date.now();
+    customGames.push(Object.assign({id:newId}, fields));
+  }
+
+  persistAll();
+  refreshFacetChips();
+  render();
+  closeForm();
+});
+
+// ---------- export / import ----------
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const payload = { overrides, customGames, deletedIds, exportedAt: new Date().toISOString() };
+  const json = JSON.stringify(payload, null, 2);
+  let handled = false;
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        await downloads.save({ filename: 'oruovd-backup.json', data: json });
+        handled = true;
+      }
+    }
+  }catch(err){ /* fall through */ }
+  if(!handled){
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'oruovd-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!confirm('Заменить текущие изменения содержимым файла резервной копии?')) return;
+      overrides = data.overrides || {};
+      customGames = data.customGames || [];
+      deletedIds = data.deletedIds || [];
+      persistAll();
+      refreshFacetChips();
+      render();
+    }catch(err){
+      alert('Не удалось прочитать файл — проверьте, что это резервная копия картотеки (.json).');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---------- init ----------
+updateStorageStatus();
+refreshFacetChips();
+render();
+</script>
+
+</body>
+</html>

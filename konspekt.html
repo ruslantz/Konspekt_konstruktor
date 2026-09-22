@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Конструктор конспекта занятия</title>
+<style>
+  :root{
+    --paper: #efe9da;
+    --paper-line: #d9cfb8;
+    --ink: #2a2723;
+    --ink-soft: #6b6154;
+    --wood: #8b5e3c;
+    --c-mladshaya: #c1614f;
+    --c-srednyaya: #b98b2e;
+    --c-starshaya: #3e7a6e;
+    --c-podgot: #4b5a82;
+    --card-bg: #f8f4e9;
+    --shadow: 0 1px 0 rgba(42,39,35,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f5efe0 0%, var(--paper) 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  header.top{
+    padding:34px 20px 18px;
+    text-align:center;
+    border-bottom:1px solid var(--paper-line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  }
+
+  header.top .kicker{
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+
+  header.top h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:400;
+    font-size:clamp(26px,4.2vw,38px);
+    margin:0 0 8px;
+    letter-spacing:.01em;
+  }
+
+  header.top p.sub{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+
+  .drawer{
+    margin-top:22px;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    box-shadow:0 2px 10px rgba(42,39,35,0.06);
+    overflow:hidden;
+  }
+
+  .drawer-label{
+    background:linear-gradient(180deg,#efe4c9,#e6d9b8);
+    border-bottom:1px solid var(--paper-line);
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .drawer-label .pull{
+    width:34px;height:8px;border-radius:6px;
+    background:var(--wood);
+    opacity:.55;
+  }
+
+  .drawer-label input[type="search"]{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:Georgia,serif;
+    font-size:17px;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px;
+  }
+  .drawer-label input[type="search"]::placeholder{color:#8a7f6c; font-style:italic;}
+
+  .facets{
+    padding:14px 16px 6px;
+  }
+
+  .facets-drawer{
+    border-bottom:1px solid var(--paper-line);
+  }
+  .facets-drawer summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 16px;
+    font-size:14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    user-select:none;
+  }
+  .facets-drawer summary::-webkit-details-marker{display:none;}
+  .facets-drawer summary:before{
+    content:"▸";
+    color:var(--wood);
+    font-size:12px;
+  }
+  .facets-drawer[open] summary:before{content:"▾";}
+  #activeFilterCount{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#e9e1cc;
+    padding:1px 8px;
+    border-radius:10px;
+  }
+  #activeFilterCount:empty{display:none;}
+
+  .facet-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:8px 10px;
+    padding:8px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .facet-row:last-child{border-bottom:none;}
+
+  .facet-row .flabel{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    min-width:96px;
+    padding-top:5px;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+
+  .chip{
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+    font-size:13px;
+    padding:5px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    user-select:none;
+    transition:background .12s, border-color .12s, color .12s;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:#bcae8e;}
+  .chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fbf7ec;
+  }
+  .chip.active[data-group="младшая"]{background:var(--c-mladshaya);border-color:var(--c-mladshaya);}
+  .chip.active[data-group="средняя"]{background:var(--c-srednyaya);border-color:var(--c-srednyaya);}
+  .chip.active[data-group="старшая"]{background:var(--c-starshaya);border-color:var(--c-starshaya);}
+  .chip.active[data-group="подготовительная"]{background:var(--c-podgot);border-color:var(--c-podgot);}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:12px 16px 16px;
+  }
+
+  .toolbar .count{font-size:13px;color:var(--ink-soft);}
+  .toolbar .reset{
+    font-size:13px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  select#sortSelect{
+    font-family:inherit;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:14px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+  }
+
+  .grid{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+  }
+
+  .card .tab{
+    position:absolute;
+    top:-1px;
+    left:16px;
+    height:6px;
+    width:44px;
+    border-radius:0 0 3px 3px;
+  }
+  .tab.младшая{background:var(--c-mladshaya);}
+  .tab.средняя{background:var(--c-srednyaya);}
+  .tab.старшая{background:var(--c-starshaya);}
+  .tab.подготовительная{background:var(--c-podgot);}
+
+  .card .no{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  .card h3{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:19px;
+    margin:6px 0 8px;
+    line-height:1.25;
+  }
+
+  .card .rule{
+    border-top:1px dashed var(--paper-line);
+    margin:0 0 10px;
+  }
+
+  .meta-line{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+    line-height:1.5;
+  }
+  .meta-line b{color:var(--ink);font-weight:600;}
+
+  .groups-list{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 10px;}
+  .glabel{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    color:#fff;
+  }
+
+  .qtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .qtag{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    background:#e9e1cc;
+    color:var(--ink);
+  }
+
+  details.desc{margin-top:2px;}
+  details.desc summary{
+    cursor:pointer;
+    font-size:13px;
+    color:var(--wood);
+    list-style:none;
+  }
+  details.desc summary::-webkit-details-marker{display:none;}
+  details.desc summary:before{content:"▸ ";}
+  details.desc[open] summary:before{content:"▾ ";}
+  details.desc p{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a3630;
+    margin:8px 0 0;
+  }
+
+  .rhyme{
+    margin:10px 0 0;
+    padding:9px 12px;
+    background:#f1e9d3;
+    border-left:2px solid var(--wood);
+    border-radius:0 2px 2px 0;
+  }
+  .rhyme .rlabel{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .rhyme .rtext{
+    font-family:Georgia,serif;
+    font-style:italic;
+    font-size:13px;
+    line-height:1.6;
+    white-space:pre-line;
+    color:#3a3630;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  .card-actions{
+    display:flex;
+    gap:14px;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .card-actions button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    color:var(--wood);
+    text-decoration:underline;
+  }
+  .card-actions button.danger{color:#a4453a;}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:8px;
+    background:#e3ddc6;
+    color:var(--ink-soft);
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  .addbar{
+    display:flex;
+    justify-content:flex-end;
+    margin:18px 0 -4px;
+  }
+  .btn-primary{
+    font-family:inherit;
+    font-size:13.5px;
+    background:var(--ink);
+    color:#fbf7ec;
+    border:none;
+    padding:9px 16px;
+    border-radius:18px;
+    cursor:pointer;
+  }
+  .btn-primary:hover{opacity:.9;}
+
+  .databar{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    margin:14px 0 0;
+    font-size:12.5px;
+  }
+  .databar button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(30,27,22,0.45);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 14px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+
+  .modal{
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    max-width:560px;
+    width:100%;
+    padding:22px 22px 20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .modal h2{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .field input[type="text"], .field textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    background:#fffdf7;
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field textarea{min-height:64px;}
+  .checkrow{display:flex;flex-wrap:wrap;gap:12px;}
+  .checkrow label{
+    display:flex; align-items:center; gap:5px;
+    font-size:13px; color:var(--ink);
+  }
+  .inline2{display:flex; gap:10px; align-items:center;}
+  .inline2 input[type="text"]{flex:1;}
+
+  .tagpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:#e3ddc6;
+    border-radius:12px;
+    padding:3px 6px 3px 10px;
+    font-size:12.5px;
+  }
+  .pill button{
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);font-size:13px;line-height:1;
+    padding:0 2px;
+  }
+  .tag-add-row{display:flex; gap:6px;}
+  .tag-add-row input{flex:1;}
+  .tag-add-row button{
+    font-family:inherit;font-size:13px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:4px;
+    padding:6px 10px;
+    cursor:pointer;
+  }
+  .tag-suggest{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;
+  }
+  .tag-suggest span{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px dashed var(--paper-line);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tag-suggest span:hover{border-color:var(--wood);color:var(--ink);}
+
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .modal-actions .right{display:flex;gap:10px;}
+  .btn-ghost{
+    font-family:inherit;font-size:13.5px;
+    background:none;border:1px solid var(--paper-line);
+    border-radius:18px; padding:8px 15px; cursor:pointer;
+    color:var(--ink);
+  }
+  .btn-danger{
+    font-family:inherit;font-size:13px;
+    background:none;border:none;
+    color:#a4453a; text-decoration:underline;
+    cursor:pointer; padding:0;
+  }
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+  @media (max-width:520px){
+    .facet-row{flex-direction:column;align-items:flex-start;}
+    .facet-row .flabel{min-width:auto;padding-top:0;}
+  }
+
+  .ctrl-block{
+    padding:16px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .ctrl-block:last-child{border-bottom:none;}
+  .ctrl-label{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  .hint-text{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:10px 0 0;
+    line-height:1.5;
+  }
+  .mode-chip{ font-size:13.5px; }
+
+  #generateBtn{ width:100%; padding:12px; font-size:15px; }
+
+  .variant{
+    margin-top:22px;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    box-shadow:0 2px 10px rgba(42,39,35,0.06);
+    overflow:hidden;
+  }
+  .variant-head{
+    background:linear-gradient(180deg,#efe4c9,#e6d9b8);
+    border-bottom:1px solid var(--paper-line);
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .variant-head h2{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:19px;
+    margin:0;
+  }
+  .variant-actions{ display:flex; gap:10px; }
+  .variant-actions button{
+    font-family:inherit;
+    font-size:12.5px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:14px;
+    padding:6px 12px;
+    cursor:pointer;
+  }
+  .variant-actions button:hover{border-color:var(--wood);}
+
+  .part{
+    padding:16px 18px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .part:last-child{border-bottom:none;}
+  .part-label{
+    font-size:11.5px;
+    letter-spacing:.03em;
+    color:#fff;
+    background:var(--wood);
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:10px;
+    margin-bottom:8px;
+  }
+  .part-item{
+    margin:6px 0 0;
+  }
+  .part-item .pname{
+    font-family:Georgia,serif;
+    font-size:15.5px;
+    margin:0 0 3px;
+  }
+  .part-item .pmeta{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+  }
+  .part-item .pdesc{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a3630;
+    margin:0;
+  }
+  .part-item details{ margin-top:4px; }
+  .part-item summary{
+    cursor:pointer;
+    font-size:12.5px;
+    color:var(--wood);
+    list-style:none;
+  }
+  .part-item summary::-webkit-details-marker{display:none;}
+  .part-item summary:before{content:"▸ ";}
+  .part-item details[open] summary:before{content:"▾ ";}
+  .part-item ol{ margin:8px 0 0; padding-left:18px; }
+  .part-item ol li{ font-size:12.5px; line-height:1.5; margin-bottom:5px; }
+  .part-empty{
+    font-size:13px;
+    color:#a4453a;
+    font-style:italic;
+  }
+</style>
+
+</head>
+<body>
+
+<header class="top">
+  <p class="kicker">офлайн-инструмент для воспитателя</p>
+  <h1>Конструктор конспекта занятия</h1>
+  <p class="sub">Собирает конспект физкультурного занятия из картотек игр, ОРУ, ОВД и строевых упражнений — по перспективному плану или по нужным качествам, с вариантами на выбор</p>
+  <p class="sub" id="syncStatus" style="font-size:12px; color:var(--ink-soft);"></p>
+</header>
+
+<div class="wrap">
+
+  <div class="drawer">
+    <div class="ctrl-block">
+      <div class="ctrl-label">1. Возрастная группа</div>
+      <div class="chips" id="groupChips"></div>
+    </div>
+
+    <div class="ctrl-block">
+      <div class="ctrl-label">2. Как подбирать содержание</div>
+      <div class="chips" id="modeChips">
+        <div class="chip mode-chip active" data-mode="period">По периоду (неделе)</div>
+        <div class="chip mode-chip" data-mode="focus">По направленности (какие качества подтянуть)</div>
+      </div>
+    </div>
+
+    <div class="ctrl-block" id="periodBlock">
+      <div class="ctrl-label">Учебный год (перспективный план)</div>
+      <div class="chips" id="yearChips"></div>
+
+      <div class="ctrl-label" style="margin-top:14px;">Месяц</div>
+      <div class="chips" id="monthChips"></div>
+
+      <div class="ctrl-label" style="margin-top:14px;">Неделя месяца</div>
+      <div class="chips" id="weekChips"></div>
+      <p class="hint-text">Содержание (ОРУ, основные движения, строевые упражнения, игры) берётся из перспективного плана для выбранной группы и месяца. Недели 1–2 внутри месяца — более простой вариант (ОРУ без предметов, движения без усложнений); недели 3–4 — усложнённый вариант (ОРУ с предметами месяца, более сложная техника движений). Если перспективный план изменится — измените данные плана в этом файле, и подбор для всех занятий обновится автоматически.</p>
+    </div>
+
+    <div class="ctrl-block" id="focusBlock" style="display:none;">
+      <div class="ctrl-label">Какие качества подтянуть (выберите 1–3)</div>
+      <div class="chips" id="focusChips"></div>
+      <p class="hint-text">Подбираются виды движений и игры, направленные на выбранные качества; ОРУ и строевое упражнение берутся из общего пула для группы (без узкой привязки к качеству).</p>
+    </div>
+
+    <div class="ctrl-block">
+      <button class="btn-primary" id="generateBtn">Собрать варианты занятия</button>
+    </div>
+  </div>
+
+  <div id="variantsWrap"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">Выберите группу и параметры выше, затем нажмите «Собрать варианты занятия».</div>
+
+</div>
+
+<script>
+const GAMES = [
+{ name:"Догони меня", groups:["младшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети садятся на стульчики/скамейку с одной стороны площадки. Воспитатель говорит «Догоните меня!» и убегает — дети бегут следом. Когда воспитатель останавливается и говорит «Убегайте, догоню!», дети бегут обратно на места, а воспитатель делает вид, что догоняет. Повторяется 3–4 раза." },
+
+{ name:"Птички в гнёздышках", groups:["младшая"], quality:["Реакция на сигнал","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"На площадке раскладываются обручи-«гнёздышки» по числу детей. Дети-«птички» садятся в свои гнёздышки. По сигналу «Птички полетели!» выбегают из обручей, машут «крылышками». По сигналу «Птички в гнёздышки!» бегут в свой обруч." },
+
+{ name:"Мой весёлый звонкий мяч", groups:["младшая"], quality:["Прыжки","Чувство ритма и текста"], season:["круглый год"], props:true, propsNote:"мяч (у воспитателя)", animals:false,
+  desc:"Воспитатель показывает мяч и читает стихотворение С. Маршака «Мяч», сопровождая словами прыжки мяча. Дети прыгают на месте на двух ногах, изображая мячик. На последних словах дети замирают или разбегаются от «догоняющего» воспитателя.",
+  rhyme:"Это стихотворение С. Маршака охраняется авторским правом, поэтому полный текст здесь не приводится — его легко найти в сборниках Маршака («Мой весёлый, звонкий мяч, ты куда пустился вскачь?..») или в любой книге для чтения дошкольникам.", rhymeNote:"О тексте:" },
+
+{ name:"Солнышко и дождик", groups:["младшая"], quality:["Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"На слово «Солнышко!» дети гуляют по площадке — ходьба, бег врассыпную. На слово «Дождик!» все бегут в обозначенное укрытие и присаживаются, «прячась от дождя». Повторяется со сменой темпа." },
+
+{ name:"Поезд", groups:["младшая"], quality:["Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом («вагончики»), первый — «паровозик». По сигналу «Поезд поехал!» все двигаются вперёд, изображая движение колёс руками, произнося «чух-чух». По сигналу «Остановка!» поезд останавливается." },
+
+{ name:"Кот и воробышки", groups:["младшая"], quality:["Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «кот», сидит в стороне. Дети-«воробышки» разлетаются по площадке, «клюют зёрнышки» (приседают). Когда воспитатель говорит «Кот идёт!» и встаёт, воробышки разлетаются на свои места, кот делает вид, что ловит." },
+
+{ name:"У медведя во бору", groups:["младшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Медведь» сидит в стороне («в бору»). Остальные дети идут к медведю, собирая воображаемые грибы-ягоды, приговаривая текст. После слов медведь встаёт и ловит детей — они разбегаются к своему «дому».",
+  rhyme:"У медведя во бору\nГрибы, ягоды беру,\nА медведь не спит,\nВсё на нас глядит,\nА потом как зарычит\nИ за нами побежит!" },
+
+{ name:"Пузырь", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети берутся за руки в маленьком кругу и произносят текст, постепенно отходя назад и расширяя круг. На слово «Лопнул!» опускают руки и сбегаются в маленький круг со словом «Хлоп!».",
+  rhyme:"Раздувайся, пузырь,\nРаздувайся большой,\nОставайся такой,\nДа не лопайся!" },
+
+{ name:"Найди себе пару", groups:["средняя"], quality:["Ориентировка в пространстве","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"флажки или платочки парами", animals:false,
+  desc:"Дети разбиваются на пары, у каждой пары — одинаковый атрибут. По сигналу «Побежали!» разбегаются врассыпную. На сигнал «Найди себе пару!» быстро находят партнёра с таким же атрибутом. При нечётном числе детей один остаётся без пары." },
+
+{ name:"У ребят порядок строгий", groups:["средняя"], quality:["Организованность (построения)"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети свободно двигаются по залу под слова воспитателя. На последнее слово или хлопок быстро строятся в условленном месте — в колонну по одному или в свои звенья.",
+  rhyme:"У ребят порядок строгий,\nЗнают все свои места.\nНу, трубите веселее:\nТра-та-та, тра-та-та!" },
+
+{ name:"Ловишки", groups:["средняя"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Выбирается «ловишка». Остальные дети разбегаются по площадке, ловишка старается догнать и осалить убегающих. Осаленный отходит в сторону. Проводится 3–4 раза со сменой ловишки." },
+
+{ name:"Мяч через сетку", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч, сетка/шнур", animals:false,
+  desc:"Между стойками натянута сетка на уровне поднятых рук ребёнка. Две команды по разные стороны сетки перебрасывают мяч друг другу двумя руками, стараясь не уронить его на своей стороне." },
+
+{ name:"Совушка", groups:["средняя","старшая"], quality:["Выдержка и торможение","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Совушка» сидит в «гнезде» в стороне. Остальные — «птички» — бегают и прыгают по площадке. Все двигаются под слова воспитателя, а на команду о наступлении ночи замирают на месте, и совушка вылетает и уводит в гнездо тех, кто шевелится.",
+  rhyme:"День наступает — всё оживает!\n(дети бегают, прыгают)\n\nНочь наступает — всё замирает!\n(дети замирают, совушка «вылетает» на охоту)" },
+
+{ name:"Огуречик, огуречик", groups:["средняя"], quality:["Реакция на сигнал","Быстрота бега"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Выбирается «мышка», садится в конце площадки. Остальные — «огуречики» — стоят на другом конце и хором произносят текст. На последнем слове мышка выбегает и ловит разбегающихся огуречиков.",
+  rhyme:"Огуречик, огуречик,\nНе ходи на тот конечик,\nТам мышка живёт,\nТебе хвостик отгрызёт." },
+
+{ name:"Гуси-лебеди", groups:["средняя","старшая"], quality:["Быстрота бега","Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"На одной стороне — «дом» гусей, на другой — «хозяин», сбоку — «логово волка». Идёт перекличка хозяина с гусями; после её окончания гуси бегут через поле мимо волка обратно в дом, а волк старается их осалить.",
+  rhyme:"Хозяин: Гуси-гуси!\nГуси: Га-га-га!\nХозяин: Есть хотите?\nГуси: Да-да-да!\nХозяин: Так летите!\nГуси: Нам нельзя: серый волк под горой не пускает нас домой.\nХозяин: Так летите, как хотите, только крылья берегите!" },
+
+{ name:"Самолёты", groups:["средняя"], quality:["Ориентировка в пространстве","Организованность (построения)"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети-«лётчики» стоят в колоннах-«звеньях». По сигналу «Завести моторы!» делают вращательные движения руками. По сигналу «Летите!» разбегаются врассыпную, разведя руки в стороны. По сигналу «На посадку!» строятся на прежнее место." },
+
+{ name:"Караси и щука", groups:["старшая","подготовительная"], quality:["Ловкость и увёртывание","Согласованность движений в группе"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Щука» встаёт в центр площадки. Часть детей образует круг («сеть», взявшись за руки), часть — «караси» плавают внутри и снаружи круга. По сигналу «Щука!» она ловит карасей, не успевших спрятаться в круг. Роли периодически меняются." },
+
+{ name:"Мышеловка", groups:["старшая","подготовительная"], quality:["Координация движений","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Меньшая часть детей — «мышки», большая образует круг-«мышеловку», держась за руки и приговаривая текст, поднимая и опуская руки. Пока звучит текст, мышки вбегают в круг и выбегают. На последнем слове круг «захлопывается» — оставшиеся внутри мышки встают в круг.",
+  rhyme:"Ах, как мыши надоели,\nРазвелось их просто страсть!\nВсё погрызли, всё поели,\nВсюду лезут — вот напасть!\nБерегитесь же, плутовки,\nДоберёмся мы до вас!\nВот поставим мышеловки,\nПереловим всех сейчас!" },
+
+{ name:"Летает — не летает", groups:["старшая","подготовительная"], quality:["Внимание","Кругозор"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят (сидят) в кругу. Воспитатель называет предметы, животных, явления, одновременно поднимая руки, как бы показывая полёт. Если названное действительно летает — дети поднимают руки; если нет — руки остаются опущенными. Ошибившийся выбывает на один кон." },
+
+{ name:"Съедобное — несъедобное", groups:["подготовительная"], quality:["Реакция на сигнал","Ловкость и увёртывание"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети стоят по кругу или в шеренге напротив ведущего. Ведущий бросает мяч по очереди каждому, называя предмет. Если предмет съедобный — ребёнок ловит мяч; если несъедобный — отбивает (не ловит). Ошибившийся меняется местом с ведущим или временно выбывает." },
+
+{ name:"Зайка беленький сидит", groups:["младшая"], quality:["Прыжки","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«зайки» сидят на корточках в кругу. Воспитатель произносит текст потешки, дети выполняют движения по тексту: шевелят «ушками», хлопают в ладоши («греют лапки»), подпрыгивают на месте. На словах о появлении «волка» зайки разбегаются врассыпную, воспитатель их догоняет.",
+  rhyme:"Зайка беленький сидит\nИ ушами шевелит.\nВот так, вот так,\nОн ушами шевелит.\n\nЗайке холодно сидеть,\nНадо лапочки погреть.\nХлоп-хлоп-хлоп-хлоп,\nНадо лапочки погреть.\n\nЗайке холодно стоять,\nНадо зайке поскакать.\nСкок-скок-скок-скок,\nНадо зайке поскакать.\n\nКто-то зайку испугал —\nЗайка прыг… и ускакал." },
+
+{ name:"Воробушки и автомобиль", groups:["младшая"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«воробушки» сидят на корточках в «гнёздышках». По сигналу «Воробушки полетели!» разбегаются по площадке, машут «крылышками». На сигнал «Автомобиль едет!» быстро улетают обратно в свои гнёздышки." },
+
+{ name:"Наседка и цыплята", groups:["младшая"], quality:["Согласованность движений в группе","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «наседка», дети — «цыплята» идут за ней вереницей, подлезают под верёвку-«забор», «клюют зёрнышки». На сигнал «Большая птица!» цыплята бегут обратно к наседке и прячутся за неё." },
+
+{ name:"Через ручеёк", groups:["младшая"], quality:["Равновесие","Ловкость и увёртывание"], season:["круглый год"], props:true, propsNote:"дощечки или шнуры-«камушки»", animals:false,
+  desc:"На полу выкладывается дорожка из досок или шнуров-«камушков» через «ручеёк». Дети по очереди переходят ручеёк, перешагивая или перепрыгивая с камушка на камушек. Кто оступился — «промочил ноги» и садится сушить обувь на скамейку." },
+
+{ name:"Лохматый пёс", groups:["младшая","средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Пёс» сидит в стороне, изображая сон. Дети тихонько подходят к нему, произнося текст про лохматого пса. На последних словах пёс вскакивает и «лает», дети разбегаются, а пёс их догоняет.",
+  rhyme:"Вот лежит лохматый пёс,\nВ лапы свой уткнувши нос.\nТихо, смирно он лежит,\nНе то дремлет, не то спит.\nПодойдём к нему, разбудим\nИ посмотрим, что-то будет." },
+
+{ name:"По ровненькой дорожке", groups:["младшая"], quality:["Согласованность движений в группе","Прыжки"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети идут «стайкой» за воспитателем, повторяя движения по тексту: шагают ровно, перешагивают через условные кочки, обходят «ямку». В конце — присаживаются или подпрыгивают на месте, изображая зайчиков.",
+  rhyme:"По ровненькой дорожке,\nПо ровненькой дорожке\nШагают наши ножки:\nРаз-два, раз-два.\n\nПо камешкам, по камешкам,\nПо камешкам, по камешкам…\nВ ямку — бух!" },
+
+{ name:"Флажок", groups:["младшая","средняя"], quality:["Внимание","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"флажок", animals:false,
+  desc:"Дети сидят полукругом, отвернувшись или закрыв глаза. Воспитатель незаметно кладёт флажок за спиной одного из детей. По сигналу дети открывают глаза, а тот, у кого флажок, бежит вперёд — остальные стараются догнать его до условной черты." },
+
+{ name:"Кто быстрее до флажка", groups:["средняя"], quality:["Быстрота бега","Организованность (построения)"], season:["тёплое время года"], props:true, propsNote:"флажки", animals:false,
+  desc:"Дети строятся в 2–3 колонны, напротив каждой на расстоянии — флажок. По сигналу первые из колонны бегут к флажку, обегают его и возвращаются, передавая эстафету следующему касанием руки." },
+
+{ name:"Пожарные на ученье", groups:["средняя","старшая"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:true, propsNote:"гимнастическая стенка, колокольчик", animals:false,
+  desc:"Дети строятся в колонны у гимнастической стенки, наверху каждого пролёта — колокольчик. По сигналу первые из колонны взбираются по стенке, звонят в колокольчик, спускаются и встают в конец колонны — до тех пор, пока не пробегут все." },
+
+{ name:"Не оставайся на полу", groups:["средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают врассыпную по залу. На сигнал «Лови!» нужно как можно быстрее забраться на любое возвышение (скамейку, кубик, мат) — не остаться на полу. Ловишка старается осалить тех, кто не успел." },
+
+{ name:"Удочка", groups:["средняя"], quality:["Прыжки","Внимание"], season:["круглый год"], props:true, propsNote:"скакалка или верёвка с мешочком", animals:false,
+  desc:"Дети стоят по кругу. Воспитатель в центре вращает по полу верёвку с мешочком на конце — «удочку». Дети подпрыгивают, чтобы верёвка не задела ноги. Задевший верёвку временно выходит из круга." },
+
+{ name:"Лягушки и цапля", groups:["средняя"], quality:["Прыжки","Ловкость и увёртывание"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"На площадке обозначено «болото» (обруч или очерченный круг). Дети-«лягушки» прыгают на двух ногах внутри и вокруг болота. По сигналу «Цапля!» появляется водящий-«цапля», который ловит лягушек, не успевших допрыгать до безопасного места." },
+
+{ name:"Жмурки", groups:["средняя","старшая"], quality:["Ориентировка в пространстве","Внимание"], season:["круглый год"], props:true, propsNote:"повязка на глаза", animals:false,
+  desc:"Водящему-«жмурке» завязывают глаза. Остальные дети тихо перемещаются вокруг него, иногда хлопая в ладоши. Жмурка пытается на слух поймать кого-то из детей и на ощупь угадать, кто это." },
+
+{ name:"Третий лишний", groups:["старшая","подготовительная"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают парами друг за другом по кругу, один водящий убегает, другой догоняет. Убегающий может встать третьим впереди любой пары — тогда «лишним» и убегающим становится стоявший сзади этой пары ребёнок." },
+
+{ name:"Волк во рву", groups:["старшая"], quality:["Прыжки","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Поперёк площадки обозначен «ров» (две параллельные линии), в нём сидит «волк». Дети-«козочки» перепрыгивают через ров с одной стороны на другую, стараясь, чтобы волк не осалил их в момент прыжка." },
+
+{ name:"Хитрая лиса", groups:["старшая"], quality:["Быстрота бега","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Дети стоят по кругу, один из них незаметно назначается «хитрой лисой» касанием по плечу. Все хором трижды задают вопрос; на третий раз лиса выбегает в круг, дети разбегаются, а лиса их ловит.",
+  rhyme:"Хитрая лиса, где ты?\n(повторяется три раза, на третий раз лиса выбегает в центр круга)" },
+
+{ name:"Два мороза", groups:["старшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Двое детей-«морозов» встают на середине площадки, остальные — на одной стороне. После общего приговора дети перебегают на другую сторону, а морозы стараются их «заморозить» (осалить) — осаленные замирают на месте до конца кона.",
+  rhyme:"Мы два брата молодые,\nДва мороза удалые:\nЯ — мороз Красный нос,\nЯ — мороз Синий нос.\nКто из вас решится\nВ путь-дороженьку пуститься?" },
+
+{ name:"Горелки", groups:["старшая","подготовительная"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят парами друг за другом в колонне, водящий-«горелка» впереди спиной к колонне. После общей считалки-приговорки последняя пара разбегается вдоль колонны в разные стороны, а горелка старается поймать одного из них раньше, чем они вновь возьмутся за руки впереди.",
+  rhyme:"Гори, гори ясно,\nЧтобы не погасло.\nГлянь на небо —\nПтички летят,\nКолокольчики звенят!\nРаз, два, три —\nБеги!" },
+
+{ name:"Змейка", groups:["старшая"], quality:["Координация движений","Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом, держась за пояс впереди стоящего, образуя «змейку». Ведущий плавно меняет направление движения — «змейка» повторяет за ним, стараясь не разорвать цепочку." },
+
+{ name:"День и ночь", groups:["старшая"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Две команды стоят спиной друг к другу на средней линии площадки — «день» и «ночь». Воспитатель называет одну из команд, и она убегает к своему «дому» на краю площадки, а другая команда догоняет, стараясь осалить убегающих." },
+
+{ name:"Перелёт птиц", groups:["старшая"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«птицы» бегают врассыпную по залу, имитируя полёт. По сигналу «Буря!» быстро взбираются на возвышение (гимнастическую стенку, скамейку) — «прячутся от бури». По сигналу «Буря прошла!» слетают вниз и снова летают по залу." },
+
+{ name:"Медведи и пчёлы", groups:["подготовительная"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Часть детей — «пчёлы» в «улье» (гимнастическая стенка или домик), часть — «медведи» в берлоге. По сигналу «Медведи идут!» медведи бегут к улью за мёдом, пчёлы вылетают и «жалят» (салят) убегающих обратно медведей." },
+
+{ name:"Караван", groups:["подготовительная"], quality:["Организованность (построения)","Согласованность движений в группе"], season:["круглый год"], props:true, propsNote:"обручи", animals:false,
+  desc:"Дети строятся в 2–3 команды. По сигналу первый участник каждой команды с обручем в руках бежит до ориентира и обратно, передаёт обруч следующему. Побеждает команда, закончившая эстафету первой." },
+
+{ name:"Затейники", groups:["подготовительная"], quality:["Координация движений","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят по кругу, водящий-«затейник» в центре придумывает и показывает разные движения (наклоны, прыжки, вращения руками), остальные повторяют за ним. Затем выбирается новый затейник." },
+
+{ name:"Эстафета парами", groups:["подготовительная"], quality:["Организованность (построения)","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч или обруч на пару", animals:false,
+  desc:"Дети делятся на пары, встают в колонны. По сигналу первая пара, держась за руки или держа мяч/обруч вдвоём, бежит до ориентира и обратно, передавая эстафету следующей паре." },
+
+{ name:"Чья команда быстрее", groups:["подготовительная"], quality:["Быстрота бега","Организованность (построения)"], season:["тёплое время года"], props:true, propsNote:"флажки", animals:false,
+  desc:"Две-три команды выстраиваются в колонны на старте, на финише — флажки. По сигналу по очереди каждый участник бежит до флажка, огибает его и возвращается, передавая эстафету касанием руки следующему игроку." },
+
+{ name:"Успей выбежать", groups:["подготовительная"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят в кругу, взявшись за руки, водящий — внутри круга. По сигналу дети поочерёдно поднимают и опускают сцепленные руки, изображая «ворота», а водящий должен успеть выбежать из круга через открытые «ворота»." },
+
+{ name:"Бег с препятствиями", groups:["подготовительная"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:true, propsNote:"кегли, дуги, скамейка", animals:false,
+  desc:"На дистанции расставлены препятствия: кегли для обегания змейкой, дуги для подлезания, скамейка для перешагивания. Дети по очереди или командами-эстафетой преодолевают полосу препятствий на скорость, соблюдая технику каждого элемента." },
+
+{ name:"Ловкая пара", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети разбиваются на пары, у каждой пары один мяч. Пары встают лицом друг к другу на расстоянии 2–3 м и перебрасывают мяч друг другу разными способами (снизу, от груди, с отскоком от пола), стараясь не уронить его." },
+
+{ name:"Снежинки и ветер", groups:["младшая","средняя"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["зимой, на снегу"], props:false, propsNote:null, animals:false,
+  desc:"Дети-«снежинки» легко бегают и кружатся по площадке под слова воспитателя про лёгкий ветерок. На сигнал «Сильный ветер!» снежинки разбегаются врассыпную быстрее, кружась. На сигнал «Ветер стих!» останавливаются и приседают, «опускаясь на землю»." },
+{ name:"Курочка-хохлатка", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «курочка», дети — «цыплятки» идут за ней стайкой, «клюют зёрнышки», перешагивают через «лужицы». Дети повторяют движения по тексту — машут «крылышками», приседают. В конце курочка зовёт цыплят обратно в «домик».",
+  rhyme:"Вышла курочка-хохлатка,\nС нею жёлтые цыплятки.\nКвохчет курочка: «Ко-ко,\nНе ходите далеко!»" },
+
+{ name:"Кто тише", groups:["младшая"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети идут по кругу друг за другом на носочках, стараясь ступать бесшумно. Воспитатель хвалит тех, кто идёт тише всех. Развивает самоконтроль и плавность движений." },
+
+{ name:"Поймай комара", groups:["младшая"], quality:["Прыжки","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"прут с бумажным «комариком» на нитке", animals:true,
+  desc:"Воспитатель держит прут с привязанным на нитке бумажным «комаром» и водит им по кругу невысоко над головами детей. Дети подпрыгивают, стараясь поймать комара обеими руками." },
+
+{ name:"Мыши водят хоровод", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети берутся за руки, образуя круг — «мышки», один ребёнок в центре — «кот», который дремлет. Хоровод движется по кругу под текст. На последних словах кот просыпается, мышки разбегаются врассыпную.",
+  rhyme:"Мыши водят хоровод,\nНа лежанке дремлет кот.\nТише, мыши, не шумите,\nКота Ваську не будите,\nВот проснётся Васька-кот,\nРазобьёт весь хоровод!" },
+
+{ name:"Заинька, выйди в сад", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети стоят по кругу, один ребёнок — «заинька» — в центре. Хоровод двигается по кругу и приговаривает текст, а заинька в центре выполняет движения по смыслу песенки (кланяется, топает, пляшет). Затем выбирается новый заинька.",
+  rhyme:"Заинька, выйди в сад,\nСеренький, выйди в сад,\nВот так, вот сяк, выйди в сад." },
+
+{ name:"Прокати мяч", groups:["младшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети сидят по кругу или парами напротив друг друга, ноги врозь. Прокатывают мяч друг другу по полу двумя руками, стараясь направить точно в руки партнёра." },
+
+{ name:"Догони мяч", groups:["младшая"], quality:["Быстрота бега"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Воспитатель прокатывает мяч по полу в разных направлениях, дети бегут за мячом наперегонки и стараются поймать его первыми, затем приносят обратно воспитателю." },
+
+{ name:"Попади в круг", groups:["младшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком, обруч", animals:false,
+  desc:"На полу лежит большой обруч на небольшом расстоянии от детей. Дети по очереди бросают мешочки с песком, стараясь попасть внутрь обруча." },
+
+{ name:"Пройди — не задень", groups:["младшая"], quality:["Равновесие","Координация движений"], season:["круглый год"], props:true, propsNote:"кубики или кегли", animals:false,
+  desc:"На полу расставлены кубики или кегли в один ряд с промежутками. Дети идут между ними змейкой, стараясь не задеть предметы ногами." },
+
+{ name:"Целься вернее", groups:["младшая","средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком, корзина или обруч", animals:false,
+  desc:"На расстоянии от детей ставится корзина или обруч-мишень. Дети по очереди бросают мешочки с песком, стараясь попасть в цель, — можно вести подсчёт удачных попаданий." },
+
+{ name:"Солнечные зайчики", groups:["младшая"], quality:["Внимание","Реакция на сигнал"], season:["тёплое время года"], props:true, propsNote:"зеркальце", animals:false,
+  desc:"Воспитатель зеркальцем пускает солнечный «зайчик» по полу и стенам. Дети бегают и стараются наступить на светлое пятно или дотронуться до него рукой, пока воспитатель им управляет." },
+
+{ name:"Мяч в кругу", groups:["младшая"], quality:["Глазомер и работа с мячом","Согласованность движений в группе"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети стоят по кругу, водящий в центре с мячом. Водящий катит мяч кому-то из детей по полу, тот ловит и катит обратно. Постепенно можно ускорять темп." },
+
+{ name:"Снежки в цель", groups:["младшая","средняя"], quality:["Глазомер и работа с мячом"], season:["зимой, на снегу"], props:true, propsNote:"снежки или мягкие мячики", animals:false,
+  desc:"Дети по очереди бросают мягкие мячики-«снежки» в большую цель (корзину, обруч, нарисованный круг на снегу) с небольшого расстояния, соревнуясь в меткости." },
+
+{ name:"Кегли", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кегли, мяч", animals:false,
+  desc:"На полу расставляются кегли. Дети по очереди катят мяч, стараясь сбить как можно больше кеглей с одного–двух бросков." },
+
+{ name:"Точно в цель", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком или мячи, мишень", animals:false,
+  desc:"На стене или на полу обозначена мишень из кругов разного размера. Дети бросают мешочки с песком или маленькие мячи, стараясь попасть в центр." },
+
+{ name:"Ловишки с ленточками", groups:["средняя"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:true, propsNote:"ленточки", animals:false,
+  desc:"У каждого ребёнка за поясом лента-«хвостик». Водящий-ловишка старается вытянуть ленту у убегающих детей. Потерявший ленту временно выходит из игры или садится на скамейку." },
+
+{ name:"Мы весёлые ребята", groups:["средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят на одной стороне площадки за чертой, водящий — на середине. После общего текста дети перебегают на другую сторону, а водящий пытается осалить кого-то из перебегающих.",
+  rhyme:"Мы весёлые ребята,\nЛюбим бегать и играть.\nНу, попробуй нас догнать!\nРаз, два, три — лови!" },
+
+{ name:"Пастух и стадо", groups:["средняя"], quality:["Согласованность движений в группе","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«стадо» идут вереницей за «пастухом», повторяя за ним разные движения (перешагивание, ходьба на носках, бег). По сигналу «Волк!» стадо быстро собирается вокруг пастуха." },
+
+{ name:"Кролики", groups:["средняя"], quality:["Прыжки","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«кролики» сидят на корточках в своих «клетках» (обручах). По сигналу кролики выбегают из клеток и прыгают по площадке, а по сигналу «Сторож идёт!» быстро возвращаются в свои клетки." },
+
+{ name:"Лиса в курятнике", groups:["средняя"], quality:["Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"На одной стороне площадки — «курятник» (скамейка), где сидят «куры». «Лиса» прячется в стороне. По сигналу куры слетают погулять, а лиса старается поймать зазевавшихся; пойманные куры сами становятся лисами." },
+
+{ name:"Быстро возьми, быстро положи", groups:["средняя"], quality:["Быстрота бега","Внимание"], season:["круглый год"], props:true, propsNote:"кубики или мешочки", animals:false,
+  desc:"На полу по кругу разложены кубики — их на 1–2 меньше, чем детей. Дети бегают по кругу, а на команду «Бери!» каждый должен быстро схватить один предмет. Кому не хватило — на один кон наблюдает со стороны." },
+
+{ name:"Успей присесть", groups:["средняя"], quality:["Реакция на сигнал","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают врассыпную по залу. Ведущий периодически подаёт сигнал, на который нужно мгновенно присесть на корточки. Не успевший выполняет небольшое дополнительное задание." },
+
+{ name:"Догони свою пару", groups:["средняя"], quality:["Быстрота бега","Ориентировка в пространстве"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети делятся на пары и запоминают друг друга. По сигналу разбегаются врассыпную по всему залу, по следующему сигналу каждый должен как можно быстрее найти и добежать до своей пары." },
+
+{ name:"Сделай фигуру", groups:["средняя","старшая"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают, прыгают или танцуют под музыку. Как только музыка обрывается, каждый должен замереть в необычной позе-«фигуре» и не шевелиться, пока не разрешат." },
+
+{ name:"Ниточка с иголочкой", groups:["средняя","старшая"], quality:["Координация движений","Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом, держась за плечи впереди стоящего — «нитка», ведущий впереди — «иголочка». Иголочка водит нитку между расставленными предметами, под дугами, вокруг стоек, а нитка повторяет весь путь, стараясь не разорваться." },
+
+{ name:"Ключи", groups:["старшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят по кругу парами, взявшись за руки, водящий без пары — в центре. Водящий обращается к любому ребёнку без пары, после чего свободные дети перебегают и ищут себе новую пару, а водящий старается успеть занять место первым — оставшийся без пары становится водящим." },
+
+{ name:"Али-Баба", groups:["старшая"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Две команды стоят в шеренгах друг напротив друга, взявшись за руки. По очереди команды переговариваются считалкой-вызовом, после чего названный игрок разбегается и должен разорвать сцепленные руки соперников; получилось — забирает игрока в свою команду, нет — сам остаётся у соперников.",
+  rhyme:"Али-Баба, о чём слуга?\nПро пятого-десятого,\nЦаревича любимого,\nПришли нам!\n(зачин игры — в разных областях звучит с небольшими отличиями)" },
+
+{ name:"Казаки-разбойники", groups:["старшая","подготовительная"], quality:["Ловкость и увёртывание","Ориентировка в пространстве"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети делятся на две команды — «казаки» и «разбойники». Разбойники прячутся и оставляют условные метки на пути, казаки ищут их по следам и, найдя, «берут в плен», отводя в обозначенный «острог»." },
+
+{ name:"Классики", groups:["старшая"], quality:["Прыжки","Равновесие"], season:["тёплое время года"], props:true, propsNote:"мел, битка (камешек или мешочек)", animals:false,
+  desc:"На асфальте или полу расчерчены пронумерованные квадраты-«классики». Ребёнок бросает битку в квадрат по порядку и прыгает по клеткам на одной или двух ногах, не наступая на клетку с биткой и не задевая линии." },
+
+{ name:"Верёвочка", groups:["старшая"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"скакалка", animals:false,
+  desc:"Каждый ребёнок со своей скакалкой выполняет прыжки на месте или с продвижением вперёд, стараясь прыгать без остановки как можно дольше или выполнить заданное число прыжков подряд." },
+
+{ name:"Пятнашки", groups:["старшая"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Водящий-«пятнашка» догоняет остальных детей по всей площадке. Осаленный игрок сам становится пятнашкой. Можно договориться о «домиках» — местах, где ловить нельзя." },
+
+{ name:"Знамя", groups:["старшая","подготовительная"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:true, propsNote:"флажок", animals:false,
+  desc:"Две команды располагаются на своих половинах площадки, в глубине каждой — «знамя» (флажок на подставке). Задача каждой команды — пробраться на территорию соперника и унести знамя, не будучи осаленным." },
+
+{ name:"Кто дальше бросит", groups:["старшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочек с песком или мяч", animals:false,
+  desc:"Дети по очереди выполняют бросок мешочка с песком или мяча способом из-за спины через плечо, стараясь бросить как можно дальше. Результат каждого фиксируется меткой на полу." },
+
+{ name:"Скакалка-десяточка", groups:["старшая"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"скакалка", animals:false,
+  desc:"Ребёнок прыгает через скакалку, а вся группа хором считает прыжки до десяти. Кто сбился или зацепил скакалку раньше — уступает место следующему." },
+
+{ name:"Море волнуется раз", groups:["старшая","подготовительная"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети хаотично двигаются по залу, изображая волны руками. На словах ведущего все замирают в позе какой-либо фигуры и держат её, пока ведущий не назовёт, чья фигура интереснее.",
+  rhyme:"Море волнуется раз,\nМоре волнуется два,\nМоре волнуется три —\nМорская фигура, на месте замри!" },
+
+{ name:"Кто быстрее соберёт", groups:["старшая"], quality:["Быстрота бега","Организованность (построения)"], season:["круглый год"], props:true, propsNote:"кубики или кегли", animals:false,
+  desc:"На полу в стороне разбросаны кубики. Команды по очереди высылают участников, которые должны добежать, взять один предмет и вернуться, сложив его в свою корзину. Побеждает команда, собравшая предметы быстрее." },
+
+{ name:"Меткий стрелок", groups:["старшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кольца или мешочки, мишень", animals:false,
+  desc:"На стойке закреплены кольца или расставлена мишень. Дети по очереди бросают мешочки с песком или кольца, стараясь попасть точно в цель с обозначенного расстояния." },
+
+{ name:"Штандер", groups:["подготовительная"], quality:["Ловкость и увёртывание","Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети встают в круг, водящий подбрасывает мяч вверх и называет чьё-то имя — названный должен поймать мяч, а остальные в это время разбегаются. Поймав мяч, ребёнок кричит «Штандер!» — все замирают, и он делает один шаг к ближайшему игроку, стараясь попасть в него мячом." },
+
+{ name:"Вышибалы", groups:["подготовительная"], quality:["Ловкость и увёртывание","Быстрота бега"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Двое водящих встают по разные стороны площадки, остальные дети — в середине. Водящие перебрасывают мяч друг другу, стараясь попасть в кого-то из стоящих в середине; задетый выходит из игры, а поймавший мяч на лету получает право вернуть выбывшего игрока в игру." },
+
+{ name:"Разведчики", groups:["подготовительная"], quality:["Ориентировка в пространстве","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Одна группа детей — «разведчики» — должна незаметно, тихо и скрытно приблизиться к обозначенному «штабу», где сидит «часовой». Часовой, услышав шум или заметив движение, называет, кого он засёк, — тот выбывает из разведки." },
+
+{ name:"Точное приземление", groups:["подготовительная"], quality:["Прыжки","Равновесие"], season:["круглый год"], props:true, propsNote:"маты, разметка", animals:false,
+  desc:"На полу размечены круги-мишени. Ребёнок выполняет прыжок в длину или спрыгивание с небольшого возвышения, стараясь приземлиться точно внутри размеченного круга, сохранив равновесие." },
+
+{ name:"Кто самый меткий", groups:["подготовительная"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кольца или мешочки", animals:false,
+  desc:"Дети по очереди бросают кольца или мешочки на разные по удалённости стойки-цели, за попадание в дальнюю цель начисляется больше очков. Ведётся общий подсчёт по итогам нескольких бросков." },
+
+{ name:"Резиночка", groups:["подготовительная"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"резинка-эспандер", animals:false,
+  desc:"Двое детей держат натянутую резинку на разной высоте (у щиколоток, у колен, у пояса), остальные по очереди прыгают через неё по определённой схеме движений, не задевая резинку." },
+
+{ name:"Лапта", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Быстрота бега"], season:["тёплое время года"], props:true, propsNote:"мяч, бита", animals:false,
+  desc:"Площадка делится на «город» и «поле». Игрок из команды города бьёт битой по мячу и бежит через поле до условленной черты и обратно, а игроки поля стараются поймать мяч на лету или осалить им перебегающего." },
+
+{ name:"Снайпер", groups:["подготовительная"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети встают по кругу, в центре — водящий с мячом. Задача водящего — попасть мячом в ноги кому-то из стоящих по кругу; те могут уворачиваться, приседать, подпрыгивать, но не имеют права покидать круг." },
+
+{ name:"Прятки", groups:["подготовительная"], quality:["Ориентировка в пространстве","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Водящий закрывает глаза у обозначенного места и громко произносит считалку, пока остальные прячутся. Затем идёт искать спрятавшихся; тот, кого нашли первым, в следующий раз водит.",
+  rhyme:"Раз, два, три, четыре, пять,\nЯ иду искать!\nКто не спрятался,\nЯ не виноват!" },
+
+{ name:"Волейбол через шнур", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч, шнур", animals:false,
+  desc:"Между стойками натянут шнур на уровне поднятых рук. Две команды перебрасывают мяч через шнур, стараясь, чтобы он коснулся площадки соперника; вводятся простые правила подачи и счёта." },
+
+{ name:"Хвостики", groups:["подготовительная"], quality:["Ловкость и увёртывание","Быстрота бега"], season:["тёплое время года"], props:true, propsNote:"ленточки-хвостики", animals:false,
+  desc:"У каждого ребёнка за поясом лента-«хвостик». По сигналу все бегают по площадке, стараясь сорвать хвостик у других, одновременно защищая свой. Побеждает тот, кто дольше всех сохранит свой хвостик." },
+
+{ name:"Весёлые старты", groups:["подготовительная"], quality:["Организованность (построения)","Быстрота бега"], season:["круглый год"], props:true, propsNote:"разный инвентарь по этапам", animals:false,
+  desc:"Дети делятся на 2–3 команды и по очереди проходят несколько эстафетных этапов подряд (бег с мячом, прыжки в мешке, полоса препятствий, передача эстафеты) — командное соревнование с общим подсчётом результатов на финише." },
+
+{ name:"Городки", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["тёплое время года"], props:true, propsNote:"биты, городки", animals:false,
+  desc:"Из небольших чурок-«городков» на площадке выставляется фигура. Игроки по очереди бросают биту с обозначенной черты, стараясь выбить все городки за фигуры за минимальное число бросков." }
+];
+
+const ORU_COMPLEXES = [
+
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["младшая"], type:"ОРУ", category:"Без предметов", quality:["Осанка","Координация движений","Гибкость","Общеразвивающее (без конкретной подготовки)"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки в стороны", text:"И.п. — ноги на ширине плеч, руки вдоль тела. Поднять руки в стороны, опустить. 4–5 раз."},
+    {title:"Наклоны вперёд", text:"И.п. — ноги врозь, руки на поясе. Наклон вперёд, коснуться коленей, выпрямиться. 4–5 раз."},
+    {title:"Приседания", text:"И.п. — ноги вместе, руки на поясе. Присесть, руки вперёд, встать. 4–5 раз."},
+    {title:"Прыжки на месте", text:"Лёгкие прыжки на двух ногах, чередуя с ходьбой. 2 серии по 6 прыжков."},
+    {title:"Дыхательное «Подуем на снежинку»", text:"Спокойный вдох носом, плавный длинный выдох ртом. 3 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с флажками №1", groups:["младшая"], type:"ОРУ", category:"Флажки", quality:["Координация движений","Осанка","Подготовка к строевым упражнениям"], props:true, propsNote:"флажки",
+  exercises:[
+    {title:"Флажки вверх", text:"И.п. — флажки внизу. Поднять руки вверх, показать флажки, опустить. 4–5 раз."},
+    {title:"Наклон, положить флажки", text:"И.п. — ноги врозь, флажки в руках. Наклон вперёд, положить флажки на пол, выпрямиться, наклон — взять флажки. 4 раза."},
+    {title:"Присед с флажками", text:"И.п. — флажки внизу. Присесть, флажки вперёд, встать. 4–5 раз."},
+    {title:"Подпрыгивания с флажками", text:"Лёгкие подпрыгивания на месте, помахивая флажками. 6–8 раз."},
+    {title:"Флажки вверх — вдох, вниз — выдох", text:"Дыхательное упражнение с флажками. 3 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с кубиками №1", groups:["младшая"], type:"ОРУ", category:"Кубики", quality:["Сила рук и плечевого пояса","Координация движений","Подготовка к метанию и ловле"], props:true, propsNote:"кубики",
+  exercises:[
+    {title:"Кубики вверх", text:"И.п. — кубики в опущенных руках. Поднять руки вверх, посмотреть на кубики, опустить. 4–5 раз."},
+    {title:"Наклон, переложить кубики", text:"И.п. — ноги врозь, кубики в руках. Наклон вперёд, переложить кубики между стоп, выпрямиться. 4 раза."},
+    {title:"Присед с кубиками", text:"И.п. — кубики внизу. Присесть, кубики вынести вперёд, встать. 4–5 раз."},
+    {title:"Прыжки, кубики у пояса", text:"Лёгкие прыжки на месте, кубики прижаты к поясу. 6 раз."},
+    {title:"Спокойная ходьба с кубиками", text:"Ходьба по кругу, кубики в опущенных руках, на восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с малым мячом №1", groups:["младшая"], type:"ОРУ", category:"Мяч малый", quality:["Глазомер и работа с мячом","Координация движений","Подготовка к метанию и ловле"], props:true, propsNote:"мяч малый",
+  exercises:[
+    {title:"Мяч вверх", text:"И.п. — мяч в обеих руках внизу. Поднять руки с мячом вверх, опустить. 4–5 раз."},
+    {title:"Наклон с мячом", text:"И.п. — ноги врозь, мяч в руках. Наклон вперёд, положить мяч у ног, выпрямиться, наклон — взять мяч. 4 раза."},
+    {title:"Присед, мяч вперёд", text:"И.п. — мяч у груди. Присесть, вытянуть мяч вперёд, встать. 4–5 раз."},
+    {title:"Подбрасывание мяча", text:"Подбросить мяч вверх невысоко и поймать двумя руками. 4–5 раз."},
+    {title:"Прокатывание мяча", text:"Сидя, ноги врозь, прокатить мяч от себя и обратно. 3–4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["средняя"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Осанка","Координация движений","Подготовка к прыжкам"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с подъёмом на носки", text:"И.п. — ноги вместе. Поднять руки вверх через стороны, встать на носки, опустить. 5–6 раз."},
+    {title:"Повороты корпуса", text:"И.п. — ноги на ширине плеч, руки на поясе. Поворот вправо, вернуться, поворот влево. 5–6 раз в каждую сторону."},
+    {title:"Наклоны в стороны", text:"И.п. — ноги на ширине плеч. Наклон вправо, вернуться, наклон влево. 5–6 раз."},
+    {title:"Приседания с прямой спиной", text:"И.п. — ноги на ширине плеч, руки на поясе. Присесть, спину держать прямо, встать. 5–6 раз."},
+    {title:"Прыжки с хлопком", text:"Прыжки на месте с хлопком над головой. 2 серии по 8 прыжков."},
+    {title:"Дыхательное «Ветерок»", text:"Медленный вдох носом, долгий выдох со звуком «ф-ф-ф». 3–4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с лентами №1", groups:["средняя"], type:"ОРУ", category:"Ленты", quality:["Гибкость","Координация движений","Общеразвивающее (без конкретной подготовки)"], props:true, propsNote:"ленты",
+  exercises:[
+    {title:"Волна лентами вверх", text:"И.п. — ленты внизу. Поднять руки вверх, сделать волну лентами, опустить. 5–6 раз."},
+    {title:"Круги лентами", text:"И.п. — руки в стороны. Круговые движения руками с лентами вперёд и назад. 4–6 кругов в каждую сторону."},
+    {title:"Наклон с лентами", text:"И.п. — ноги врозь, ленты в руках. Наклон вперёд, ленты вниз, выпрямиться, ленты вверх. 5 раз."},
+    {title:"Присед с лентами в стороны", text:"И.п. — ленты в стороны. Присесть, руки не опускать, встать. 5–6 раз."},
+    {title:"Прыжки с взмахом лентами", text:"Прыжки на месте, взмахивая лентами вверх-вниз. 8 раз."},
+    {title:"Спокойные волны лентами", text:"Плавные волнообразные движения руками стоя, на успокоение дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ со средним мячом №1", groups:["средняя"], type:"ОРУ", category:"Мяч средний", quality:["Глазомер и работа с мячом","Сила рук и плечевого пояса","Подготовка к метанию и ловле"], props:true, propsNote:"мяч средний",
+  exercises:[
+    {title:"Мяч вверх, потянуться", text:"И.п. — мяч в двух руках внизу. Поднять мяч вверх, потянуться, опустить. 5–6 раз."},
+    {title:"Поворот с мячом", text:"И.п. — мяч у груди. Поворот вправо, отвести мяч в сторону, вернуться; то же влево. 4–6 раз в каждую сторону."},
+    {title:"Наклон, прокатить мяч", text:"И.п. — ноги врозь, мяч в руках. Наклон вперёд, прокатить мяч вокруг одной ноги, выпрямиться. 4 раза."},
+    {title:"Присед с мячом вперёд", text:"И.п. — мяч у груди. Присесть, мяч вынести вперёд, встать. 5–6 раз."},
+    {title:"Подбрасывание и ловля мяча", text:"Подбросить мяч вверх, поймать двумя руками, не прижимая к груди. 5–6 раз."},
+    {title:"Прокатывание мяча партнёру", text:"Сидя напротив партнёра, прокатить мяч и получить обратно. 4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с обручем №1", groups:["средняя"], type:"ОРУ", category:"Обручи", quality:["Гибкость","Координация движений","Подготовка к прыжкам"], props:true, propsNote:"обруч",
+  exercises:[
+    {title:"Обруч вверх", text:"И.п. — обруч в опущенных руках. Поднять обруч вверх, посмотреть на него, опустить. 5–6 раз."},
+    {title:"Поворот с обручем", text:"И.п. — обруч перед грудью. Поворот вправо, вернуться, поворот влево. 4–6 раз в каждую сторону."},
+    {title:"Наклон, обруч к полу", text:"И.п. — ноги врозь, обруч в руках. Наклон вперёд, коснуться обручем пола, выпрямиться. 5 раз."},
+    {title:"Присед, обруч вперёд", text:"И.п. — обруч у груди. Присесть, обруч вынести вперёд, встать. 5–6 раз."},
+    {title:"Прыжки в обруч и из обруча", text:"Обруч лежит на полу. Прыжки на двух ногах в обруч и обратно. 8–10 прыжков."},
+    {title:"Ходьба с обручем на восстановление", text:"Спокойная ходьба по кругу, обруч в опущенных руках. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["старшая"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Осанка","Подготовка к лазанию и ползанию"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с растяжением", text:"И.п. — ноги вместе. Поднять руки вверх через стороны, потянуться, встать на носки, опустить. 6–8 раз."},
+    {title:"Наклоны вперёд, коснуться пола", text:"И.п. — ноги на ширине плеч. Наклон вперёд, коснуться ладонями пола, выпрямиться. 6–8 раз."},
+    {title:"Повороты с разведением рук", text:"И.п. — руки перед грудью. Поворот вправо, руки в стороны, вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Поднимание туловища лёжа", text:"И.п. — лёжа на спине, ноги закреплены. Поднять туловище, сесть, лечь. 6–8 раз."},
+    {title:"Приседания на одной ноге с опорой", text:"И.п. — стоя, придерживаясь за опору. Присесть на одной ноге, встать; сменить ногу. 3–4 раза на каждую."},
+    {title:"Равновесие «Цапля»", text:"И.п. — стоя, руки на поясе. Поднять согнутую ногу, удержать равновесие 3–4 секунды, опустить; сменить ногу. 3 раза на каждую."},
+    {title:"Дыхательное «Насос»", text:"Наклоны в стороны со звуком «с-с-с» на выдохе. 4–6 раз."}
+  ] },
+
+{ name:"Комплекс ОРУ с гимнастической палкой №1", groups:["старшая"], type:"ОРУ", category:"Гимнастическая палка", quality:["Гибкость","Сила рук и плечевого пояса","Формирование правильной осанки"], props:true, propsNote:"гимнастическая палка",
+  exercises:[
+    {title:"Палка вверх, за голову", text:"И.п. — палка внизу хватом на ширине плеч. Поднять палку вверх, опустить за голову на плечи, вернуть вверх, опустить. 6–8 раз."},
+    {title:"Поворот с палкой на плечах", text:"И.п. — палка на плечах. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Наклон вперёд с палкой", text:"И.п. — ноги врозь, палка внизу. Наклон вперёд прогнувшись, палку вынести вперёд, выпрямиться. 6 раз."},
+    {title:"Прогиб назад с палкой", text:"И.п. — палка внизу сзади хватом. Прогнуться назад, отвести палку вверх-назад, вернуться. 5–6 раз."},
+    {title:"Перешагивание через палку", text:"Палка на полу. Перешагивание вперёд-назад через палку. 6–8 раз."},
+    {title:"Приседания с палкой над головой", text:"И.п. — палка в поднятых руках. Присесть, не опуская палку, встать. 6–8 раз."},
+    {title:"Ходьба с палкой на плечах", text:"Спокойная ходьба, палка на плечах, на восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с большим мячом №1", groups:["старшая"], type:"ОРУ", category:"Мяч большой", quality:["Сила рук и плечевого пояса","Глазомер и работа с мячом","Подготовка к метанию и ловле"], props:true, propsNote:"мяч большой",
+  exercises:[
+    {title:"Мяч вверх, на носки", text:"И.п. — мяч в двух руках внизу. Поднять мяч вверх, встать на носки, потянуться, опустить. 6–8 раз."},
+    {title:"Поворот с передачей мяча за спиной", text:"И.п. — мяч перед грудью. Поворот, передать мяч из руки в руку за спиной, вернуться. 6 раз в каждую сторону."},
+    {title:"Наклон, прокатить мяч змейкой", text:"И.п. — стоя, мяч внизу. Наклон вперёд, прокатить мяч змейкой вокруг стоп, выпрямиться. 5–6 раз."},
+    {title:"Наклон к ноге сидя с мячом", text:"И.п. — сидя, ноги врозь, мяч в руках. Наклон к правой ноге, коснуться мячом стопы, вернуться; то же к левой. 5 раз к каждой."},
+    {title:"Прыжки вокруг мяча", text:"Мяч лежит на полу. Прыжки на двух ногах по кругу вокруг мяча. 8–10 прыжков."},
+    {title:"Броски мяча друг другу в парах", text:"Броски двумя руками от груди партнёру и ловля. 6–8 раз."},
+    {title:"Дыхательное упражнение с мячом", text:"И.п. — мяч в опущенных руках. Поднять мяч вверх — вдох, опустить с продолжительным выдохом. 4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ со скакалкой №1", groups:["старшая"], type:"ОРУ", category:"Скакалка", quality:["Гибкость","Прыгучесть","Координация движений","Подготовка к прыжкам"], props:true, propsNote:"скакалка",
+  exercises:[
+    {title:"Скакалка вверх, растяжение", text:"И.п. — скакалка сложена вчетверо, в опущенных руках. Поднять руки вверх, потянуться, опустить. 6–8 раз."},
+    {title:"Наклон со скакалкой", text:"И.п. — ноги врозь, скакалка в руках. Наклон вперёд, скакалка к полу, выпрямиться. 6 раз."},
+    {title:"Наклон к ноге со скакалкой сидя", text:"И.п. — сидя, ноги врозь, скакалка в руках. Наклон к правой ноге, коснуться скакалкой стопы, вернуться; то же к левой. 4–5 раз к каждой."},
+    {title:"Перешагивание через скакалку", text:"Скакалка на полу. Перешагивание вперёд-назад, вправо-влево. 6–8 раз."},
+    {title:"Присед со скакалкой над головой", text:"И.п. — скакалка в поднятых руках. Присесть, не опуская скакалку, встать. 6 раз."},
+    {title:"Прыжки через скакалку на месте", text:"Вращение скакалки вперёд, прыжки на двух ногах — 8–10 подряд для владеющих техникой, либо перешагивание для начинающих."},
+    {title:"Спокойная ходьба со скакалкой в руках", text:"На восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["подготовительная"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Сила и выносливость ног","Развитие общей выносливости"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с глубоким вдохом", text:"И.п. — ноги вместе. Поднять руки через стороны вверх с вдохом, потянуться, опустить с выдохом. 8–10 раз."},
+    {title:"Наклоны вперёд прогнувшись", text:"И.п. — ноги на ширине плеч. Наклон вперёд прогнувшись, руки в стороны, выпрямиться. 8 раз."},
+    {title:"Повороты с отведением ноги", text:"И.п. — руки на поясе. Поворот корпуса вправо с отведением правой ноги в сторону, вернуться; то же влево. 6–8 раз в каждую сторону."},
+    {title:"Поднимание ног лёжа", text:"И.п. — лёжа на спине, руки вдоль тела. Поднять обе прямые ноги под углом 45°, удержать, опустить. 6–8 раз."},
+    {title:"Наклон к ноге сидя", text:"И.п. — сидя, ноги врозь. Наклон к правой ноге, коснуться руками стопы, вернуться; то же к левой. 6–8 раз к каждой."},
+    {title:"Выпады вперёд поочерёдно", text:"И.п. — ноги вместе, руки на поясе. Выпад вперёд одной ногой, вернуться; то же другой. 6–8 раз на каждую."},
+    {title:"Прыжки со сменой ног", text:"Прыжки на месте со сменой положения ног — одна вперёд, другая назад, и наоборот. 8–10 раз."},
+    {title:"Дыхательное «Дровосек»", text:"И.п. — ноги на ширине плеч, руки сцеплены «замком» над головой. Наклон вперёд с резким выдохом «ух!», выпрямление — вдох. 4–6 раз."}
+  ] },
+
+{ name:"Комплекс ОРУ с обручем №1", groups:["подготовительная"], type:"ОРУ", category:"Обручи", quality:["Гибкость","Координация движений","Сила и выносливость ног","Подготовка к прыжкам"], props:true, propsNote:"обруч",
+  exercises:[
+    {title:"Обруч вверх, на носки", text:"И.п. — обруч в опущенных руках. Поднять обруч вверх, встать на носки, потянуться, опустить. 8 раз."},
+    {title:"Поворот с обручем над головой", text:"И.п. — обруч над головой. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Повороты с обручем за спиной", text:"И.п. — обруч за спиной в опущенных руках. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Наклон, обруч на пол и обратно", text:"И.п. — ноги врозь, обруч в руках внизу. Наклон вперёд, положить обруч на пол, выпрямиться, наклон — взять обруч. 6 раз."},
+    {title:"Наклон в обруче", text:"Ребёнок стоит в обруче, лежащем на полу. Наклон вперёд, коснуться руками пола внутри обруча, не задев его, выпрямиться. 6 раз."},
+    {title:"Присед в обруче", text:"Ребёнок стоит в обруче на полу. Присесть, не задев обруч, встать. 8 раз."},
+    {title:"Прыжки на двух ногах вдоль обруча", text:"Прыжки боком вдоль края лежащего обруча. 10 прыжков."},
+    {title:"Ходьба с обручем на восстановление", text:"Спокойная ходьба, обруч в опущенных руках. 20–30 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с набивным мячом №1", groups:["подготовительная"], type:"ОРУ", category:"Набивной мяч", quality:["Сила рук и плечевого пояса","Сила мышц брюшного пресса и спины","Подготовка к метанию и ловле"], props:true, propsNote:"набивной мяч 0,5–1 кг",
+  exercises:[
+    {title:"Мяч вверх двумя руками", text:"И.п. — набивной мяч в двух руках внизу. Поднять мяч вверх, опустить. 6–8 раз, темп медленный."},
+    {title:"Поворот с мячом у груди", text:"И.п. — мяч у груди. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Повороты с мячом сидя", text:"И.п. — сидя, ноги согнуты, мяч у груди. Поворот вправо, коснуться мячом пола, вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Наклон с мячом, коснуться пола", text:"И.п. — ноги врозь, мяч в руках вверху. Наклон вперёд, коснуться мячом пола между стоп, выпрямиться. 6 раз."},
+    {title:"Наклон с мячом к ноге сидя", text:"И.п. — сидя, ноги врозь, мяч в руках. Наклон к правой ноге, коснуться мячом стопы, вернуться; то же к левой. 5–6 раз к каждой."},
+    {title:"Поднимание рук с мячом лёжа", text:"И.п. — лёжа на спине, мяч в вытянутых руках за головой. Поднести мяч вперёд-вверх к коленям, вернуться. 5–6 раз."},
+    {title:"Приседания с мячом у груди", text:"И.п. — мяч у груди. Присесть, спину держать прямо, встать. 8 раз."},
+    {title:"Броски набивного мяча в парах", text:"Броски двумя руками из-за головы на небольшое расстояние партнёру. 5–6 бросков каждому."}
+  ] },
+
+{ name:"Комплекс ОРУ с лёгкими гантелями №1", groups:["подготовительная"], type:"ОРУ", category:"Гантели лёгкие", quality:["Сила рук и плечевого пояса","Формирование правильной осанки"], props:true, propsNote:"гантели лёгкие",
+  exercises:[
+    {title:"Гантели вверх", text:"И.п. — гантели в опущенных руках. Поднять прямые руки вверх, опустить. 8 раз."},
+    {title:"Гантели в стороны", text:"И.п. — гантели у плеч. Развести руки в стороны, вернуться к плечам. 6–8 раз."},
+    {title:"Повороты с гантелями", text:"И.п. — гантели у плеч. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Наклон с гантелями", text:"И.п. — ноги врозь, гантели внизу. Наклон вперёд, руки с гантелями вниз, выпрямиться. 6 раз."},
+    {title:"Сгибание рук с гантелями к плечам", text:"И.п. — руки с гантелями внизу. Согнуть руки к плечам, разогнуть. 8–10 раз."},
+    {title:"Подъём на носки с гантелями", text:"И.п. — гантели вдоль тела. Подняться на носки, руки с гантелями вытянуть вперёд, опуститься. 8 раз."},
+    {title:"Приседания с гантелями у плеч", text:"И.п. — гантели у плеч. Присесть, спину держать прямо, встать. 8 раз."},
+    {title:"Дыхательное упражнение с гантелями", text:"Вдох — руки в стороны, выдох — руки вниз. 4 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Весёлые зайчики»", groups:["младшая"], type:"ОРУ", category:"Без предметов", quality:["Координация движений","Осанка","Подготовка к прыжкам","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Зайки проснулись", text:"И.п. — ноги на ширине плеч, руки опущены. Поднять руки вверх, потянуться, как зайка после сна, опустить. 4–5 раз."},
+    {title:"Зайки греют лапки", text:"И.п. — руки на поясе. Наклон вперёд, похлопать ладошками по коленям («греем лапки»), выпрямиться. 4–5 раз."},
+    {title:"Зайки прячутся", text:"И.п. — стоя. Присесть, обхватить колени руками, спрятаться от «лисы», встать. 4–5 раз."},
+    {title:"Зайки скачут по полянке", text:"Лёгкие прыжки на двух ногах на месте, как зайчики. 2 серии по 6 прыжков."},
+    {title:"Зайки нюхают цветочки", text:"Дыхательное упражнение: вдох носом, выдох ртом, будто нюхаем цветок. 3 раза."}
+  ] },
+
+{ name:"Комплекс с платочками «Птички проснулись»", groups:["младшая"], type:"ОРУ", category:"Платочки/султанчики", quality:["Координация движений","Подготовка к строевым упражнениям","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или султанчики",
+  exercises:[
+    {title:"Птички машут крылышками", text:"И.п. — платочки в опущенных руках. Поднять руки в стороны, помахать платочками, как крылышками, опустить. 4–5 раз."},
+    {title:"Птички клюют зёрнышки", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, коснуться платочками пола, выпрямиться. 4 раза."},
+    {title:"Птички прячутся в гнёздышко", text:"И.п. — стоя, платочки в руках. Присесть, накрыться платочками, встать. 4 раза."},
+    {title:"Птички летают", text:"Лёгкий бег на месте с взмахами платочков-«крылышек». 15–20 секунд."},
+    {title:"Птички отдыхают", text:"Дыхательное упражнение: спокойный вдох и выдох, платочки опущены. 3 раза."}
+  ] },
+
+{ name:"Комплекс с мешочками «Мышки в норке»", groups:["младшая"], type:"ОРУ", category:"Мешочки", quality:["Сила рук и плечевого пояса","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"мешочки с песком",
+  exercises:[
+    {title:"Мышка несёт зёрнышко", text:"И.п. — мешочек в правой руке внизу. Поднять руку вверх, показать мешочек, опустить, переложить в левую руку. 4 раза каждой рукой."},
+    {title:"Мышка прячет зёрнышко", text:"И.п. — мешочек в обеих руках у груди. Наклон вперёд, положить мешочек на пол, выпрямиться без мешочка, наклон — взять обратно. 4 раза."},
+    {title:"Мышка убегает от кота", text:"И.п. — мешочек в руках у груди. Присесть, спрятаться, встать. 4–5 раз."},
+    {title:"Мышка прыгает через норку", text:"Мешочек лежит на полу. Перепрыгнуть через него вперёд-назад. 6 раз."},
+    {title:"Мышки отдыхают в норке", text:"Присесть, мешочек положить рядом, спокойное дыхание. 3 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Мы — космонавты»", groups:["средняя"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Надеваем скафандр", text:"И.п. — ноги на ширине плеч. Поднять руки через стороны вверх, «застегнуть шлем», опустить. 5–6 раз."},
+    {title:"Проверяем приборы", text:"И.п. — руки перед грудью. Поворот вправо, «посмотреть на приборы», вернуться; то же влево. 5 раз в каждую сторону."},
+    {title:"Заводим ракету", text:"И.п. — ноги на ширине плеч, руки на поясе. Наклоны в стороны с имитацией «завода двигателя». 5–6 раз."},
+    {title:"Взлетаем", text:"И.п. — ноги вместе, руки на поясе. Присесть — «старт», резко выпрямиться и подняться на носки — «взлёт». 5–6 раз."},
+    {title:"Невесомость", text:"Лёгкие прыжки на месте с плавным взмахом рук в стороны, как в невесомости. 8 прыжков."},
+    {title:"Приземление", text:"Спокойная ходьба на месте с глубоким вдохом-выдохом — «мягкая посадка». 20 секунд."}
+  ] },
+
+{ name:"Комплекс с косичками «Змейки на полянке»", groups:["средняя"], type:"ОРУ", category:"Косички (короткий шнур)", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"косички (короткие шнуры)",
+  exercises:[
+    {title:"Змейка тянется вверх", text:"И.п. — косичка в двух руках внизу. Поднять руки вверх, потянуться, опустить. 5–6 раз."},
+    {title:"Змейка извивается", text:"И.п. — косичка перед грудью. Поворот вправо, вернуться, поворот влево. 5 раз в каждую сторону."},
+    {title:"Змейка ползёт по траве", text:"И.п. — ноги врозь, косичка в руках. Наклон вперёд, положить косичку на пол волной, выпрямиться. 4–5 раз."},
+    {title:"Змейка сворачивается в клубок", text:"И.п. — стоя. Присесть, обхватить колени, «свернуться», встать. 5 раз."},
+    {title:"Змейка прыгает через ручеёк", text:"Косичка на полу. Прыжки через неё вперёд-назад. 6–8 раз."},
+    {title:"Змейка засыпает", text:"Спокойное дыхание сидя, косичка рядом. 3–4 раза."}
+  ] },
+
+{ name:"Комплекс с платочками «Бабочки над лугом»", groups:["средняя"], type:"ОРУ", category:"Платочки/султанчики", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или султанчики",
+  exercises:[
+    {title:"Бабочка расправляет крылышки", text:"И.п. — платочки в опущенных руках. Развести руки в стороны, помахать платочками, опустить. 5–6 раз."},
+    {title:"Бабочка кружится", text:"И.п. — руки в стороны. Плавные повороты корпуса вправо-влево. 5 раз в каждую сторону."},
+    {title:"Бабочка садится на цветок", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, коснуться платочками пола, выпрямиться. 5 раз."},
+    {title:"Бабочка складывает крылышки", text:"И.п. — стоя. Присесть, накрыться платочками, встать. 5–6 раз."},
+    {title:"Бабочка перелетает с цветка на цветок", text:"Лёгкие прыжки с продвижением, взмахивая платочками. 8 прыжков."},
+    {title:"Бабочка отдыхает на листочке", text:"Спокойное дыхание, платочки опущены. 3 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Морское путешествие»", groups:["старшая"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Поднимаем паруса", text:"И.п. — ноги на ширине плеч. Поднять руки вверх через стороны, потянуться, опустить. 6–8 раз."},
+    {title:"Смотрим в подзорную трубу", text:"И.п. — руки перед глазами «трубой». Поворот вправо, «осмотреть горизонт», вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Волны качают корабль", text:"И.п. — ноги на ширине плеч, руки на поясе. Наклоны в стороны, изображая качку. 6 раз."},
+    {title:"Достаём якорь со дна", text:"И.п. — лёжа на спине. Поднять туловище, сесть, «достать якорь», лечь. 6–8 раз."},
+    {title:"Гребём вёслами", text:"И.п. — сидя, ноги вытянуты вперёд. Имитация гребли вёслами согнутыми руками попеременно. 6–8 раз."},
+    {title:"Прыгаем через волны", text:"Прыжки на двух ногах с продвижением вперёд, как через волны. 8–10 прыжков."},
+    {title:"Дышим свежим морским воздухом", text:"Глубокий вдох носом, плавный выдох ртом. 4 раза."}
+  ] },
+
+{ name:"Комплекс с мешочками «Юные спортсмены»", groups:["старшая"], type:"ОРУ", category:"Мешочки", quality:["Сила рук и плечевого пояса","Глазомер и работа с мячом","Сюжетно-игровой комплекс"], props:true, propsNote:"мешочки с песком",
+  exercises:[
+    {title:"Штангисты", text:"И.п. — мешочек в обеих руках у груди. Поднять мешочек вверх на прямых руках, опустить. 6–8 раз."},
+    {title:"Метатели", text:"И.п. — мешочек в отведённой руке. Поворот корпуса, имитация замаха для броска, вернуться; сменить руку. 5 раз каждой рукой."},
+    {title:"Гимнасты", text:"И.п. — ноги врозь, мешочек в руках. Наклон вперёд, коснуться мешочком пола между стоп, выпрямиться. 6 раз."},
+    {title:"Тяжелоатлеты", text:"И.п. — мешочек у груди. Присесть, спину держать прямо, встать. 6–8 раз."},
+    {title:"Прыгуны", text:"Мешочек на полу. Прыжки через него на двух ногах вперёд-назад. 8 раз."},
+    {title:"Бегуны", text:"Бег на месте с высоким подниманием колена, мешочек в опущенных руках. 15–20 секунд."},
+    {title:"Восстанавливаем дыхание после тренировки", text:"Спокойная ходьба на месте с мешочком в руках. 20 секунд."}
+  ] },
+
+{ name:"Комплекс с косичками «Юные жонглёры»", groups:["старшая"], type:"ОРУ", category:"Косички (короткий шнур)", quality:["Координация движений","Гибкость","Сюжетно-игровой комплекс"], props:true, propsNote:"косички (короткие шнуры)",
+  exercises:[
+    {title:"Косичка летит вверх", text:"И.п. — косичка в двух руках внизу. Поднять руки вверх, потянуться, опустить. 6–8 раз."},
+    {title:"Косичка кружится", text:"И.п. — косичка перед грудью. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Косичка стелется по земле", text:"И.п. — ноги врозь, косичка в руках. Наклон вперёд, положить косичку волной на пол, выпрямиться. 6 раз."},
+    {title:"Косичка сворачивается", text:"И.п. — сидя, косичка в руках. Наклон к ногам, коснуться косичкой стоп, выпрямиться. 5–6 раз."},
+    {title:"Косичка перешагивается", text:"Косичка на полу. Перешагивание вперёд-назад приставным шагом. 6–8 раз."},
+    {title:"Прыжки через косичку", text:"Косичка на полу в виде волны. Прыжки через неё боком. 8–10 раз."},
+    {title:"Косичка отдыхает", text:"Спокойное дыхание, косичка в опущенных руках. 3–4 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Спортсмены готовятся к Олимпиаде»", groups:["подготовительная"], type:"ОРУ", category:"Без предметов", quality:["Сила и выносливость ног","Сила мышц брюшного пресса и спины","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Разминка перед стартом", text:"И.п. — ноги на ширине плеч. Поднять руки вверх с вдохом, опустить с выдохом. 8–10 раз."},
+    {title:"Разворот на трибуны", text:"И.п. — руки на поясе. Поворот корпуса вправо с отведением руки в сторону, вернуться; то же влево. 6–8 раз в каждую сторону."},
+    {title:"Штурмуем вершину", text:"И.п. — ноги на ширине плеч. Наклон вперёд прогнувшись, руки в стороны, выпрямиться. 8 раз."},
+    {title:"Наклон к пьедесталу", text:"И.п. — сидя, ноги вместе вытянуты. Наклон вперёд, коснуться руками стоп, выпрямиться. 8 раз."},
+    {title:"Качаем пресс перед заплывом", text:"И.п. — лёжа на спине, руки за головой. Поднять туловище, сесть, лечь. 8 раз."},
+    {title:"Прыжки в длину, как в лёгкой атлетике", text:"Прыжки на двух ногах с продвижением вперёд, имитируя прыжок в длину. 6–8 прыжков."},
+    {title:"Бег на месте с высоким подниманием колена", text:"Имитация спринтерского старта. 20–30 секунд."},
+    {title:"Финишное дыхание", text:"Глубокий вдох, продолжительный выдох, руки плавно вниз. 4 раза."}
+  ] },
+
+{ name:"Комплекс со скакалкой «Весёлые прыгуны»", groups:["подготовительная"], type:"ОРУ", category:"Скакалка", quality:["Прыгучесть","Координация движений","Подготовка к прыжкам","Сюжетно-игровой комплекс"], props:true, propsNote:"скакалка",
+  exercises:[
+    {title:"Скакалка тянется к небу", text:"И.п. — скакалка сложена вчетверо, в опущенных руках. Поднять руки вверх, потянуться, опустить. 8 раз."},
+    {title:"Повороты со скакалкой", text:"И.п. — скакалка перед грудью. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Скакалка качается на ветру", text:"И.п. — ноги врозь, скакалка в руках. Наклоны в стороны. 6–8 раз."},
+    {title:"Наклон к ноге со скакалкой сидя", text:"И.п. — сидя, ноги врозь, скакалка в руках. Наклон к правой ноге, коснуться скакалкой стопы; то же к левой. 5–6 раз к каждой."},
+    {title:"Скакалка ползёт по дорожке", text:"Скакалка на полу. Перешагивание через неё приставным шагом вправо-влево. 8 раз."},
+    {title:"Приседаем, как пружинки", text:"И.п. — скакалка в поднятых руках. Присесть, не опуская скакалку, встать. 8 раз."},
+    {title:"Прыгаем через скакалку", text:"Вращение скакалки вперёд, прыжки на двух ногах подряд — 10–15 раз для владеющих техникой, либо перешагивание для начинающих."},
+    {title:"Скакалка отдыхает", text:"Спокойная ходьба со скакалкой в руках, восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс с платочками «Осенние листья»", groups:["подготовительная"], type:"ОРУ", category:"Платочки/султанчики", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или лёгкие ленты-листья",
+  exercises:[
+    {title:"Листья взлетают на ветру", text:"И.п. — платочки в опущенных руках. Поднять руки вверх через стороны, помахать платочками, опустить. 8 раз."},
+    {title:"Листья кружатся", text:"И.п. — руки в стороны. Плавные повороты корпуса вправо-влево с одновременным поворотом на носках. 6–8 раз в каждую сторону."},
+    {title:"Приседания с платочками над головой", text:"И.п. — платочки в поднятых руках. Присесть, не опуская руки, встать. 8 раз."},
+    {title:"Листья опускаются на землю", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, плавно опустить платочки на пол, выпрямиться. 6–8 раз."},
+    {title:"Наклон к ноге с платочком", text:"И.п. — сидя, ноги врозь, платочки в руках. Наклон к правой ноге, коснуться платочком стопы; то же к левой. 6 раз к каждой."},
+    {title:"Листья собираются в кучу", text:"И.п. — стоя. Присесть, собрать «листья» руками к себе, встать. 8 раз."},
+    {title:"Ветер поднимает листья в прыжке", text:"Лёгкие подскоки на месте с взмахом платочков вверх. 8–10 раз."},
+    {title:"Листья засыпают под снегом", text:"Спокойное дыхание, платочки опущены, лёгкое покачивание. 4 раза."}
+  ] }
+
+];
+
+const OVD_MOVES = [
+
+{ name:"Ходьба обычная в колонне по одному", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Координация и равновесие","Осанка"], props:false, propsNote:null,
+  desc:"Ходьба друг за другом в затылок, соблюдая дистанцию (вытянутая рука), спина прямая, смотреть вперёд. Дистанция 8–15 м в зависимости от возраста.",
+  orgTip:"Фронтальный способ: вся группа идёт одной колонной за воспитателем, который задаёт темп голосом или ударами в бубен." },
+
+{ name:"Ходьба на носках", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Осанка","Координация и равновесие"], props:false, propsNote:null,
+  desc:"Ходьба на носках, руки на поясе или вверх, спина прямая, смотреть перед собой (не под ноги). Дистанция 6–10 м.",
+  orgTip:"Фронтальный способ, часть общей вводной ходьбы; чередовать с обычной ходьбой каждые 5–6 шагов, чтобы не переутомлять стопу." },
+
+{ name:"Ходьба на пятках", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Осанка","Координация и равновесие"], props:false, propsNote:null,
+  desc:"Ходьба на пятках, носки приподняты, руки за спиной. Дистанция 6–8 м. Укрепляет мышцы голени.",
+  orgTip:"Фронтальный способ; проводится сразу после ходьбы на носках для контраста нагрузки на стопу." },
+
+{ name:"Ходьба с высоким подниманием колена", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Координация и равновесие","Согласованность движений рук и ног"], props:false, propsNote:null,
+  desc:"Ходьба с подниманием согнутого колена (бедро параллельно полу), руки на поясе или работают в такт шагам. 15–20 секунд.",
+  orgTip:"Фронтальный способ как разминочное упражнение перед бегом; для младших — облегчённый вариант без требования параллели бедра." },
+
+{ name:"Ходьба приставным шагом боком", groups:["младшая","средняя","старшая"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Координация и равновесие"], props:false, propsNote:null,
+  desc:"Ходьба боком приставным шагом, не скрещивая ноги, сначала в одну сторону, затем в другую. 6–8 м в каждую сторону.",
+  orgTip:"Фронтальный способ, шеренгой лицом в одну сторону, чтобы всем было видно направление движения." },
+
+{ name:"Ходьба «змейкой» между предметами", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Кегли", quality:["Координация и равновесие","Ловкость"], props:true, propsNote:"6–8 кеглей или кубиков",
+  desc:"Ходьба между расставленными в ряд предметами, огибая каждый, не задевая. Расстояние между предметами 40–50 см.",
+  orgTip:"Поточный способ: дети идут друг за другом с интервалом 2–3 м, чтобы не создавать затор на повороте." },
+
+{ name:"Ходьба с мешочком на голове", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Мешочки с песком", quality:["Осанка","Координация и равновесие"], props:true, propsNote:"мешочек с песком 150–200 г",
+  desc:"Ходьба с мешочком на голове, сохраняя прямую осанку, руки в стороны или на поясе. Дистанция 6–8 м.",
+  orgTip:"Поточный или посменный способ подгруппами по 4–5 человек — мешочков обычно меньше, чем детей в группе." },
+
+{ name:"Ходьба по ребристой (массажной) дорожке", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Массажная дорожка", quality:["Координация и равновесие"], props:true, propsNote:"ребристая или массажная дорожка",
+  desc:"Ходьба по дорожке с рельефной поверхностью босиком или в носках, стопа ставится полностью, шаг медленный. 3–4 м, 1–2 прохода.",
+  orgTip:"Поточный способ по одному; чаще используется как часть закаливающих процедур после сна, а не основного занятия." },
+
+{ name:"Ходьба с изменением темпа по сигналу", groups:["старшая","подготовительная"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Координация и равновесие","Быстрота"], props:false, propsNote:null,
+  desc:"Ходьба в колонне, по сигналу (хлопок, слово) переход с обычного темпа на быстрый и обратно на медленный. 30–40 секунд.",
+  orgTip:"Фронтальный способ; сигналы подаёт воспитатель вразнобой, чтобы приучить реагировать быстро, а не по счёту." },
+
+{ name:"Ходьба в парах, держась за руки", groups:["младшая","средняя"], type:"ОВД", category:"Ходьба", propCategory:"Без предметов", quality:["Координация и равновесие","Согласованность движений рук и ног"], props:false, propsNote:null,
+  desc:"Ходьба парами, взявшись за руки, в одном темпе, не отставая и не забегая вперёд партнёра. Дистанция 8–10 м.",
+  orgTip:"Фронтальный способ; пары формировать заранее, чтобы не терять время на построение во время занятия." },
+
+{ name:"Бег врассыпную", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Быстрота","Координация и равновесие"], props:false, propsNote:null,
+  desc:"Свободный бег по всей площади зала, не наталкиваясь на других детей, естественные движения рук. 20–40 секунд.",
+  orgTip:"Фронтальный способ; перед стартом напомнить правило «смотрим, куда бежим», обязательно чередовать с ходьбой для отдыха." },
+
+{ name:"Бег в колонне по одному", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Быстрота","Ловкость"], props:false, propsNote:null,
+  desc:"Бег друг за другом с соблюдением дистанции, по прямой или по кругу зала, средний темп. 30 секунд – 1,5 минуты в зависимости от возраста.",
+  orgTip:"Фронтальный способ; для профилактики столкновений в кругу воспитатель стоит в центре и задаёт направление." },
+
+{ name:"Бег «змейкой» между предметами", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Кегли", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"6–8 кеглей или кубиков",
+  desc:"Бег между расставленными предметами змейкой, не задевая их, с сохранением равновесия на поворотах.",
+  orgTip:"Поточный способ, дети стартуют по одному с интервалом, следующий — когда предыдущий прошёл треть дистанции." },
+
+{ name:"Бег с ускорением и замедлением", groups:["старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Быстрота","Выносливость"], props:false, propsNote:null,
+  desc:"Чередование бега в медленном и быстром темпе по сигналу воспитателя без остановки движения. 40 секунд – 1 минута.",
+  orgTip:"Фронтальный способ по кругу зала; хорошо использовать бубен — редкий стук соответствует медленному темпу, частый — быстрому." },
+
+{ name:"Бег с высоким подниманием бедра", groups:["старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Быстрота","Согласованность движений рук и ног"], props:false, propsNote:null,
+  desc:"Бег на месте или с небольшим продвижением, высоко поднимая согнутое колено. 15–20 секунд, беговая техническая разминка.",
+  orgTip:"Фронтальный способ, короткими сериями по 10–15 секунд с паузами — упражнение интенсивное для этого возраста." },
+
+{ name:"Бег с захлёстом голени назад", groups:["подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Быстрота","Согласованность движений рук и ног"], props:false, propsNote:null,
+  desc:"Бег на месте или с продвижением, стараясь пяткой достать до ягодицы. 15–20 секунд.",
+  orgTip:"Фронтальный способ как элемент беговой разминки; используется только в подготовительной группе, требует предварительного показа." },
+
+{ name:"Челночный бег", groups:["старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Кегли", quality:["Быстрота","Ловкость"], props:true, propsNote:"2 кегли-ориентира на расстоянии 5–10 м",
+  desc:"Бег от одной отметки до другой и обратно с касанием предмета в конечной точке, несколько повторов подряд.",
+  orgTip:"Посменный способ по одному или парами наперегонки; обязательно ровное покрытие пола без риска поскользнуться на развороте." },
+
+{ name:"Бег с преодолением препятствий", groups:["старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Полоса препятствий (смешанный инвентарь)", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"дуги, кубики, скамейка — по маршруту",
+  desc:"Бег по маршруту с чередованием подлезания под дугу, перепрыгивания через кубики, обегания кегль.",
+  orgTip:"Поточный способ, маршрут заранее размечен; следующий ребёнок стартует только когда предыдущий прошёл первое препятствие." },
+
+{ name:"Бег парами, держась за руки", groups:["младшая","средняя"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Координация и равновесие","Согласованность движений рук и ног"], props:false, propsNote:null,
+  desc:"Бег парами в одном темпе, не тянуть и не отставать от партнёра. 15–20 секунд.",
+  orgTip:"Фронтальный способ; пары держать одного роста для равного темпа бега." },
+
+{ name:"Непрерывный бег в медленном темпе", groups:["старшая","подготовительная"], type:"ОВД", category:"Бег", propCategory:"Без предметов", quality:["Выносливость"], props:false, propsNote:null,
+  desc:"Равномерный бег в спокойном темпе без остановок. Старшая — 1–1,5 минуты, подготовительная — 1,5–2 минуты.",
+  orgTip:"Фронтальный способ по кругу зала или на улице; темп ниже, чем при обычном беге, следить за дыханием, не форсировать." },
+
+{ name:"Прыжки на двух ногах на месте", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Без предметов", quality:["Прыгучесть"], props:false, propsNote:null,
+  desc:"Лёгкие пружинистые прыжки на двух ногах на месте, руки на поясе или свободны. 2–3 серии по 6–10 прыжков с отдыхом.",
+  orgTip:"Фронтальный способ; следить, чтобы приземление было мягким, на носки с перекатом, без жёсткого удара пяткой." },
+
+{ name:"Прыжки с продвижением вперёд", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Без предметов", quality:["Прыгучесть","Координация и равновесие"], props:false, propsNote:null,
+  desc:"Прыжки на двух ногах с продвижением вперёд на 2–4 м, мягкое приземление на носки с перекатом на всю стопу.",
+  orgTip:"Поточный способ по одному или парами рядом, чтобы не мешать друг другу приземлением." },
+
+{ name:"Прыжки в длину с места", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Без предметов", quality:["Прыгучесть"], props:false, propsNote:null,
+  desc:"И.п. — ноги на ширине стопы, полуприсед, энергичный мах руками при отталкивании. Прыжок вперёд, мягкое приземление на обе ноги. 3–4 попытки.",
+  orgTip:"Посменный способ по одному, следующий прыгает после того, как предыдущий отошёл в сторону; для старших групп фиксировать личный результат." },
+
+{ name:"Прыжки в длину с разбега", groups:["старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Без предметов", quality:["Прыгучесть","Быстрота"], props:false, propsNote:null,
+  desc:"Разбег 3–6 шагов, отталкивание одной ногой, мягкое приземление на обе ноги. Используется начиная со старшей группы.",
+  orgTip:"Посменный способ по одному, обязательна разметка места отталкивания и зоны безопасного приземления (мат или яма с песком)." },
+
+{ name:"Прыжки в высоту с места через шнур", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Шнур для прыжков в высоту", quality:["Прыгучесть"], props:true, propsNote:"шнур или невысокая планка",
+  desc:"Прыжок через невысоко натянутый шнур (5–20 см в зависимости от возраста) с места, мягкое приземление на обе ноги.",
+  orgTip:"Посменный способ, шнур держат двое взрослых или закреплён на стойках так, чтобы легко соскальзывал при задевании — исключить жёсткую фиксацию." },
+
+{ name:"Прыжки в высоту с разбега", groups:["подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Шнур для прыжков в высоту", quality:["Прыгучесть","Быстрота"], props:true, propsNote:"шнур или планка на стойках",
+  desc:"Разбег 3–5 шагов, отталкивание одной ногой способом «согнув ноги», приземление на мат.",
+  orgTip:"Посменный способ строго по одному под контролем взрослого; обязателен мат в зоне приземления." },
+
+{ name:"Прыжки из обруча в обруч", groups:["младшая","средняя"], type:"ОВД", category:"Прыжки", propCategory:"Обруч", quality:["Прыгучесть","Координация и равновесие"], props:true, propsNote:"5–6 обручей",
+  desc:"Обручи разложены на полу цепочкой. Прыжки на двух ногах из обруча в обруч, стараясь попадать точно внутрь, не задевая края.",
+  orgTip:"Поточный способ, обручи разложены заранее по числу подгрупп, чтобы несколько детей могли прыгать параллельно." },
+
+{ name:"Прыжки на одной ноге", groups:["старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Без предметов", quality:["Прыгучесть","Координация и равновесие"], props:false, propsNote:null,
+  desc:"Прыжки на одной ноге на месте или с небольшим продвижением, 5–6 прыжков на каждой ноге поочерёдно.",
+  orgTip:"Фронтальный способ; для подготовительной группы можно усложнить — прыжки по прямой линии на разметке." },
+
+{ name:"Прыжки через скакалку", groups:["старшая","подготовительная"], type:"ОВД", category:"Прыжки", propCategory:"Скакалка", quality:["Прыгучесть","Координация и равновесие"], props:true, propsNote:"скакалка индивидуальная",
+  desc:"Вращение скакалки вперёд с одновременным прыжком на двух ногах. Для начинающих — перешагивание через скакалку, лежащую на полу.",
+  orgTip:"Фронтальный способ, каждому ребёнку своя скакалка; отрабатывать сначала вращение без прыжка, затем соединять с прыжком." },
+
+{ name:"Прыжки через короткие предметы", groups:["средняя","старшая"], type:"ОВД", category:"Прыжки", propCategory:"Кегли", quality:["Прыгучесть","Координация и равновесие"], props:true, propsNote:"5–6 кубиков или кегль в ряд",
+  desc:"Прыжки на двух ногах через ряд невысоких предметов, расставленных на расстоянии 40–50 см друг от друга, без остановки между прыжками.",
+  orgTip:"Поточный способ; предметы располагать по прямой линии, чтобы траектория прыжка была предсказуемой." },
+
+{ name:"Прокатывание мяча друг другу", groups:["младшая","средняя"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч средний", quality:["Меткость и глазомер"], props:true, propsNote:"мяч средний, по одному на пару",
+  desc:"Дети сидят или стоят напротив друг друга на расстоянии 1,5–2 м, прокатывают мяч по полу точно в руки партнёра.",
+  orgTip:"Групповой способ парами одновременно по всему залу; расставить пары так, чтобы траектории мячей не пересекались." },
+
+{ name:"Бросок мяча двумя руками от груди", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч средний", quality:["Меткость и глазомер","Сила рук и плечевого пояса"], props:true, propsNote:"мяч средний, по одному на пару",
+  desc:"И.п. — мяч у груди в обеих руках. Бросок партнёру вперёд от груди с небольшим шагом вперёд; партнёр ловит мяч, не прижимая к себе.",
+  orgTip:"Групповой способ парами; расстояние между парами не менее 1,5 м, чтобы броски не пересекались." },
+
+{ name:"Метание мешочка вдаль одной рукой", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мешочки с песком", quality:["Меткость и глазомер","Сила рук и плечевого пояса"], props:true, propsNote:"мешочек с песком, по одному на ребёнка",
+  desc:"И.п. — стоя боком по направлению броска, мешочек в отведённой назад руке. Бросок «из-за спины через плечо» с переносом веса на впередистоящую ногу. По 3–5 бросков каждой рукой.",
+  orgTip:"Посменный способ шеренгами по 5–6 человек: одна шеренга бросает, вторая в это время собирает мешочки на дальнем краю площадки — строго по команде, не раньше." },
+
+{ name:"Метание в горизонтальную цель", groups:["младшая","средняя","старшая"], type:"ОВД", category:"Метание и ловля", propCategory:"Мешочки с песком", quality:["Меткость и глазомер"], props:true, propsNote:"мешочки с песком, обруч-цель",
+  desc:"Цель (обруч) лежит на полу на расстоянии 2–3 м. Бросок мешочка сверху способом «из-за головы», стараясь попасть точно в цель.",
+  orgTip:"Посменный способ подгруппами по 4–5 человек у каждой цели — так снижается очередь ожидания и повышается моторная плотность." },
+
+{ name:"Метание в вертикальную цель", groups:["старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч малый", quality:["Меткость и глазомер"], props:true, propsNote:"мяч малый или мешочки, щит-мишень",
+  desc:"Цель закреплена на стене на высоте 1,5–2 м. Бросок мяча или мешочка с расстояния 2–4 м, стараясь попасть в отмеченный круг.",
+  orgTip:"Посменный способ по одному или по двое у соседних мишеней; за спиной бросающих не должно быть детей — строгий контроль безопасной зоны." },
+
+{ name:"Отбивание мяча об пол одной рукой", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч средний", quality:["Меткость и глазомер","Координация и равновесие"], props:true, propsNote:"мяч средний, по одному на ребёнка",
+  desc:"Отбивание мяча об пол одной рукой на месте несколько раз подряд, кисть «накрывает» мяч сверху. В подготовительной группе — то же с продвижением вперёд.",
+  orgTip:"Фронтальный способ, каждому ребёнку свой мяч и достаточно личного пространства (около 1 м в каждую сторону)." },
+
+{ name:"Броски мяча в кольцо", groups:["подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Кольца", quality:["Меткость и глазомер"], props:true, propsNote:"мяч малый, кольцо-мишень на стойке",
+  desc:"Бросок мяча снизу или от груди в кольцо на стойке (высота регулируется), с расстояния 1,5–2 м.",
+  orgTip:"Посменный способ по одному у каждой стойки; для увеличения моторной плотности организовать 2–3 стойки одновременно." },
+
+{ name:"Ловля мяча после подбрасывания", groups:["младшая","средняя"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч малый", quality:["Меткость и глазомер","Координация и равновесие"], props:true, propsNote:"мяч малый, по одному на ребёнка",
+  desc:"Подбросить мяч вверх невысоко и поймать двумя руками, не прижимая к груди. 4–6 повторов.",
+  orgTip:"Фронтальный способ; для младшей группы допустима ловля после отскока от пола, если ловля с лёта ещё не получается." },
+
+{ name:"Метание вдаль двумя руками из-за головы", groups:["старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч большой", quality:["Меткость и глазомер","Сила рук и плечевого пояса"], props:true, propsNote:"мяч большой или набивной, лёгкий",
+  desc:"И.п. — мяч в двух руках за головой, ноги на ширине плеч. Резкий бросок вперёд-вверх двумя руками из-за головы.",
+  orgTip:"Посменный способ шеренгой лицом в одну сторону, интервал между детьми не менее 1,5 м, бросок только по общей команде." },
+
+{ name:"Перебрасывание мяча через шнур в парах", groups:["старшая","подготовительная"], type:"ОВД", category:"Метание и ловля", propCategory:"Мяч средний", quality:["Меткость и глазомер","Координация и равновесие"], props:true, propsNote:"мяч средний, шнур или сетка на стойках",
+  desc:"Пары стоят по разные стороны натянутого на уровне поднятых рук шнура, перебрасывают мяч друг другу двумя руками.",
+  orgTip:"Групповой способ, несколько пар одновременно вдоль общего шнура — экономит время по сравнению с одной сеткой на всех." },
+
+{ name:"Ползание на четвереньках по прямой", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Без предметов", quality:["Координация и равновесие","Ловкость"], props:false, propsNote:null,
+  desc:"Ползание на четвереньках, опираясь на ладони и колени, по прямой линии на расстояние 3–5 м.",
+  orgTip:"Поточный способ, дети стартуют по одному с интервалом 2 м, чтобы не наступить друг другу на руки." },
+
+{ name:"Подлезание под дугу", groups:["младшая","средняя"], type:"ОВД", category:"Лазание и ползание", propCategory:"Дуга для подлезания", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"дуга или обруч, высота 40–50 см",
+  desc:"Подлезание под дугу правым и левым боком, не касаясь руками пола и не задевая дугу спиной.",
+  orgTip:"Поточный способ; 2–3 дуги на разных станциях позволяют группе не скапливаться в очередь." },
+
+{ name:"Подлезание под шнур боком", groups:["средняя","старшая"], type:"ОВД", category:"Лазание и ползание", propCategory:"Шнур для подлезания", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"шнур, натянутый на высоте 40–50 см",
+  desc:"Подлезание под натянутый шнур боком, не задевая его, не касаясь руками пола (усложнённый вариант дуги).",
+  orgTip:"Поточный способ; шнур закреплён так, чтобы соскальзывать при задевании, а не травмировать ребёнка." },
+
+{ name:"Пролезание в обруч", groups:["младшая","средняя"], type:"ОВД", category:"Лазание и ползание", propCategory:"Обруч", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"обруч, удерживается вертикально",
+  desc:"Обруч удерживается вертикально на полу или в руках взрослого. Ребёнок пролезает сквозь него, не задевая края, группируясь телом.",
+  orgTip:"Посменный способ, обруч удерживает взрослый или старший ребёнок под присмотром — самостоятельная фиксация обруча детьми не рекомендуется." },
+
+{ name:"Лазание по гимнастической стенке", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Гимнастическая стенка", quality:["Ловкость","Сила рук и плечевого пояса"], props:true, propsNote:"гимнастическая стенка",
+  desc:"Лазание вверх-вниз произвольным способом, руки и ноги переставляются одновременно или приставным шагом.",
+  orgTip:"Посменный способ строго по одному пролёту, обязательна страховка взрослого рядом со стенкой на всё время выполнения." },
+
+{ name:"Лазание по гимнастической стенке с переходом на соседний пролёт", groups:["старшая","подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Гимнастическая стенка", quality:["Ловкость","Сила рук и плечевого пояса","Смелость и уверенность в движении"], props:true, propsNote:"гимнастическая стенка",
+  desc:"Подъём по одному пролёту, переход приставным шагом на соседний пролёт на одной и той же высоте, спуск по нему вниз.",
+  orgTip:"Посменный способ строго по одному, обязательна страховка взрослого именно в момент перехода между пролётами — это самый рискованный этап." },
+
+{ name:"Ползание по скамейке на четвереньках", groups:["средняя","старшая"], type:"ОВД", category:"Лазание и ползание", propCategory:"Гимнастическая скамейка", quality:["Координация и равновесие","Ловкость"], props:true, propsNote:"гимнастическая скамейка",
+  desc:"Ползание по гимнастической скамейке на четвереньках, опираясь ладонями и коленями, сохраняя равновесие на ограниченной опоре.",
+  orgTip:"Поточный способ по одному; воспитатель стоит сбоку у скамейки, готовый подстраховать при потере равновесия." },
+
+{ name:"Ползание «по-медвежьи»", groups:["старшая","подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Без предметов", quality:["Сила рук и плечевого пояса","Ловкость"], props:false, propsNote:null,
+  desc:"Ползание с опорой на ладони и стопы (ноги не сгибать в коленях полностью), продвижение вперёд на расстояние 3–4 м.",
+  orgTip:"Поточный способ; движение непривычное и утомительное — ограничивать одной короткой дистанцией без повторов подряд." },
+
+{ name:"Ползание на четвереньках, подталкивая мяч головой", groups:["подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Мяч малый", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"мяч малый",
+  desc:"Ползание на четвереньках, подталкивая мяч головой перед собой по прямой линии, не теряя его из виду.",
+  orgTip:"Поточный способ; усложнённый вариант для хорошо подготовленных детей, дистанция короткая — 3 м." },
+
+{ name:"Пролезание между рейками лестницы приставным шагом", groups:["подготовительная"], type:"ОВД", category:"Лазание и ползание", propCategory:"Гимнастическая стенка", quality:["Ловкость","Координация и равновесие"], props:true, propsNote:"гимнастическая стенка, лестница, лежащая наклонно",
+  desc:"Наклонная лестница опирается на гимнастическую стенку. Пролезание между рейками приставным шагом, придерживаясь руками.",
+  orgTip:"Посменный способ строго по одному под непосредственным контролем взрослого — усложнённое упражнение только для хорошо подготовленных детей." },
+
+{ name:"Ходьба по гимнастической скамейке", groups:["младшая","средняя","старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Гимнастическая скамейка", quality:["Координация и равновесие"], props:true, propsNote:"гимнастическая скамейка",
+  desc:"Ходьба по скамейке, руки в стороны для сохранения равновесия, смотреть немного вперёд, а не под ноги.",
+  orgTip:"Поточный способ по одному, воспитатель стоит у конца скамейки для подстраховки схода." },
+
+{ name:"Ходьба по скамейке с перешагиванием предметов", groups:["старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Гимнастическая скамейка", quality:["Координация и равновесие","Ловкость"], props:true, propsNote:"гимнастическая скамейка, кубики",
+  desc:"Ходьба по скамейке с перешагиванием через кубики, расставленные через 40–50 см, сохраняя равновесие на узкой опоре.",
+  orgTip:"Поточный способ по одному; кубики закреплять или использовать устойчивые, чтобы не сбивались при случайном задевании." },
+
+{ name:"Ходьба по скамейке с мешочком на голове", groups:["старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Мешочки с песком", quality:["Координация и равновесие","Осанка"], props:true, propsNote:"гимнастическая скамейка, мешочек с песком",
+  desc:"Ходьба по скамейке с мешочком на голове, руки в стороны, спина прямая. Усложнённый вариант обычной ходьбы по скамейке.",
+  orgTip:"Поточный способ по одному; если мешочек падает — ребёнок останавливается, поднимает его без схода со скамейки, если возможно, и продолжает." },
+
+{ name:"Ходьба по канату приставным шагом", groups:["старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Канат для равновесия", quality:["Координация и равновесие"], props:true, propsNote:"канат или толстый шнур на полу",
+  desc:"Ходьба приставным шагом боком по канату, лежащему на полу, стопы ставятся вдоль каната, руки в стороны.",
+  orgTip:"Поточный способ; канат должен лежать ровно, без узлов и перекручиваний по всей длине." },
+
+{ name:"Ходьба по наклонной доске", groups:["старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Наклонная доска", quality:["Координация и равновесие"], props:true, propsNote:"наклонная доска, один конец приподнят",
+  desc:"Ходьба вверх и вниз по доске, один конец которой приподнят (на гимнастическую стенку или скамейку).",
+  orgTip:"Посменный способ по одному, обязательна страховка взрослого у нижнего конца доски и мат внизу на случай соскальзывания." },
+
+{ name:"Стойка на одной ноге", groups:["средняя","старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Без предметов", quality:["Координация и равновесие"], props:false, propsNote:null,
+  desc:"И.п. — стоя, руки на поясе. Поднять одну ногу, согнутую в колене, удержать равновесие несколько секунд, опустить, сменить ногу.",
+  orgTip:"Фронтальный способ; для подготовительной группы усложнить — с закрытыми глазами или руками в стороны." },
+
+{ name:"Ходьба по скамейке с поворотом кругом на середине", groups:["подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Гимнастическая скамейка", quality:["Координация и равновесие","Смелость и уверенность в движении"], props:true, propsNote:"гимнастическая скамейка",
+  desc:"Ходьба по скамейке, на середине — остановка, поворот кругом переступанием, продолжение ходьбы в обратном направлении.",
+  orgTip:"Поточный способ по одному; предварительно отработать поворот кругом стоя на полу, прежде чем выполнять его на скамейке." },
+
+{ name:"Перешагивание через кубики по прямой линии", groups:["младшая","средняя"], type:"ОВД", category:"Равновесие", propCategory:"Кегли", quality:["Координация и равновесие","Ловкость"], props:true, propsNote:"5–6 кубиков в ряд",
+  desc:"Ходьба по прямой линии с перешагиванием через невысокие кубики, расставленные через 30–40 см.",
+  orgTip:"Поточный способ; для младшей группы расстояние между предметами делать больше, чтобы шаг был свободным, без семенения." },
+
+{ name:"Ходьба по узкой дорожке", groups:["младшая"], type:"ОВД", category:"Равновесие", propCategory:"Без предметов", quality:["Координация и равновесие"], props:false, propsNote:null,
+  desc:"Ходьба по дорожке шириной 20–25 см (обозначена шнурами или линиями на полу), не наступая за края. Дистанция 3–4 м.",
+  orgTip:"Фронтальный или поточный способ; для самых маленьких можно держать ребёнка за руку при первых попытках." },
+
+{ name:"Кружение на месте с последующей ходьбой по прямой", groups:["старшая","подготовительная"], type:"ОВД", category:"Равновесие", propCategory:"Без предметов", quality:["Координация и равновесие"], props:false, propsNote:null,
+  desc:"Кружение на месте (3–4 оборота), остановка, затем ходьба по прямой линии, стараясь не отклоняться в сторону.",
+  orgTip:"Посменный способ по одному на свободном пространстве без мебели и других детей рядом — после кружения возможна временная потеря равновесия." }
+
+];
+
+const STROEVYE = [
+
+{ name:"Построение в колонну по одному", groups:["младшая"], category:"Построения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Дети встают друг за другом лицом в одну сторону, соблюдая небольшое расстояние. Педагог помогает каждому найти своё место, стоит впереди колонны как ориентир.",
+  orgTip:"Фронтальный способ с полной помощью взрослого. На пол можно наклеить или нарисовать метки-следы для места каждого ребёнка — это ускоряет освоение." },
+
+{ name:"Построение в круг по ориентирам", groups:["младшая"], category:"Построения", quality:["Пространственная ориентировка"], props:true, propsNote:"кубики или кружки-ориентиры на полу",
+  desc:"На полу разложены предметы-ориентиры по кругу. Дети встают каждый у своего ориентира, образуя круг, взявшись за руки.",
+  orgTip:"Ориентиры раскладывать заранее, до прихода детей в зал — это экономит время и снижает суету при построении." },
+
+{ name:"Построение в шеренгу", groups:["младшая","средняя"], category:"Построения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Дети встают в одну линию плечом к плечу лицом к педагогу, выравнивая носки по одной линии (можно — по нарисованной на полу черте).",
+  orgTip:"Для младшей группы — с полной помощью взрослого; черта на полу (лента, мел) заметно облегчает выравнивание." },
+
+{ name:"Ходьба парами, держась за руки", groups:["младшая"], category:"Ходьба и бег в строю", quality:["Согласованность движений в группе"], props:false, propsNote:null,
+  desc:"Дети идут парами, держась за руки, стараясь двигаться в одном темпе, не отставая и не забегая вперёд партнёра.",
+  orgTip:"Пары составлять заранее и по возможности сохранять одни и те же на нескольких занятиях — детям легче подстроиться под знакомого партнёра." },
+
+{ name:"Повороты переступанием направо/налево", groups:["младшая","средняя"], category:"Повороты", quality:["Координация движений","Внимание"], props:false, propsNote:null,
+  desc:"По сигналу «Направо!» («Налево!») дети переступают на месте мелкими шагами, поворачиваясь в указанную сторону, не отрывая взгляда от направления движения.",
+  orgTip:"Фронтальный способ. Для младшей группы использовать простые ориентиры («повернись к окну», «повернись к двери») вместо словесных команд «направо/налево»." },
+
+{ name:"Смыкание и размыкание обычным шагом", groups:["младшая","средняя"], category:"Размыкание и смыкание", quality:["Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"По команде дети расходятся на шаг друг от друга (размыкание) или, наоборот, сходятся плотнее (смыкание), сохраняя ровную линию шеренги или колонны.",
+  orgTip:"Показывать на собственном примере вместе с одним ребёнком-помощником, прежде чем просить выполнить всей группой." },
+
+{ name:"Перестроение в колонну по два (с помощью педагога)", groups:["младшая"], category:"Перестроения", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Дети, стоящие в колонне по одному, парами (каждый второй подходит к первому) образуют колонну по два, ориентируясь на помощь педагога.",
+  orgTip:"Заранее разбить детей на постоянные пары — тогда перестроение превращается в простое «найди своего соседа», а не абстрактную задачу." },
+
+{ name:"Построение в колонну по росту", groups:["средняя","старшая"], category:"Построения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Дети строятся в колонну по одному, ориентируясь на рост соседей — от самого высокого к самому низкому (или наоборот).",
+  orgTip:"В первый раз педагог расставляет детей сам и проговаривает принцип; далее дети могут достраивать колонну по росту самостоятельно, лишь немного корректируя." },
+
+{ name:"Построение врассыпную и обратно в колонну по сигналу", groups:["средняя"], category:"Построения", quality:["Внимание","Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"По сигналу «Врассыпную!» дети расходятся по всему залу; по сигналу «В колонну!» быстро возвращаются на исходные места в колонне по одному.",
+  orgTip:"Полезно каждый раз возвращаться в колонну на одно и то же место в зале — так дети быстрее осваивают ориентировку в пространстве группы." },
+
+{ name:"Равнение по ориентирам", groups:["средняя","старшая"], category:"Построения", quality:["Пространственная ориентировка","Внимание"], props:false, propsNote:null,
+  desc:"Стоя в шеренге или колонне, дети выравниваются по определённому ориентиру (стене, линии на полу, вытянутой руке направляющего), не выходя вперёд и не отставая.",
+  orgTip:"Начинать с равнения по хорошо заметному ориентиру (яркая линия на полу), только затем переходить к равнению «по груди четвёртого человека» без наглядной опоры." },
+
+{ name:"Размыкание и смыкание на вытянутые руки", groups:["средняя"], category:"Размыкание и смыкание", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Стоя в шеренге, дети поднимают руки в стороны и делают шаг в сторону так, чтобы кончики пальцев соседей почти соприкасались, — это и есть дистанция размыкания.",
+  orgTip:"Показать один раз на паре детей перед строем — наглядный пример быстрее объясняет принцип, чем словесная инструкция." },
+
+{ name:"Перестроение из колонны по одному в колонну по два в движении", groups:["средняя","старшая"], category:"Перестроения", quality:["Координация движений","Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"На ходу колонна по одному по команде «В колонну по два — марш!» через одного дети смещаются в сторону, образуя вторую линию рядом с первой.",
+  orgTip:"Сначала отработать в медленном темпе (шагом), только затем — на более быстром ходу; в средней группе — с направляющей помощью педагога." },
+
+{ name:"Перестроение из колонны в звенья на месте", groups:["средняя"], category:"Перестроения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Колонна по одному по команде расходится на заранее определённые подгруппы (звенья), каждое из которых строится в своём обозначенном месте зала.",
+  orgTip:"Обозначить место каждого звена заметным ориентиром (свой цвет флажка, кубик) — так перестроение проходит без толкучки." },
+
+{ name:"Повороты направо/налево/кругом на месте переступанием", groups:["средняя"], category:"Повороты", quality:["Координация движений","Внимание"], props:false, propsNote:null,
+  desc:"По команде дети выполняют поворот на месте мелкими переступающими шагами на 90° (направо/налево) или на 180° (кругом), сохраняя равновесие.",
+  orgTip:"Поворот кругом сначала разучивать медленно, по разделениям («раз-два»), прежде чем выполнять его слитно по одной команде." },
+
+{ name:"Повороты в движении переступанием", groups:["средняя","старшая"], category:"Повороты", quality:["Координация движений","Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"Во время ходьбы в колонне по команде дети плавно меняют направление движения на 90°, не останавливаясь и не сбивая темп шага.",
+  orgTip:"Проводить в свободной части зала, где достаточно места для манёвра и нет риска столкновения на повороте." },
+
+{ name:"Построение по росту с самопроверкой", groups:["старшая","подготовительная"], category:"Построения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Дети самостоятельно строятся в колонну по росту, при необходимости меняясь местами друг с другом без помощи взрослого.",
+  orgTip:"Педагог отходит в сторону и наблюдает, вмешиваясь только при явной ошибке — самостоятельность в этом возрасте уже ожидаема по ФОП." },
+
+{ name:"Равнение в колонне и в шеренге", groups:["старшая","подготовительная"], category:"Построения", quality:["Пространственная ориентировка","Внимание"], props:false, propsNote:null,
+  desc:"Дети самостоятельно выравниваются в колонне (по затылку впереди стоящего) и в шеренге (по груди), не дожидаясь подсказки взрослого.",
+  orgTip:"Использовать команду «Равняйсь!» — «Смирно!» как в классической строевой подготовке, кратко объяснив значение каждой команды." },
+
+{ name:"Перестроение в колонну по три на месте", groups:["старшая"], category:"Перестроения", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Стоя в колонне по одному, дети через двух перестраиваются в колонну по три, ориентируясь на направляющих в каждой из трёх линий.",
+  orgTip:"Заранее закрепить за детьми постоянные тройки — как и с перестроением по два, это заметно ускоряет освоение." },
+
+{ name:"Перестроение в две шеренги на месте и при передвижении", groups:["старшая","подготовительная"], category:"Перестроения", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Из одной шеренги дети перестраиваются в две (например, для игры или эстафеты), сначала стоя на месте, затем — с небольшим передвижением.",
+  orgTip:"Удобно совмещать с подготовкой к командной подвижной игре — перестроение в две шеренги естественно становится делением на команды." },
+
+{ name:"Перестроение со сменой ведущего", groups:["старшая"], category:"Перестроения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Во время движения в колонне направляющий (первый в колонне) по сигналу уходит в конец колонны, и его место занимает следующий ребёнок.",
+  orgTip:"Хорошо использовать по кругу для всей группы за одно занятие — каждый ребёнок хотя бы недолго побывает направляющим." },
+
+{ name:"Размыкание в колонне на вытянутые вперёд руки", groups:["старшая"], category:"Размыкание и смыкание", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Стоя в колонне по одному, дети вытягивают руки вперёд и делают шаг вперёд-назад так, чтобы не касаться пальцами спины впереди стоящего.",
+  orgTip:"Проверить результат на глаз вдоль всей колонны сбоку — так сразу видно, у кого дистанция сбилась." },
+
+{ name:"Размыкание в шеренге на вытянутые руки в стороны", groups:["старшая","подготовительная"], category:"Размыкание и смыкание", quality:["Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"Стоя в шеренге, дети поднимают руки в стороны и делают шаг в сторону так, чтобы кончики пальцев касались пальцев соседа, — усложнённый вариант дистанции по сравнению со средней группой.",
+  orgTip:"Использовать перед комплексом ОРУ, требующим больше пространства (с обручем, скакалкой, палкой)." },
+
+{ name:"Повороты налево/направо/кругом переступанием и прыжком", groups:["старшая"], category:"Повороты", quality:["Координация движений","Прыгучесть"], props:false, propsNote:null,
+  desc:"Помимо переступания, дети осваивают более быстрый способ поворота — небольшим прыжком на месте с одновременным разворотом корпуса в нужную сторону.",
+  orgTip:"Сначала закрепить переступанием, прыжковый способ вводить как усложнение только после уверенного освоения базового варианта." },
+
+{ name:"Ходьба «змейкой» в колонне", groups:["старшая","подготовительная"], category:"Ходьба и бег в строю", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Направляющий ведёт колонну плавной волнообразной траекторией по залу, остальные дети точно повторяют его путь, не сокращая и не разрывая колонну.",
+  orgTip:"Хорошо использовать как связку между частями занятия — например, при переходе от строевых к вводной ходьбе." },
+
+{ name:"Расхождение из колонны по одному в разные стороны со слиянием в пары", groups:["старшая"], category:"Ходьба и бег в строю", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"На ходу колонна на определённом месте зала расходится на два потока (например, чётные направо, нечётные налево), обходит зал и снова сходится парами.",
+  orgTip:"Разметить на полу точку расхождения и точку слияния — ориентиры снимают неопределённость и хаотичность движения." },
+
+{ name:"Быстрое самостоятельное построение в колонну по одному и по два", groups:["подготовительная"], category:"Построения", quality:["Организованность","Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"По сигналу дети самостоятельно и быстро строятся в колонну по одному или по два, без напоминаний о том, кто за кем должен стоять.",
+  orgTip:"Можно вводить элемент соревнования «на скорость построения» — с фиксацией результата в секундах, это мотивирует и дисциплинирует." },
+
+{ name:"Быстрое построение в круг, в шеренгу", groups:["подготовительная"], category:"Построения", quality:["Организованность","Пространственная ориентировка"], props:false, propsNote:null,
+  desc:"По сигналу дети самостоятельно и быстро перестраиваются из любого свободного расположения в круг или в шеренгу.",
+  orgTip:"Чередовать неожиданно разные команды («в круг!», «в шеренгу!») в рамках одной разминки — это тренирует быстроту реакции, а не заучивание одной последовательности." },
+
+{ name:"Перестроение из одной колонны в колонну по двое на ходу", groups:["подготовительная"], category:"Перестроения", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Во время движения колонна по одному по команде перестраивается в колонну по двое без остановки движения и без потери темпа шага.",
+  orgTip:"Достаточное свободное пространство в зале обязательно — перестроение на ходу требует больше места, чем на месте." },
+
+{ name:"Перестроение из колонны по трое / по четыре на ходу", groups:["подготовительная"], category:"Перестроения", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"Усложнённый вариант перестроения на ходу — колонна по одному делится на три или четыре параллельные линии без остановки движения.",
+  orgTip:"Вводить только после уверенного освоения перестроения по двое; закреплённые постоянные тройки/четвёрки облегчают задачу." },
+
+{ name:"Перестроение из одного круга в два-три круга", groups:["подготовительная"], category:"Перестроения", quality:["Пространственная ориентировка","Организованность"], props:false, propsNote:null,
+  desc:"Из одного большого круга дети по команде делятся на несколько меньших кругов (например, по числу подгрупп для последующей игры).",
+  orgTip:"Заранее определить, кто в какой малый круг входит (например, по цвету ленточки), чтобы деление прошло организованно." },
+
+{ name:"Расчёт на первый-второй и перестроение из шеренги в две", groups:["подготовительная"], category:"Перестроения", quality:["Внимание","Организованность"], props:false, propsNote:null,
+  desc:"Стоя в шеренге, дети по очереди называют «первый», «второй», запоминают свой номер, а затем перестраиваются в две шеренги — первые номера в одну, вторые в другую.",
+  orgTip:"Разучивать расчёт отдельно от перестроения на первом занятии — сначала просто научиться называть номера по порядку без ошибок." },
+
+{ name:"Размыкание и смыкание приставным шагом", groups:["подготовительная"], category:"Размыкание и смыкание", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"В отличие от простого шага в сторону, дистанция изменяется приставным шагом — более чёткое и техничное выполнение размыкания и смыкания.",
+  orgTip:"Показать разницу между обычным шагом в сторону и приставным шагом наглядно, на паре детей перед строем." },
+
+{ name:"Повороты во время ходьбы на углах площадки", groups:["подготовительная"], category:"Повороты", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"При ходьбе по периметру зала дети чётко поворачивают на 90° точно в углах площадки, сохраняя форму прямоугольного маршрута.",
+  orgTip:"Обозначить углы зала яркими ориентирами (конусы) — так дети быстрее осваивают точность поворота именно в нужной точке." },
+
+{ name:"Бег в колонне с сохранением дистанции на поворотах", groups:["старшая","подготовительная"], category:"Ходьба и бег в строю", quality:["Пространственная ориентировка","Координация движений"], props:false, propsNote:null,
+  desc:"При беге по кругу или периметру зала дети сохраняют равную дистанцию друг от друга, не сокращая и не растягивая колонну на поворотах.",
+  orgTip:"Задавать темп бега бубном или хлопками — так легче удерживать общий ритм всей колонне одновременно." }
+
+];
+
+
+// ---------- Перспективный план 2026–2027 как структурированные данные ----------
+// Если план изменится — меняется только этот объект, конструктор конспектов
+// автоматически начнёт подбирать содержание по новым данным.
+//
+// oru      — категории комплексов ОРУ (значения поля category в ORU_COMPLEXES), которые
+//            рекомендованы на этот месяц для этой группы
+// ovd      — категории ОВД (значения поля category в OVD_MOVES), которые являются
+//            основными видами движений месяца (кроме «Ходьба»/«Бег» — они всегда в вводной части)
+// stroevye — категории строевых упражнений (значения поля category в STROEVYE) на этот месяц
+// games    — конкретные игры из картотеки игр, рекомендованные планом на этот месяц
+//            (если название не найдено в текущей картотеке или не подходит по возрасту —
+//            конструктор автоматически подберёт замену по возрасту)
+
+const MONTHS = ["Сентябрь","Октябрь","Ноябрь","Декабрь","Январь","Февраль","Март","Апрель","Май"];
+
+const PERSPECTIVE_PLANS = {
+  "2026–2027": {
+    "младшая": {
+      "Сентябрь": { oru:["Без предметов"], ovd:["Прыжки"], stroevye:["Построения"], games:["Солнышко и дождик","Догони меня"] },
+      "Октябрь":  { oru:["Кубики","Флажки"], ovd:["Метание и ловля"], stroevye:["Перестроения","Повороты"], games:["Поезд","Птички в гнёздышках"] },
+      "Ноябрь":   { oru:["Мяч малый"], ovd:["Лазание и ползание","Метание и ловля","Прыжки"], stroevye:["Размыкание и смыкание","Построения"], games:["Кот и воробышки","Попади в круг"] },
+      "Декабрь":  { oru:["Без предметов"], ovd:["Равновесие"], stroevye:["Построения","Повороты"], games:["Через ручеёк","По ровненькой дорожке"] },
+      "Январь":   { oru:["Мяч малый"], ovd:["Прыжки","Метание и ловля"], stroevye:["Построения","Ходьба и бег в строю"], games:["Мой весёлый звонкий мяч"] },
+      "Февраль":  { oru:["Флажки"], ovd:["Лазание и ползание","Метание и ловля"], stroevye:["Повороты","Построения"], games:["Наседка и цыплята","Целься вернее"] },
+      "Март":     { oru:["Обруч"], ovd:["Прыжки","Метание и ловля"], stroevye:["Перестроения","Размыкание и смыкание"], games:["Снежинки и ветер"] },
+      "Апрель":   { oru:["Мяч малый"], ovd:["Прыжки","Равновесие"], stroevye:["Повороты","Перестроения"], games:["Флажок"] },
+      "Май":      { oru:[], ovd:[], stroevye:["Построения"], games:[] }
+    },
+    "средняя": {
+      "Сентябрь": { oru:["Без предметов"], ovd:["Прыжки"], stroevye:["Построения"], games:["Ловишки","У ребят порядок строгий"] },
+      "Октябрь":  { oru:["Мяч средний"], ovd:["Прыжки","Метание и ловля","Равновесие"], stroevye:["Размыкание и смыкание","Перестроения"], games:["Точно в цель","Мяч через сетку"] },
+      "Ноябрь":   { oru:["Обруч"], ovd:["Лазание и ползание","Равновесие"], stroevye:["Перестроения"], games:["Жмурки","Лягушки и цапля"] },
+      "Декабрь":  { oru:["Ленты"], ovd:["Прыжки"], stroevye:["Повороты"], games:["Не оставайся на полу","Успей присесть"] },
+      "Январь":   { oru:["Мяч средний"], ovd:["Метание и ловля"], stroevye:["Перестроения"], games:["Кегли"] },
+      "Февраль":  { oru:["Ленты"], ovd:["Прыжки"], stroevye:["Построения"], games:["Лягушки и цапля"] },
+      "Март":     { oru:["Косички (короткий шнур)"], ovd:["Лазание и ползание","Равновесие"], stroevye:["Перестроения"], games:["Совушка","Пастух и стадо"] },
+      "Апрель":   { oru:["Платочки/султанчики"], ovd:["Метание и ловля"], stroevye:["Перестроения"], games:["Кто быстрее до флажка"] },
+      "Май":      { oru:[], ovd:[], stroevye:["Построения"], games:[] }
+    },
+    "старшая": {
+      "Сентябрь": { oru:["Без предметов"], ovd:["Прыжки"], stroevye:["Построения"], games:["Ключи","Пятнашки"] },
+      "Октябрь":  { oru:["Мяч большой"], ovd:["Прыжки","Метание и ловля"], stroevye:["Перестроения"], games:["Кто дальше бросит","Меткий стрелок"] },
+      "Ноябрь":   { oru:["Гимнастическая палка"], ovd:["Равновесие","Лазание и ползание"], stroevye:["Размыкание и смыкание"], games:["Караси и щука","Мышеловка"] },
+      "Декабрь":  { oru:["Скакалка"], ovd:["Прыжки"], stroevye:["Повороты"], games:["Два мороза","Горелки"] },
+      "Январь":   { oru:["Мяч большой"], ovd:["Метание и ловля"], stroevye:["Ходьба и бег в строю"], games:[] },
+      "Февраль":  { oru:["Обруч"], ovd:["Прыжки","Метание и ловля"], stroevye:["Повороты","Перестроения"], games:["Знамя"] },
+      "Март":     { oru:["Мешочки","Косички (короткий шнур)"], ovd:["Лазание и ползание","Равновесие"], stroevye:["Построения"], games:["Змейка","Перелёт птиц"] },
+      "Апрель":   { oru:["Мяч большой"], ovd:["Метание и ловля"], stroevye:["Повороты","Ходьба и бег в строю"], games:[] },
+      "Май":      { oru:[], ovd:[], stroevye:["Построения"], games:[] }
+    },
+    "подготовительная": {
+      "Сентябрь": { oru:["Без предметов"], ovd:["Прыжки"], stroevye:["Построения"], games:["Чья команда быстрее","Третий лишний"] },
+      "Октябрь":  { oru:["Скакалка"], ovd:["Прыжки"], stroevye:["Построения","Перестроения"], games:["Кто дальше бросит","Резиночка"] },
+      "Ноябрь":   { oru:["Набивной мяч"], ovd:["Метание и ловля"], stroevye:["Перестроения"], games:["Снайпер","Кто самый меткий"] },
+      "Декабрь":  { oru:["Обруч","Гантели лёгкие"], ovd:["Равновесие","Лазание и ползание"], stroevye:["Перестроения"], games:["Точное приземление","Штандер"] },
+      "Январь":   { oru:["Набивной мяч"], ovd:["Метание и ловля"], stroevye:["Размыкание и смыкание"], games:["Ловкая пара","Волейбол через шнур"] },
+      "Февраль":  { oru:["Скакалка"], ovd:["Прыжки"], stroevye:["Повороты"], games:["Весёлые старты","Бег с препятствиями"] },
+      "Март":     { oru:["Гантели лёгкие"], ovd:["Лазание и ползание"], stroevye:["Построения","Перестроения"], games:["Разведчики","Казаки-разбойники"] },
+      "Апрель":   { oru:["Набивной мяч"], ovd:["Метание и ловля"], stroevye:["Построения"], games:["Лапта"] },
+      "Май":      { oru:[], ovd:[], stroevye:["Построения"], games:[] }
+    }
+  }
+};
+
+</script>
+<script>
+const GROUP_ORDER = ["младшая","средняя","старшая","подготовительная"];
+
+// ---------- синхронизация со «своими» правками каждой картотеки (localStorage на этом же домене) ----------
+// Работает только если этот файл и файлы картотек открыты с одного и того же адреса/домена
+// (например, все вместе размещены на одном сайте GitHub Pages) — тогда правки, сделанные через
+// форму «Добавить / Изменить» в любой картотеке, здесь появляются автоматически при обновлении страницы.
+let localSyncCount = 0;
+(function applyLocalCatalogEdits(){
+  function lsGetSafe(key, fallback){
+    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function assignIds(arr){
+    arr.forEach((g,i)=>{ g.id = 'b'+String(i+1).padStart(2,'0'); });
+  }
+  function applyEdits(baseArray, keys){
+    const overrides = lsGetSafe(keys.overrides, {});
+    const custom = lsGetSafe(keys.custom, []);
+    const deleted = lsGetSafe(keys.deleted, []);
+    if(Object.keys(overrides).length) localSyncCount += Object.keys(overrides).length;
+    if(custom.length) localSyncCount += custom.length;
+    const merged = baseArray
+      .filter(g=>!deleted.includes(g.id))
+      .map(g=> Object.assign({}, g, overrides[g.id]||{}));
+    custom.filter(g=>!deleted.includes(g.id)).forEach(g=> merged.push(g));
+    baseArray.length = 0;
+    merged.forEach(item=> baseArray.push(item));
+  }
+
+  assignIds(GAMES);
+  assignIds(ORU_COMPLEXES);
+  assignIds(OVD_MOVES);
+  assignIds(STROEVYE);
+
+  applyEdits(GAMES,         { overrides:'kartoteka_overrides_v1', custom:'kartoteka_custom_v1', deleted:'kartoteka_deleted_v1' });
+  applyEdits(ORU_COMPLEXES, { overrides:'oru_overrides_v1',       custom:'oru_custom_v1',       deleted:'oru_deleted_v1' });
+  applyEdits(OVD_MOVES,     { overrides:'ovd_overrides_v1',       custom:'ovd_custom_v1',       deleted:'ovd_deleted_v1' });
+  applyEdits(STROEVYE,      { overrides:'stroevye_overrides_v1',  custom:'stroevye_custom_v1',  deleted:'stroevye_deleted_v1' });
+})();
+const GROUP_COLORS = {
+  "младшая":"var(--c-mladshaya)",
+  "средняя":"var(--c-srednyaya)",
+  "старшая":"var(--c-starshaya)",
+  "подготовительная":"var(--c-podgot)"
+};
+
+// ---------- focus keyword map: bridges slightly different quality wording across the three catalogs ----------
+const FOCUS_MAP = {
+  "Быстрота": ["быстрот"],
+  "Ловкость": ["ловкост","увёртыван"],
+  "Прыгучесть / прыжки": ["прыг"],
+  "Меткость и глазомер": ["меткост","глазомер"],
+  "Координация и равновесие": ["координац","равновес"],
+  "Выносливость": ["выносливост"],
+  "Сила рук и плечевого пояса": ["сила рук","плечевого пояса"],
+  "Гибкость": ["гибкост"],
+  "Внимание / выдержка": ["вниман","выдержк","торможен"],
+  "Осанка": ["осанк"]
+};
+const FOCUS_KEYS = Object.keys(FOCUS_MAP);
+
+// advanced ОВД markers used to hold these back during the "базовый уровень" (weeks 1–2) stage
+const ADVANCED_OVD_MARKERS = ["с разбега","переход на соседний пролёт","наклонной доске","по канату","поворотом кругом","между рейками","подталкивая мяч головой"];
+const ADVANCED_OVD_CATEGORIES = ["Равновесие","Лазание и ползание"];
+
+function qualityMatchesFocus(qualityArr, focusKeys){
+  if(!qualityArr) return false;
+  return qualityArr.some(q=>{
+    const ql = q.toLowerCase();
+    return focusKeys.some(key => FOCUS_MAP[key].some(sub => ql.includes(sub)));
+  });
+}
+
+function byGroup(list, group){ return list.filter(x=>x.groups && x.groups.includes(group)); }
+
+function pickRandom(arr, exclude){
+  const pool = exclude ? arr.filter(x=>!exclude.has(x.name)) : arr;
+  const src = pool.length ? pool : arr;
+  if(!src.length) return null;
+  return src[Math.floor(Math.random()*src.length)];
+}
+
+function isAdvancedOVD(m){
+  if(ADVANCED_OVD_CATEGORIES.includes(m.category)) return true;
+  return ADVANCED_OVD_MARKERS.some(marker=> m.name.toLowerCase().includes(marker));
+}
+
+// ---------- variant construction ----------
+function buildVariant(group, mode, params, usedNames){
+  const games = byGroup(GAMES, group);
+  const oru = byGroup(ORU_COMPLEXES, group);
+  const ovd = byGroup(OVD_MOVES, group);
+  const stroevyeAll = byGroup(STROEVYE, group);
+
+  let oruPool, ovdPool, gamesPool, stroevyePool, stageLabel;
+
+  if(mode==='period'){
+    const yearPlan = PERSPECTIVE_PLANS[params.year] || Object.values(PERSPECTIVE_PLANS)[0];
+    const monthPlan = (yearPlan[group] && yearPlan[group][params.month]) || { oru:[], ovd:[], stroevye:[], games:[] };
+    const basic = params.week <= 2;
+    stageLabel = `перспективный план ${params.year} · ${group} группа · ${params.month}, неделя ${params.week} (${basic?'базовый уровень':'усложнённый уровень'})`;
+
+    // ОРУ: сузить по категориям месяца из плана; на первых неделях предпочесть «Без предметов»
+    let oruByMonth = monthPlan.oru.length ? oru.filter(c=>monthPlan.oru.includes(c.category)) : oru;
+    if(!oruByMonth.length) oruByMonth = oru; // в картотеке пока нет комплекса такой категории — берём весь пул группы
+    if(basic){
+      const withoutProps = oruByMonth.filter(c=>c.category==='Без предметов');
+      oruPool = withoutProps.length ? withoutProps : oruByMonth;
+    } else {
+      const withProps = oruByMonth.filter(c=>c.category!=='Без предметов');
+      oruPool = withProps.length ? withProps : oruByMonth;
+    }
+
+    // ОВД: сузить по категориям месяца из плана; на первых неделях убрать продвинутые варианты
+    let ovdByMonth = monthPlan.ovd.length ? ovd.filter(m=>monthPlan.ovd.includes(m.category)) : ovd;
+    if(!ovdByMonth.length) ovdByMonth = ovd;
+    if(basic){
+      const simple = ovdByMonth.filter(m=>!isAdvancedOVD(m));
+      ovdPool = simple.length ? simple : ovdByMonth;
+    } else {
+      ovdPool = ovdByMonth;
+    }
+
+    // строевые: сузить по категориям месяца из плана
+    let stroevyeByMonth = monthPlan.stroevye.length ? stroevyeAll.filter(s=>monthPlan.stroevye.includes(s.category)) : stroevyeAll;
+    stroevyePool = stroevyeByMonth.length ? stroevyeByMonth : stroevyeAll;
+
+    // игры: предпочесть названные в плане (если найдены в картотеке и подходят по возрасту)
+    const namedGames = monthPlan.games.map(n=>games.find(g=>g.name===n)).filter(Boolean);
+    gamesPool = namedGames.length ? namedGames : games;
+
+  } else {
+    stageLabel = "по направленности: " + params.focus.join(", ");
+    oruPool = oru; // ОРУ комплексы не размечены по конкретным качествам так же детально — берём весь пул для группы
+    ovdPool = ovd.filter(m=>qualityMatchesFocus(m.quality, params.focus));
+    if(!ovdPool.length) ovdPool = ovd; // на случай, если для возраста нет точных совпадений
+    gamesPool = games.filter(g=>qualityMatchesFocus(g.quality, params.focus));
+    if(!gamesPool.length) gamesPool = games;
+    stroevyePool = stroevyeAll; // строевые почти не завязаны на конкретное физическое качество
+  }
+
+  // вводная часть: строевое упражнение + "ходьба" + "бег", из полного пула по возрасту
+  const stroevyePick = pickRandom(stroevyePool, usedNames.stroevye);
+  const walk = pickRandom(ovd.filter(m=>m.category==='Ходьба'), usedNames.walk);
+  const run = pickRandom(ovd.filter(m=>m.category==='Бег'), usedNames.run);
+
+  // ОРУ комплекс
+  const oruPick = pickRandom(oruPool, usedNames.oru);
+
+  // основные ОВД: 2 движения из разных категорий, не «Ходьба»/«Бег»
+  const mainCats = ["Прыжки","Метание и ловля","Лазание и ползание","Равновесие"];
+  let mainPoolByCategory = mainCats.map(cat => ovdPool.filter(m=>m.category===cat)).filter(arr=>arr.length);
+  // перемешать порядок категорий, чтобы не всегда предлагать одно и то же сочетание
+  mainPoolByCategory.sort(()=>Math.random()-0.5);
+  const mainPicks = [];
+  for(const arr of mainPoolByCategory){
+    if(mainPicks.length>=2) break;
+    const pick = pickRandom(arr, usedNames.main);
+    if(pick && !mainPicks.some(p=>p.name===pick.name)) mainPicks.push(pick);
+  }
+  // добор до 2 движений, если совпадающих категорий оказалось мало (например, узкая направленность/план месяца)
+  if(mainPicks.length<2){
+    const rest = ovdPool.filter(m=> mainCats.includes(m.category) && !mainPicks.some(p=>p.name===m.name));
+    while(mainPicks.length<2 && rest.length){
+      const pick = pickRandom(rest, usedNames.main);
+      if(!pick) break;
+      if(!mainPicks.some(p=>p.name===pick.name)) mainPicks.push(pick);
+      const idx2 = rest.findIndex(x=>x.name===pick.name);
+      if(idx2>-1) rest.splice(idx2,1);
+    }
+  }
+
+  // подвижная игра
+  const gamePick = pickRandom(gamesPool, usedNames.game);
+
+  if(stroevyePick) usedNames.stroevye.add(stroevyePick.name);
+  if(walk) usedNames.walk.add(walk.name);
+  if(run) usedNames.run.add(run.name);
+  if(oruPick) usedNames.oru.add(oruPick.name);
+  mainPicks.forEach(p=>usedNames.main.add(p.name));
+  if(gamePick) usedNames.game.add(gamePick.name);
+
+  return { group, stageLabel, stroevyePick, walk, run, oruPick, mainPicks, gamePick };
+}
+
+function generateVariants(group, mode, params, count){
+  const usedNames = { stroevye:new Set(), walk:new Set(), run:new Set(), oru:new Set(), main:new Set(), game:new Set() };
+  const variants = [];
+  for(let i=0;i<count;i++){
+    variants.push(buildVariant(group, mode, params, usedNames));
+  }
+  return variants;
+}
+
+// ---------- rendering ----------
+function movementLine(m, roleLabel){
+  if(!m) return `<div class="part-item"><p class="part-empty">Не найдено подходящего варианта — измените неделю/направленность, месяц или возьмите позицию из соответствующей картотеки вручную.</p></div>`;
+  return `<div class="part-item">
+    <p class="pname">${roleLabel ? roleLabel+': ' : ''}${m.name}</p>
+    <p class="pmeta">${m.category}${m.propCategory ? ' · '+m.propCategory : ''}${m.quality && m.quality.length ? ' · '+m.quality.join(', ') : ''}</p>
+    <p class="pdesc">${m.desc||''}</p>
+    ${m.orgTip ? `<details><summary>Совет по организации</summary><p class="pdesc">${m.orgTip}</p></details>` : ''}
+  </div>`;
+}
+
+function oruLine(c){
+  if(!c) return `<div class="part-item"><p class="part-empty">Не найдено подходящего комплекса ОРУ для этого возраста и периода.</p></div>`;
+  const exList = (c.exercises||[]).map(ex=>`<li><strong>${ex.title}.</strong> ${ex.text}</li>`).join('');
+  return `<div class="part-item">
+    <p class="pname">${c.name}</p>
+    <p class="pmeta">${c.category}${c.quality && c.quality.length ? ' · '+c.quality.join(', ') : ''}</p>
+    <details open><summary>Упражнения комплекса (${(c.exercises||[]).length})</summary><ol>${exList}</ol></details>
+  </div>`;
+}
+
+function gameLine(g){
+  if(!g) return `<div class="part-item"><p class="part-empty">Не найдено подходящей игры для этого возраста / направленности.</p></div>`;
+  return `<div class="part-item">
+    <p class="pname">${g.name}</p>
+    <p class="pmeta">${g.quality && g.quality.length ? g.quality.join(', ') : ''}</p>
+    <details><summary>Ход игры</summary><p class="pdesc">${g.desc}</p>${g.rhyme ? `<p class="pdesc" style="font-style:italic;white-space:pre-line;margin-top:6px;">${g.rhyme}</p>` : ''}</details>
+  </div>`;
+}
+
+function renderVariant(v, idx){
+  const tab = GROUP_COLORS[v.group] || '#8b5e3c';
+  return `
+  <div class="variant" data-idx="${idx}">
+    <div class="variant-head" style="border-left:6px solid ${tab};">
+      <h2>Вариант ${idx+1} — ${v.group} группа</h2>
+      <div class="variant-actions">
+        <button type="button" onclick="rerollVariant(${idx})">Пересобрать этот вариант</button>
+        <button type="button" onclick="downloadVariant(${idx})">Скачать конспект</button>
+      </div>
+    </div>
+    <div class="part">
+      <span class="part-label">Подбор</span>
+      <p class="pdesc">${v.stageLabel}</p>
+    </div>
+    <div class="part">
+      <span class="part-label">Вводная часть</span>
+      ${movementLine(v.stroevyePick)}
+      ${movementLine(v.walk)}
+      ${movementLine(v.run)}
+    </div>
+    <div class="part">
+      <span class="part-label">ОРУ</span>
+      ${oruLine(v.oruPick)}
+    </div>
+    <div class="part">
+      <span class="part-label">Основные виды движений</span>
+      ${v.mainPicks.map(m=>movementLine(m)).join('') || '<p class="part-empty">Не удалось подобрать основные движения.</p>'}
+    </div>
+    <div class="part">
+      <span class="part-label">Подвижная игра</span>
+      ${gameLine(v.gamePick)}
+    </div>
+    <div class="part">
+      <span class="part-label">Заключительная часть</span>
+      <p class="pdesc">Спокойная ходьба в колонне (20–30 секунд) с дыхательными упражнениями («понюхать цветок» — вдох носом, «задуть свечу» — плавный выдох ртом), при необходимости — малоподвижная игра на внимание.</p>
+    </div>
+  </div>`;
+}
+
+let currentVariants = [];
+let currentMode, currentGroup, currentParams;
+
+function renderAll(){
+  const wrap = document.getElementById('variantsWrap');
+  wrap.innerHTML = currentVariants.map((v,i)=>renderVariant(v,i)).join('');
+  document.getElementById('emptyMsg').style.display = currentVariants.length ? 'none' : 'block';
+}
+
+function rerollVariant(idx){
+  const usedNames = { stroevye:new Set(), walk:new Set(), run:new Set(), oru:new Set(), main:new Set(), game:new Set() };
+  currentVariants.forEach((v,i)=>{
+    if(i===idx) return;
+    if(v.stroevyePick) usedNames.stroevye.add(v.stroevyePick.name);
+    if(v.walk) usedNames.walk.add(v.walk.name);
+    if(v.run) usedNames.run.add(v.run.name);
+    if(v.oruPick) usedNames.oru.add(v.oruPick.name);
+    v.mainPicks.forEach(p=>usedNames.main.add(p.name));
+    if(v.gamePick) usedNames.game.add(v.gamePick.name);
+  });
+  currentVariants[idx] = buildVariant(currentGroup, currentMode, currentParams, usedNames);
+  renderAll();
+}
+
+function variantToText(v){
+  const lines = [];
+  lines.push(`Конспект занятия — ${v.group} группа`);
+  lines.push(`Подбор: ${v.stageLabel}`);
+  lines.push('');
+  lines.push('ВВОДНАЯ ЧАСТЬ');
+  if(v.stroevyePick) lines.push(`• Строевое упражнение: ${v.stroevyePick.name} — ${v.stroevyePick.desc}`);
+  if(v.walk) lines.push(`• ${v.walk.name} — ${v.walk.desc}`);
+  if(v.run) lines.push(`• ${v.run.name} — ${v.run.desc}`);
+  lines.push('');
+  lines.push('ОРУ');
+  if(v.oruPick){
+    lines.push(v.oruPick.name + ' (' + v.oruPick.category + ')');
+    (v.oruPick.exercises||[]).forEach((ex,i)=> lines.push(`  ${i+1}. ${ex.title} — ${ex.text}`));
+  }
+  lines.push('');
+  lines.push('ОСНОВНЫЕ ВИДЫ ДВИЖЕНИЙ');
+  v.mainPicks.forEach(m=>{
+    lines.push(`• ${m.name} (${m.category}) — ${m.desc}`);
+    if(m.orgTip) lines.push(`  Организация: ${m.orgTip}`);
+  });
+  lines.push('');
+  lines.push('ПОДВИЖНАЯ ИГРА');
+  if(v.gamePick){
+    lines.push(v.gamePick.name);
+    lines.push(v.gamePick.desc);
+    if(v.gamePick.rhyme) lines.push(v.gamePick.rhyme);
+  }
+  lines.push('');
+  lines.push('ЗАКЛЮЧИТЕЛЬНАЯ ЧАСТЬ');
+  lines.push('Спокойная ходьба с дыхательными упражнениями («понюхать цветок», «задуть свечу»), при необходимости — малоподвижная игра на внимание.');
+  return lines.join('\n');
+}
+
+async function downloadVariant(idx){
+  const v = currentVariants[idx];
+  const text = variantToText(v);
+  const filename = `konspekt-${v.group}-variant${idx+1}.txt`;
+  let handled = false;
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){ await downloads.save({ filename, data: text }); handled = true; }
+    }
+  }catch(err){ /* fall through */ }
+  if(!handled){
+    const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ---------- UI wiring ----------
+let selectedGroup = null;
+let currentModeUI = 'period';
+let selectedYear = null;
+let selectedMonth = null;
+let selectedWeek = 1;
+let selectedFocus = new Set();
+
+function buildGroupChips(){
+  const el = document.getElementById('groupChips');
+  GROUP_ORDER.forEach(g=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = g;
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#groupChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedGroup = g;
+    });
+    el.appendChild(chip);
+  });
+  // preselect first
+  el.firstChild.classList.add('active');
+  selectedGroup = GROUP_ORDER[0];
+}
+
+function buildYearChips(){
+  const el = document.getElementById('yearChips');
+  Object.keys(PERSPECTIVE_PLANS).forEach(y=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = y;
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#yearChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedYear = y;
+    });
+    el.appendChild(chip);
+  });
+  el.firstChild.classList.add('active');
+  selectedYear = Object.keys(PERSPECTIVE_PLANS)[0];
+}
+
+function buildMonthChips(){
+  const el = document.getElementById('monthChips');
+  MONTHS.forEach(m=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = m;
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#monthChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedMonth = m;
+    });
+    el.appendChild(chip);
+  });
+  el.firstChild.classList.add('active');
+  selectedMonth = MONTHS[0];
+}
+
+function buildWeekChips(){
+  const el = document.getElementById('weekChips');
+  [1,2,3,4].forEach(w=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = 'Неделя ' + w;
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#weekChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedWeek = w;
+    });
+    el.appendChild(chip);
+  });
+  el.firstChild.classList.add('active');
+}
+
+function buildFocusChips(){
+  const el = document.getElementById('focusChips');
+  FOCUS_KEYS.forEach(k=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = k;
+    chip.addEventListener('click', ()=>{
+      if(selectedFocus.has(k)){
+        selectedFocus.delete(k);
+        chip.classList.remove('active');
+      } else {
+        if(selectedFocus.size>=3) return; // до 3 направленностей
+        selectedFocus.add(k);
+        chip.classList.add('active');
+      }
+    });
+    el.appendChild(chip);
+  });
+}
+
+document.querySelectorAll('.mode-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.mode-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentModeUI = chip.getAttribute('data-mode');
+    document.getElementById('periodBlock').style.display = currentModeUI==='period' ? 'block' : 'none';
+    document.getElementById('focusBlock').style.display = currentModeUI==='focus' ? 'block' : 'none';
+  });
+});
+
+document.getElementById('generateBtn').addEventListener('click', ()=>{
+  if(!selectedGroup) return;
+  if(currentModeUI==='focus' && selectedFocus.size===0){
+    alert('Выберите хотя бы одно направление (качество), которое нужно подтянуть.');
+    return;
+  }
+  currentGroup = selectedGroup;
+  currentMode = currentModeUI==='period' ? 'period' : 'focus';
+  currentParams = currentModeUI==='period'
+    ? { year: selectedYear, month: selectedMonth, week: selectedWeek }
+    : { focus: [...selectedFocus] };
+  currentVariants = generateVariants(currentGroup, currentMode, currentParams, 3);
+  renderAll();
+  document.getElementById('variantsWrap').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+buildGroupChips();
+buildYearChips();
+buildMonthChips();
+buildWeekChips();
+buildFocusChips();
+(function showSyncStatus(){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  el.textContent = localSyncCount>0
+    ? `Подхвачено ${localSyncCount} личных правок из картотек этого сайта.`
+    : 'Личных правок из картотек не найдено (используются только встроенные данные).';
+})();
+document.getElementById('emptyMsg').style.display = 'block';
+</script>
+
+</body>
+</html>

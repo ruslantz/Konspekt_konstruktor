@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Картотека ОРУ</title>
+<style>
+  :root{
+    --paper: #efe9da;
+    --paper-line: #d9cfb8;
+    --ink: #2a2723;
+    --ink-soft: #6b6154;
+    --wood: #8b5e3c;
+    --c-mladshaya: #c1614f;
+    --c-srednyaya: #b98b2e;
+    --c-starshaya: #3e7a6e;
+    --c-podgot: #4b5a82;
+    --card-bg: #f8f4e9;
+    --shadow: 0 1px 0 rgba(42,39,35,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f5efe0 0%, var(--paper) 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  header.top{
+    padding:34px 20px 18px;
+    text-align:center;
+    border-bottom:1px solid var(--paper-line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  }
+
+  header.top .kicker{
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+
+  header.top h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:400;
+    font-size:clamp(26px,4.2vw,38px);
+    margin:0 0 8px;
+    letter-spacing:.01em;
+  }
+
+  header.top p.sub{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+
+  .drawer{
+    margin-top:22px;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    box-shadow:0 2px 10px rgba(42,39,35,0.06);
+    overflow:hidden;
+  }
+
+  .drawer-label{
+    background:linear-gradient(180deg,#efe4c9,#e6d9b8);
+    border-bottom:1px solid var(--paper-line);
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .drawer-label .pull{
+    width:34px;height:8px;border-radius:6px;
+    background:var(--wood);
+    opacity:.55;
+  }
+
+  .drawer-label input[type="search"]{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:Georgia,serif;
+    font-size:17px;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px;
+  }
+  .drawer-label input[type="search"]::placeholder{color:#8a7f6c; font-style:italic;}
+
+  .facets{
+    padding:14px 16px 6px;
+  }
+
+  .facets-drawer{
+    border-bottom:1px solid var(--paper-line);
+  }
+  .facets-drawer summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 16px;
+    font-size:14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    user-select:none;
+  }
+  .facets-drawer summary::-webkit-details-marker{display:none;}
+  .facets-drawer summary:before{
+    content:"▸";
+    color:var(--wood);
+    font-size:12px;
+  }
+  .facets-drawer[open] summary:before{content:"▾";}
+  #activeFilterCount{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#e9e1cc;
+    padding:1px 8px;
+    border-radius:10px;
+  }
+  #activeFilterCount:empty{display:none;}
+
+  .facet-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:8px 10px;
+    padding:8px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .facet-row:last-child{border-bottom:none;}
+
+  .facet-row .flabel{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    min-width:96px;
+    padding-top:5px;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+
+  .chip{
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+    font-size:13px;
+    padding:5px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    user-select:none;
+    transition:background .12s, border-color .12s, color .12s;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:#bcae8e;}
+  .chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fbf7ec;
+  }
+  .chip.active[data-group="младшая"]{background:var(--c-mladshaya);border-color:var(--c-mladshaya);}
+  .chip.active[data-group="средняя"]{background:var(--c-srednyaya);border-color:var(--c-srednyaya);}
+  .chip.active[data-group="старшая"]{background:var(--c-starshaya);border-color:var(--c-starshaya);}
+  .chip.active[data-group="подготовительная"]{background:var(--c-podgot);border-color:var(--c-podgot);}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:12px 16px 16px;
+  }
+
+  .toolbar .count{font-size:13px;color:var(--ink-soft);}
+  .toolbar .reset{
+    font-size:13px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  select#sortSelect{
+    font-family:inherit;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:14px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+  }
+
+  .grid{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+  }
+
+  .card .tab{
+    position:absolute;
+    top:-1px;
+    left:16px;
+    height:6px;
+    width:44px;
+    border-radius:0 0 3px 3px;
+  }
+  .tab.младшая{background:var(--c-mladshaya);}
+  .tab.средняя{background:var(--c-srednyaya);}
+  .tab.старшая{background:var(--c-starshaya);}
+  .tab.подготовительная{background:var(--c-podgot);}
+
+  .card .no{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  .card h3{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:19px;
+    margin:6px 0 8px;
+    line-height:1.25;
+  }
+
+  .card .rule{
+    border-top:1px dashed var(--paper-line);
+    margin:0 0 10px;
+  }
+
+  .meta-line{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+    line-height:1.5;
+  }
+  .meta-line b{color:var(--ink);font-weight:600;}
+
+  .groups-list{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 10px;}
+  .glabel{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    color:#fff;
+  }
+
+  .qtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .qtag{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    background:#e9e1cc;
+    color:var(--ink);
+  }
+
+  details.desc{margin-top:2px;}
+  details.desc summary{
+    cursor:pointer;
+    font-size:13px;
+    color:var(--wood);
+    list-style:none;
+  }
+  details.desc summary::-webkit-details-marker{display:none;}
+  details.desc summary:before{content:"▸ ";}
+  details.desc[open] summary:before{content:"▾ ";}
+  details.desc p{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a3630;
+    margin:8px 0 0;
+  }
+
+  .rhyme{
+    margin:10px 0 0;
+    padding:9px 12px;
+    background:#f1e9d3;
+    border-left:2px solid var(--wood);
+    border-radius:0 2px 2px 0;
+  }
+  .rhyme .rlabel{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .rhyme .rtext{
+    font-family:Georgia,serif;
+    font-style:italic;
+    font-size:13px;
+    line-height:1.6;
+    white-space:pre-line;
+    color:#3a3630;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  .card-actions{
+    display:flex;
+    gap:14px;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .card-actions button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    color:var(--wood);
+    text-decoration:underline;
+  }
+  .card-actions button.danger{color:#a4453a;}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:8px;
+    background:#e3ddc6;
+    color:var(--ink-soft);
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  .addbar{
+    display:flex;
+    justify-content:flex-end;
+    margin:18px 0 -4px;
+  }
+  .btn-primary{
+    font-family:inherit;
+    font-size:13.5px;
+    background:var(--ink);
+    color:#fbf7ec;
+    border:none;
+    padding:9px 16px;
+    border-radius:18px;
+    cursor:pointer;
+  }
+  .btn-primary:hover{opacity:.9;}
+
+  .databar{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    margin:14px 0 0;
+    font-size:12.5px;
+  }
+  .databar button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(30,27,22,0.45);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 14px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+
+  .modal{
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    max-width:560px;
+    width:100%;
+    padding:22px 22px 20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .modal h2{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .field input[type="text"], .field textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    background:#fffdf7;
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field textarea{min-height:64px;}
+  .checkrow{display:flex;flex-wrap:wrap;gap:12px;}
+  .checkrow label{
+    display:flex; align-items:center; gap:5px;
+    font-size:13px; color:var(--ink);
+  }
+  .inline2{display:flex; gap:10px; align-items:center;}
+  .inline2 input[type="text"]{flex:1;}
+
+  .tagpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:#e3ddc6;
+    border-radius:12px;
+    padding:3px 6px 3px 10px;
+    font-size:12.5px;
+  }
+  .pill button{
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);font-size:13px;line-height:1;
+    padding:0 2px;
+  }
+  .tag-add-row{display:flex; gap:6px;}
+  .tag-add-row input{flex:1;}
+  .tag-add-row button{
+    font-family:inherit;font-size:13px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:4px;
+    padding:6px 10px;
+    cursor:pointer;
+  }
+  .tag-suggest{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;
+  }
+  .tag-suggest span{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px dashed var(--paper-line);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tag-suggest span:hover{border-color:var(--wood);color:var(--ink);}
+
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .modal-actions .right{display:flex;gap:10px;}
+  .btn-ghost{
+    font-family:inherit;font-size:13.5px;
+    background:none;border:1px solid var(--paper-line);
+    border-radius:18px; padding:8px 15px; cursor:pointer;
+    color:var(--ink);
+  }
+  .btn-danger{
+    font-family:inherit;font-size:13px;
+    background:none;border:none;
+    color:#a4453a; text-decoration:underline;
+    cursor:pointer; padding:0;
+  }
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+  @media (max-width:520px){
+    .facet-row{flex-direction:column;align-items:flex-start;}
+    .facet-row .flabel{min-width:auto;padding-top:0;}
+  }
+</style>
+
+</head>
+<body>
+
+<header class="top">
+  <p class="kicker">офлайн-справочник для воспитателя</p>
+  <h1>Картотека ОРУ</h1>
+  <p class="sub">28 готовых комплексов ОРУ по категориям предметов и возрастным группам — в том числе сюжетно-игровые</p>
+</header>
+
+<div class="wrap">
+
+  <div class="drawer">
+    <div class="drawer-label">
+      <div class="pull"></div>
+      <input type="search" id="searchInput" placeholder="искать упражнение по названию…">
+    </div>
+
+    <details class="facets-drawer">
+      <summary>Фильтры <span id="activeFilterCount"></span></summary>
+      <div class="facets">
+        <div class="facet-row">
+          <span class="flabel">Группа</span>
+          <div class="chips" id="f-group"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Категория / предмет</span>
+          <div class="chips" id="f-category"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Направленность (к чему подводит)</span>
+          <div class="chips" id="f-quality"></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar">
+      <span class="count" id="countLabel"></span>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="reset" id="resetBtn">сбросить фильтры</button>
+        <select id="sortSelect">
+          <option value="name">сортировать: по названию</option>
+          <option value="group">сортировать: по возрасту</option>
+          <option value="purpose">сортировать: по направленности</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="addbar">
+    <button class="btn-primary" id="addGameBtn">+ Добавить комплекс</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">Ничего не найдено — попробуйте снять часть фильтров.</div>
+
+  <div class="databar">
+    <span id="storageStatus"></span>
+    <button id="exportBtn">экспорт резервной копии</button>
+    <button id="importBtn">импорт из файла</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+  </div>
+
+</div>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Новый комплекс</h2>
+    <form id="gameForm">
+      <div class="field">
+        <label for="fName">Название</label>
+        <input type="text" id="fName" required>
+      </div>
+
+      <div class="field">
+        <label>Группа</label>
+        <div class="checkrow" id="fGroups"></div>
+      </div>
+
+      <div class="field">
+        <label for="fCategory">Категория / предмет (для ОРУ — инвентарь: мяч, обруч, лента…; для ОВД — вид движения: бег, прыжки…)</label>
+        <input type="text" id="fCategory" list="categoryList" placeholder="например: Мяч средний, Без предметов, Бег…">
+        <datalist id="categoryList"></datalist>
+      </div>
+
+      <div class="field">
+        <label>Направленность (что развивает)</label>
+        <div class="tagpills" id="qualityPills"></div>
+        <div class="tag-add-row">
+          <input type="text" id="qualityInput" placeholder="ввести новое качество и нажать «Добавить»">
+          <button type="button" id="qualityAddBtn">Добавить</button>
+        </div>
+        <div class="tag-suggest" id="qualitySuggest"></div>
+      </div>
+
+      <div class="field">
+        <div class="checkrow">
+          <label><input type="checkbox" id="fProps"> есть предметы</label>
+        </div>
+      </div>
+
+      <div class="field" id="propsNoteField" style="display:none;">
+        <label for="fPropsNote">Какие предметы</label>
+        <input type="text" id="fPropsNote" placeholder="например: мяч, кубики, обруч">
+      </div>
+
+      <div class="field">
+        <label for="fDesc">Описание / комплекс упражнений</label>
+        <textarea id="fDesc" required placeholder="Для комплекса ОРУ можно перечислить упражнения по одному на строке: 1. Название — И.п. ... движение ... дозировка."></textarea>
+        <div class="field-hint">Готовые комплексы в базе показывают упражнения нумерованным списком; свои записи, добавленные через форму, сохраняются как обычный текст — оформляйте номера прямо в тексте.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" id="deleteGameBtn" style="display:none;">Удалить</button>
+        <div class="right">
+          <button type="button" class="btn-ghost" id="cancelFormBtn">Отмена</button>
+          <button type="submit" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const GROUP_COLORS = {
+  "младшая":"var(--c-mladshaya)",
+  "средняя":"var(--c-srednyaya)",
+  "старшая":"var(--c-starshaya)",
+  "подготовительная":"var(--c-podgot)"
+};
+const GROUP_ORDER = ["младшая","средняя","старшая","подготовительная"];
+
+const items = [
+
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["младшая"], type:"ОРУ", category:"Без предметов", quality:["Осанка","Координация движений","Гибкость","Общеразвивающее (без конкретной подготовки)"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки в стороны", text:"И.п. — ноги на ширине плеч, руки вдоль тела. Поднять руки в стороны, опустить. 4–5 раз."},
+    {title:"Наклоны вперёд", text:"И.п. — ноги врозь, руки на поясе. Наклон вперёд, коснуться коленей, выпрямиться. 4–5 раз."},
+    {title:"Приседания", text:"И.п. — ноги вместе, руки на поясе. Присесть, руки вперёд, встать. 4–5 раз."},
+    {title:"Прыжки на месте", text:"Лёгкие прыжки на двух ногах, чередуя с ходьбой. 2 серии по 6 прыжков."},
+    {title:"Дыхательное «Подуем на снежинку»", text:"Спокойный вдох носом, плавный длинный выдох ртом. 3 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с флажками №1", groups:["младшая"], type:"ОРУ", category:"Флажки", quality:["Координация движений","Осанка","Подготовка к строевым упражнениям"], props:true, propsNote:"флажки",
+  exercises:[
+    {title:"Флажки вверх", text:"И.п. — флажки внизу. Поднять руки вверх, показать флажки, опустить. 4–5 раз."},
+    {title:"Наклон, положить флажки", text:"И.п. — ноги врозь, флажки в руках. Наклон вперёд, положить флажки на пол, выпрямиться, наклон — взять флажки. 4 раза."},
+    {title:"Присед с флажками", text:"И.п. — флажки внизу. Присесть, флажки вперёд, встать. 4–5 раз."},
+    {title:"Подпрыгивания с флажками", text:"Лёгкие подпрыгивания на месте, помахивая флажками. 6–8 раз."},
+    {title:"Флажки вверх — вдох, вниз — выдох", text:"Дыхательное упражнение с флажками. 3 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с кубиками №1", groups:["младшая"], type:"ОРУ", category:"Кубики", quality:["Сила рук и плечевого пояса","Координация движений","Подготовка к метанию и ловле"], props:true, propsNote:"кубики",
+  exercises:[
+    {title:"Кубики вверх", text:"И.п. — кубики в опущенных руках. Поднять руки вверх, посмотреть на кубики, опустить. 4–5 раз."},
+    {title:"Наклон, переложить кубики", text:"И.п. — ноги врозь, кубики в руках. Наклон вперёд, переложить кубики между стоп, выпрямиться. 4 раза."},
+    {title:"Присед с кубиками", text:"И.п. — кубики внизу. Присесть, кубики вынести вперёд, встать. 4–5 раз."},
+    {title:"Прыжки, кубики у пояса", text:"Лёгкие прыжки на месте, кубики прижаты к поясу. 6 раз."},
+    {title:"Спокойная ходьба с кубиками", text:"Ходьба по кругу, кубики в опущенных руках, на восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с малым мячом №1", groups:["младшая"], type:"ОРУ", category:"Мяч малый", quality:["Глазомер и работа с мячом","Координация движений","Подготовка к метанию и ловле"], props:true, propsNote:"мяч малый",
+  exercises:[
+    {title:"Мяч вверх", text:"И.п. — мяч в обеих руках внизу. Поднять руки с мячом вверх, опустить. 4–5 раз."},
+    {title:"Наклон с мячом", text:"И.п. — ноги врозь, мяч в руках. Наклон вперёд, положить мяч у ног, выпрямиться, наклон — взять мяч. 4 раза."},
+    {title:"Присед, мяч вперёд", text:"И.п. — мяч у груди. Присесть, вытянуть мяч вперёд, встать. 4–5 раз."},
+    {title:"Подбрасывание мяча", text:"Подбросить мяч вверх невысоко и поймать двумя руками. 4–5 раз."},
+    {title:"Прокатывание мяча", text:"Сидя, ноги врозь, прокатить мяч от себя и обратно. 3–4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["средняя"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Осанка","Координация движений","Подготовка к прыжкам"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с подъёмом на носки", text:"И.п. — ноги вместе. Поднять руки вверх через стороны, встать на носки, опустить. 5–6 раз."},
+    {title:"Повороты корпуса", text:"И.п. — ноги на ширине плеч, руки на поясе. Поворот вправо, вернуться, поворот влево. 5–6 раз в каждую сторону."},
+    {title:"Наклоны в стороны", text:"И.п. — ноги на ширине плеч. Наклон вправо, вернуться, наклон влево. 5–6 раз."},
+    {title:"Приседания с прямой спиной", text:"И.п. — ноги на ширине плеч, руки на поясе. Присесть, спину держать прямо, встать. 5–6 раз."},
+    {title:"Прыжки с хлопком", text:"Прыжки на месте с хлопком над головой. 2 серии по 8 прыжков."},
+    {title:"Дыхательное «Ветерок»", text:"Медленный вдох носом, долгий выдох со звуком «ф-ф-ф». 3–4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с лентами №1", groups:["средняя"], type:"ОРУ", category:"Ленты", quality:["Гибкость","Координация движений","Общеразвивающее (без конкретной подготовки)"], props:true, propsNote:"ленты",
+  exercises:[
+    {title:"Волна лентами вверх", text:"И.п. — ленты внизу. Поднять руки вверх, сделать волну лентами, опустить. 5–6 раз."},
+    {title:"Круги лентами", text:"И.п. — руки в стороны. Круговые движения руками с лентами вперёд и назад. 4–6 кругов в каждую сторону."},
+    {title:"Наклон с лентами", text:"И.п. — ноги врозь, ленты в руках. Наклон вперёд, ленты вниз, выпрямиться, ленты вверх. 5 раз."},
+    {title:"Присед с лентами в стороны", text:"И.п. — ленты в стороны. Присесть, руки не опускать, встать. 5–6 раз."},
+    {title:"Прыжки с взмахом лентами", text:"Прыжки на месте, взмахивая лентами вверх-вниз. 8 раз."},
+    {title:"Спокойные волны лентами", text:"Плавные волнообразные движения руками стоя, на успокоение дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ со средним мячом №1", groups:["средняя"], type:"ОРУ", category:"Мяч средний", quality:["Глазомер и работа с мячом","Сила рук и плечевого пояса","Подготовка к метанию и ловле"], props:true, propsNote:"мяч средний",
+  exercises:[
+    {title:"Мяч вверх, потянуться", text:"И.п. — мяч в двух руках внизу. Поднять мяч вверх, потянуться, опустить. 5–6 раз."},
+    {title:"Поворот с мячом", text:"И.п. — мяч у груди. Поворот вправо, отвести мяч в сторону, вернуться; то же влево. 4–6 раз в каждую сторону."},
+    {title:"Наклон, прокатить мяч", text:"И.п. — ноги врозь, мяч в руках. Наклон вперёд, прокатить мяч вокруг одной ноги, выпрямиться. 4 раза."},
+    {title:"Присед с мячом вперёд", text:"И.п. — мяч у груди. Присесть, мяч вынести вперёд, встать. 5–6 раз."},
+    {title:"Подбрасывание и ловля мяча", text:"Подбросить мяч вверх, поймать двумя руками, не прижимая к груди. 5–6 раз."},
+    {title:"Прокатывание мяча партнёру", text:"Сидя напротив партнёра, прокатить мяч и получить обратно. 4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ с обручем №1", groups:["средняя"], type:"ОРУ", category:"Обручи", quality:["Гибкость","Координация движений","Подготовка к прыжкам"], props:true, propsNote:"обруч",
+  exercises:[
+    {title:"Обруч вверх", text:"И.п. — обруч в опущенных руках. Поднять обруч вверх, посмотреть на него, опустить. 5–6 раз."},
+    {title:"Поворот с обручем", text:"И.п. — обруч перед грудью. Поворот вправо, вернуться, поворот влево. 4–6 раз в каждую сторону."},
+    {title:"Наклон, обруч к полу", text:"И.п. — ноги врозь, обруч в руках. Наклон вперёд, коснуться обручем пола, выпрямиться. 5 раз."},
+    {title:"Присед, обруч вперёд", text:"И.п. — обруч у груди. Присесть, обруч вынести вперёд, встать. 5–6 раз."},
+    {title:"Прыжки в обруч и из обруча", text:"Обруч лежит на полу. Прыжки на двух ногах в обруч и обратно. 8–10 прыжков."},
+    {title:"Ходьба с обручем на восстановление", text:"Спокойная ходьба по кругу, обруч в опущенных руках. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["старшая"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Осанка","Подготовка к лазанию и ползанию"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с растяжением", text:"И.п. — ноги вместе. Поднять руки вверх через стороны, потянуться, встать на носки, опустить. 6–8 раз."},
+    {title:"Наклоны вперёд, коснуться пола", text:"И.п. — ноги на ширине плеч. Наклон вперёд, коснуться ладонями пола, выпрямиться. 6–8 раз."},
+    {title:"Повороты с разведением рук", text:"И.п. — руки перед грудью. Поворот вправо, руки в стороны, вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Поднимание туловища лёжа", text:"И.п. — лёжа на спине, ноги закреплены. Поднять туловище, сесть, лечь. 6–8 раз."},
+    {title:"Приседания на одной ноге с опорой", text:"И.п. — стоя, придерживаясь за опору. Присесть на одной ноге, встать; сменить ногу. 3–4 раза на каждую."},
+    {title:"Равновесие «Цапля»", text:"И.п. — стоя, руки на поясе. Поднять согнутую ногу, удержать равновесие 3–4 секунды, опустить; сменить ногу. 3 раза на каждую."},
+    {title:"Дыхательное «Насос»", text:"Наклоны в стороны со звуком «с-с-с» на выдохе. 4–6 раз."}
+  ] },
+
+{ name:"Комплекс ОРУ с гимнастической палкой №1", groups:["старшая"], type:"ОРУ", category:"Гимнастическая палка", quality:["Гибкость","Сила рук и плечевого пояса","Формирование правильной осанки"], props:true, propsNote:"гимнастическая палка",
+  exercises:[
+    {title:"Палка вверх, за голову", text:"И.п. — палка внизу хватом на ширине плеч. Поднять палку вверх, опустить за голову на плечи, вернуть вверх, опустить. 6–8 раз."},
+    {title:"Поворот с палкой на плечах", text:"И.п. — палка на плечах. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Наклон вперёд с палкой", text:"И.п. — ноги врозь, палка внизу. Наклон вперёд прогнувшись, палку вынести вперёд, выпрямиться. 6 раз."},
+    {title:"Прогиб назад с палкой", text:"И.п. — палка внизу сзади хватом. Прогнуться назад, отвести палку вверх-назад, вернуться. 5–6 раз."},
+    {title:"Перешагивание через палку", text:"Палка на полу. Перешагивание вперёд-назад через палку. 6–8 раз."},
+    {title:"Приседания с палкой над головой", text:"И.п. — палка в поднятых руках. Присесть, не опуская палку, встать. 6–8 раз."},
+    {title:"Ходьба с палкой на плечах", text:"Спокойная ходьба, палка на плечах, на восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с большим мячом №1", groups:["старшая"], type:"ОРУ", category:"Мяч большой", quality:["Сила рук и плечевого пояса","Глазомер и работа с мячом","Подготовка к метанию и ловле"], props:true, propsNote:"мяч большой",
+  exercises:[
+    {title:"Мяч вверх, на носки", text:"И.п. — мяч в двух руках внизу. Поднять мяч вверх, встать на носки, потянуться, опустить. 6–8 раз."},
+    {title:"Поворот с передачей мяча за спиной", text:"И.п. — мяч перед грудью. Поворот, передать мяч из руки в руку за спиной, вернуться. 6 раз в каждую сторону."},
+    {title:"Наклон, прокатить мяч змейкой", text:"И.п. — стоя, мяч внизу. Наклон вперёд, прокатить мяч змейкой вокруг стоп, выпрямиться. 5–6 раз."},
+    {title:"Наклон к ноге сидя с мячом", text:"И.п. — сидя, ноги врозь, мяч в руках. Наклон к правой ноге, коснуться мячом стопы, вернуться; то же к левой. 5 раз к каждой."},
+    {title:"Прыжки вокруг мяча", text:"Мяч лежит на полу. Прыжки на двух ногах по кругу вокруг мяча. 8–10 прыжков."},
+    {title:"Броски мяча друг другу в парах", text:"Броски двумя руками от груди партнёру и ловля. 6–8 раз."},
+    {title:"Дыхательное упражнение с мячом", text:"И.п. — мяч в опущенных руках. Поднять мяч вверх — вдох, опустить с продолжительным выдохом. 4 раза."}
+  ] },
+
+{ name:"Комплекс ОРУ со скакалкой №1", groups:["старшая"], type:"ОРУ", category:"Скакалка", quality:["Гибкость","Прыгучесть","Координация движений","Подготовка к прыжкам"], props:true, propsNote:"скакалка",
+  exercises:[
+    {title:"Скакалка вверх, растяжение", text:"И.п. — скакалка сложена вчетверо, в опущенных руках. Поднять руки вверх, потянуться, опустить. 6–8 раз."},
+    {title:"Наклон со скакалкой", text:"И.п. — ноги врозь, скакалка в руках. Наклон вперёд, скакалка к полу, выпрямиться. 6 раз."},
+    {title:"Наклон к ноге со скакалкой сидя", text:"И.п. — сидя, ноги врозь, скакалка в руках. Наклон к правой ноге, коснуться скакалкой стопы, вернуться; то же к левой. 4–5 раз к каждой."},
+    {title:"Перешагивание через скакалку", text:"Скакалка на полу. Перешагивание вперёд-назад, вправо-влево. 6–8 раз."},
+    {title:"Присед со скакалкой над головой", text:"И.п. — скакалка в поднятых руках. Присесть, не опуская скакалку, встать. 6 раз."},
+    {title:"Прыжки через скакалку на месте", text:"Вращение скакалки вперёд, прыжки на двух ногах — 8–10 подряд для владеющих техникой, либо перешагивание для начинающих."},
+    {title:"Спокойная ходьба со скакалкой в руках", text:"На восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ без предметов №1", groups:["подготовительная"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Сила и выносливость ног","Развитие общей выносливости"], props:false, propsNote:null,
+  exercises:[
+    {title:"Руки вверх с глубоким вдохом", text:"И.п. — ноги вместе. Поднять руки через стороны вверх с вдохом, потянуться, опустить с выдохом. 8–10 раз."},
+    {title:"Наклоны вперёд прогнувшись", text:"И.п. — ноги на ширине плеч. Наклон вперёд прогнувшись, руки в стороны, выпрямиться. 8 раз."},
+    {title:"Повороты с отведением ноги", text:"И.п. — руки на поясе. Поворот корпуса вправо с отведением правой ноги в сторону, вернуться; то же влево. 6–8 раз в каждую сторону."},
+    {title:"Поднимание ног лёжа", text:"И.п. — лёжа на спине, руки вдоль тела. Поднять обе прямые ноги под углом 45°, удержать, опустить. 6–8 раз."},
+    {title:"Наклон к ноге сидя", text:"И.п. — сидя, ноги врозь. Наклон к правой ноге, коснуться руками стопы, вернуться; то же к левой. 6–8 раз к каждой."},
+    {title:"Выпады вперёд поочерёдно", text:"И.п. — ноги вместе, руки на поясе. Выпад вперёд одной ногой, вернуться; то же другой. 6–8 раз на каждую."},
+    {title:"Прыжки со сменой ног", text:"Прыжки на месте со сменой положения ног — одна вперёд, другая назад, и наоборот. 8–10 раз."},
+    {title:"Дыхательное «Дровосек»", text:"И.п. — ноги на ширине плеч, руки сцеплены «замком» над головой. Наклон вперёд с резким выдохом «ух!», выпрямление — вдох. 4–6 раз."}
+  ] },
+
+{ name:"Комплекс ОРУ с обручем №1", groups:["подготовительная"], type:"ОРУ", category:"Обручи", quality:["Гибкость","Координация движений","Сила и выносливость ног","Подготовка к прыжкам"], props:true, propsNote:"обруч",
+  exercises:[
+    {title:"Обруч вверх, на носки", text:"И.п. — обруч в опущенных руках. Поднять обруч вверх, встать на носки, потянуться, опустить. 8 раз."},
+    {title:"Поворот с обручем над головой", text:"И.п. — обруч над головой. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Повороты с обручем за спиной", text:"И.п. — обруч за спиной в опущенных руках. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Наклон, обруч на пол и обратно", text:"И.п. — ноги врозь, обруч в руках внизу. Наклон вперёд, положить обруч на пол, выпрямиться, наклон — взять обруч. 6 раз."},
+    {title:"Наклон в обруче", text:"Ребёнок стоит в обруче, лежащем на полу. Наклон вперёд, коснуться руками пола внутри обруча, не задев его, выпрямиться. 6 раз."},
+    {title:"Присед в обруче", text:"Ребёнок стоит в обруче на полу. Присесть, не задев обруч, встать. 8 раз."},
+    {title:"Прыжки на двух ногах вдоль обруча", text:"Прыжки боком вдоль края лежащего обруча. 10 прыжков."},
+    {title:"Ходьба с обручем на восстановление", text:"Спокойная ходьба, обруч в опущенных руках. 20–30 секунд."}
+  ] },
+
+{ name:"Комплекс ОРУ с набивным мячом №1", groups:["подготовительная"], type:"ОРУ", category:"Набивной мяч", quality:["Сила рук и плечевого пояса","Сила мышц брюшного пресса и спины","Подготовка к метанию и ловле"], props:true, propsNote:"набивной мяч 0,5–1 кг",
+  exercises:[
+    {title:"Мяч вверх двумя руками", text:"И.п. — набивной мяч в двух руках внизу. Поднять мяч вверх, опустить. 6–8 раз, темп медленный."},
+    {title:"Поворот с мячом у груди", text:"И.п. — мяч у груди. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Повороты с мячом сидя", text:"И.п. — сидя, ноги согнуты, мяч у груди. Поворот вправо, коснуться мячом пола, вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Наклон с мячом, коснуться пола", text:"И.п. — ноги врозь, мяч в руках вверху. Наклон вперёд, коснуться мячом пола между стоп, выпрямиться. 6 раз."},
+    {title:"Наклон с мячом к ноге сидя", text:"И.п. — сидя, ноги врозь, мяч в руках. Наклон к правой ноге, коснуться мячом стопы, вернуться; то же к левой. 5–6 раз к каждой."},
+    {title:"Поднимание рук с мячом лёжа", text:"И.п. — лёжа на спине, мяч в вытянутых руках за головой. Поднести мяч вперёд-вверх к коленям, вернуться. 5–6 раз."},
+    {title:"Приседания с мячом у груди", text:"И.п. — мяч у груди. Присесть, спину держать прямо, встать. 8 раз."},
+    {title:"Броски набивного мяча в парах", text:"Броски двумя руками из-за головы на небольшое расстояние партнёру. 5–6 бросков каждому."}
+  ] },
+
+{ name:"Комплекс ОРУ с лёгкими гантелями №1", groups:["подготовительная"], type:"ОРУ", category:"Гантели лёгкие", quality:["Сила рук и плечевого пояса","Формирование правильной осанки"], props:true, propsNote:"гантели лёгкие",
+  exercises:[
+    {title:"Гантели вверх", text:"И.п. — гантели в опущенных руках. Поднять прямые руки вверх, опустить. 8 раз."},
+    {title:"Гантели в стороны", text:"И.п. — гантели у плеч. Развести руки в стороны, вернуться к плечам. 6–8 раз."},
+    {title:"Повороты с гантелями", text:"И.п. — гантели у плеч. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Наклон с гантелями", text:"И.п. — ноги врозь, гантели внизу. Наклон вперёд, руки с гантелями вниз, выпрямиться. 6 раз."},
+    {title:"Сгибание рук с гантелями к плечам", text:"И.п. — руки с гантелями внизу. Согнуть руки к плечам, разогнуть. 8–10 раз."},
+    {title:"Подъём на носки с гантелями", text:"И.п. — гантели вдоль тела. Подняться на носки, руки с гантелями вытянуть вперёд, опуститься. 8 раз."},
+    {title:"Приседания с гантелями у плеч", text:"И.п. — гантели у плеч. Присесть, спину держать прямо, встать. 8 раз."},
+    {title:"Дыхательное упражнение с гантелями", text:"Вдох — руки в стороны, выдох — руки вниз. 4 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Весёлые зайчики»", groups:["младшая"], type:"ОРУ", category:"Без предметов", quality:["Координация движений","Осанка","Подготовка к прыжкам","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Зайки проснулись", text:"И.п. — ноги на ширине плеч, руки опущены. Поднять руки вверх, потянуться, как зайка после сна, опустить. 4–5 раз."},
+    {title:"Зайки греют лапки", text:"И.п. — руки на поясе. Наклон вперёд, похлопать ладошками по коленям («греем лапки»), выпрямиться. 4–5 раз."},
+    {title:"Зайки прячутся", text:"И.п. — стоя. Присесть, обхватить колени руками, спрятаться от «лисы», встать. 4–5 раз."},
+    {title:"Зайки скачут по полянке", text:"Лёгкие прыжки на двух ногах на месте, как зайчики. 2 серии по 6 прыжков."},
+    {title:"Зайки нюхают цветочки", text:"Дыхательное упражнение: вдох носом, выдох ртом, будто нюхаем цветок. 3 раза."}
+  ] },
+
+{ name:"Комплекс с платочками «Птички проснулись»", groups:["младшая"], type:"ОРУ", category:"Платочки/султанчики", quality:["Координация движений","Подготовка к строевым упражнениям","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или султанчики",
+  exercises:[
+    {title:"Птички машут крылышками", text:"И.п. — платочки в опущенных руках. Поднять руки в стороны, помахать платочками, как крылышками, опустить. 4–5 раз."},
+    {title:"Птички клюют зёрнышки", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, коснуться платочками пола, выпрямиться. 4 раза."},
+    {title:"Птички прячутся в гнёздышко", text:"И.п. — стоя, платочки в руках. Присесть, накрыться платочками, встать. 4 раза."},
+    {title:"Птички летают", text:"Лёгкий бег на месте с взмахами платочков-«крылышек». 15–20 секунд."},
+    {title:"Птички отдыхают", text:"Дыхательное упражнение: спокойный вдох и выдох, платочки опущены. 3 раза."}
+  ] },
+
+{ name:"Комплекс с мешочками «Мышки в норке»", groups:["младшая"], type:"ОРУ", category:"Мешочки", quality:["Сила рук и плечевого пояса","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"мешочки с песком",
+  exercises:[
+    {title:"Мышка несёт зёрнышко", text:"И.п. — мешочек в правой руке внизу. Поднять руку вверх, показать мешочек, опустить, переложить в левую руку. 4 раза каждой рукой."},
+    {title:"Мышка прячет зёрнышко", text:"И.п. — мешочек в обеих руках у груди. Наклон вперёд, положить мешочек на пол, выпрямиться без мешочка, наклон — взять обратно. 4 раза."},
+    {title:"Мышка убегает от кота", text:"И.п. — мешочек в руках у груди. Присесть, спрятаться, встать. 4–5 раз."},
+    {title:"Мышка прыгает через норку", text:"Мешочек лежит на полу. Перепрыгнуть через него вперёд-назад. 6 раз."},
+    {title:"Мышки отдыхают в норке", text:"Присесть, мешочек положить рядом, спокойное дыхание. 3 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Мы — космонавты»", groups:["средняя"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Надеваем скафандр", text:"И.п. — ноги на ширине плеч. Поднять руки через стороны вверх, «застегнуть шлем», опустить. 5–6 раз."},
+    {title:"Проверяем приборы", text:"И.п. — руки перед грудью. Поворот вправо, «посмотреть на приборы», вернуться; то же влево. 5 раз в каждую сторону."},
+    {title:"Заводим ракету", text:"И.п. — ноги на ширине плеч, руки на поясе. Наклоны в стороны с имитацией «завода двигателя». 5–6 раз."},
+    {title:"Взлетаем", text:"И.п. — ноги вместе, руки на поясе. Присесть — «старт», резко выпрямиться и подняться на носки — «взлёт». 5–6 раз."},
+    {title:"Невесомость", text:"Лёгкие прыжки на месте с плавным взмахом рук в стороны, как в невесомости. 8 прыжков."},
+    {title:"Приземление", text:"Спокойная ходьба на месте с глубоким вдохом-выдохом — «мягкая посадка». 20 секунд."}
+  ] },
+
+{ name:"Комплекс с косичками «Змейки на полянке»", groups:["средняя"], type:"ОРУ", category:"Косички (короткий шнур)", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"косички (короткие шнуры)",
+  exercises:[
+    {title:"Змейка тянется вверх", text:"И.п. — косичка в двух руках внизу. Поднять руки вверх, потянуться, опустить. 5–6 раз."},
+    {title:"Змейка извивается", text:"И.п. — косичка перед грудью. Поворот вправо, вернуться, поворот влево. 5 раз в каждую сторону."},
+    {title:"Змейка ползёт по траве", text:"И.п. — ноги врозь, косичка в руках. Наклон вперёд, положить косичку на пол волной, выпрямиться. 4–5 раз."},
+    {title:"Змейка сворачивается в клубок", text:"И.п. — стоя. Присесть, обхватить колени, «свернуться», встать. 5 раз."},
+    {title:"Змейка прыгает через ручеёк", text:"Косичка на полу. Прыжки через неё вперёд-назад. 6–8 раз."},
+    {title:"Змейка засыпает", text:"Спокойное дыхание сидя, косичка рядом. 3–4 раза."}
+  ] },
+
+{ name:"Комплекс с платочками «Бабочки над лугом»", groups:["средняя"], type:"ОРУ", category:"Платочки/султанчики", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или султанчики",
+  exercises:[
+    {title:"Бабочка расправляет крылышки", text:"И.п. — платочки в опущенных руках. Развести руки в стороны, помахать платочками, опустить. 5–6 раз."},
+    {title:"Бабочка кружится", text:"И.п. — руки в стороны. Плавные повороты корпуса вправо-влево. 5 раз в каждую сторону."},
+    {title:"Бабочка садится на цветок", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, коснуться платочками пола, выпрямиться. 5 раз."},
+    {title:"Бабочка складывает крылышки", text:"И.п. — стоя. Присесть, накрыться платочками, встать. 5–6 раз."},
+    {title:"Бабочка перелетает с цветка на цветок", text:"Лёгкие прыжки с продвижением, взмахивая платочками. 8 прыжков."},
+    {title:"Бабочка отдыхает на листочке", text:"Спокойное дыхание, платочки опущены. 3 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Морское путешествие»", groups:["старшая"], type:"ОРУ", category:"Без предметов", quality:["Гибкость","Сила мышц брюшного пресса и спины","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Поднимаем паруса", text:"И.п. — ноги на ширине плеч. Поднять руки вверх через стороны, потянуться, опустить. 6–8 раз."},
+    {title:"Смотрим в подзорную трубу", text:"И.п. — руки перед глазами «трубой». Поворот вправо, «осмотреть горизонт», вернуться; то же влево. 6 раз в каждую сторону."},
+    {title:"Волны качают корабль", text:"И.п. — ноги на ширине плеч, руки на поясе. Наклоны в стороны, изображая качку. 6 раз."},
+    {title:"Достаём якорь со дна", text:"И.п. — лёжа на спине. Поднять туловище, сесть, «достать якорь», лечь. 6–8 раз."},
+    {title:"Гребём вёслами", text:"И.п. — сидя, ноги вытянуты вперёд. Имитация гребли вёслами согнутыми руками попеременно. 6–8 раз."},
+    {title:"Прыгаем через волны", text:"Прыжки на двух ногах с продвижением вперёд, как через волны. 8–10 прыжков."},
+    {title:"Дышим свежим морским воздухом", text:"Глубокий вдох носом, плавный выдох ртом. 4 раза."}
+  ] },
+
+{ name:"Комплекс с мешочками «Юные спортсмены»", groups:["старшая"], type:"ОРУ", category:"Мешочки", quality:["Сила рук и плечевого пояса","Глазомер и работа с мячом","Сюжетно-игровой комплекс"], props:true, propsNote:"мешочки с песком",
+  exercises:[
+    {title:"Штангисты", text:"И.п. — мешочек в обеих руках у груди. Поднять мешочек вверх на прямых руках, опустить. 6–8 раз."},
+    {title:"Метатели", text:"И.п. — мешочек в отведённой руке. Поворот корпуса, имитация замаха для броска, вернуться; сменить руку. 5 раз каждой рукой."},
+    {title:"Гимнасты", text:"И.п. — ноги врозь, мешочек в руках. Наклон вперёд, коснуться мешочком пола между стоп, выпрямиться. 6 раз."},
+    {title:"Тяжелоатлеты", text:"И.п. — мешочек у груди. Присесть, спину держать прямо, встать. 6–8 раз."},
+    {title:"Прыгуны", text:"Мешочек на полу. Прыжки через него на двух ногах вперёд-назад. 8 раз."},
+    {title:"Бегуны", text:"Бег на месте с высоким подниманием колена, мешочек в опущенных руках. 15–20 секунд."},
+    {title:"Восстанавливаем дыхание после тренировки", text:"Спокойная ходьба на месте с мешочком в руках. 20 секунд."}
+  ] },
+
+{ name:"Комплекс с косичками «Юные жонглёры»", groups:["старшая"], type:"ОРУ", category:"Косички (короткий шнур)", quality:["Координация движений","Гибкость","Сюжетно-игровой комплекс"], props:true, propsNote:"косички (короткие шнуры)",
+  exercises:[
+    {title:"Косичка летит вверх", text:"И.п. — косичка в двух руках внизу. Поднять руки вверх, потянуться, опустить. 6–8 раз."},
+    {title:"Косичка кружится", text:"И.п. — косичка перед грудью. Поворот вправо, вернуться, поворот влево. 6 раз в каждую сторону."},
+    {title:"Косичка стелется по земле", text:"И.п. — ноги врозь, косичка в руках. Наклон вперёд, положить косичку волной на пол, выпрямиться. 6 раз."},
+    {title:"Косичка сворачивается", text:"И.п. — сидя, косичка в руках. Наклон к ногам, коснуться косичкой стоп, выпрямиться. 5–6 раз."},
+    {title:"Косичка перешагивается", text:"Косичка на полу. Перешагивание вперёд-назад приставным шагом. 6–8 раз."},
+    {title:"Прыжки через косичку", text:"Косичка на полу в виде волны. Прыжки через неё боком. 8–10 раз."},
+    {title:"Косичка отдыхает", text:"Спокойное дыхание, косичка в опущенных руках. 3–4 раза."}
+  ] },
+
+{ name:"Сюжетный комплекс «Спортсмены готовятся к Олимпиаде»", groups:["подготовительная"], type:"ОРУ", category:"Без предметов", quality:["Сила и выносливость ног","Сила мышц брюшного пресса и спины","Сюжетно-игровой комплекс"], props:false, propsNote:null,
+  exercises:[
+    {title:"Разминка перед стартом", text:"И.п. — ноги на ширине плеч. Поднять руки вверх с вдохом, опустить с выдохом. 8–10 раз."},
+    {title:"Разворот на трибуны", text:"И.п. — руки на поясе. Поворот корпуса вправо с отведением руки в сторону, вернуться; то же влево. 6–8 раз в каждую сторону."},
+    {title:"Штурмуем вершину", text:"И.п. — ноги на ширине плеч. Наклон вперёд прогнувшись, руки в стороны, выпрямиться. 8 раз."},
+    {title:"Наклон к пьедесталу", text:"И.п. — сидя, ноги вместе вытянуты. Наклон вперёд, коснуться руками стоп, выпрямиться. 8 раз."},
+    {title:"Качаем пресс перед заплывом", text:"И.п. — лёжа на спине, руки за головой. Поднять туловище, сесть, лечь. 8 раз."},
+    {title:"Прыжки в длину, как в лёгкой атлетике", text:"Прыжки на двух ногах с продвижением вперёд, имитируя прыжок в длину. 6–8 прыжков."},
+    {title:"Бег на месте с высоким подниманием колена", text:"Имитация спринтерского старта. 20–30 секунд."},
+    {title:"Финишное дыхание", text:"Глубокий вдох, продолжительный выдох, руки плавно вниз. 4 раза."}
+  ] },
+
+{ name:"Комплекс со скакалкой «Весёлые прыгуны»", groups:["подготовительная"], type:"ОРУ", category:"Скакалка", quality:["Прыгучесть","Координация движений","Подготовка к прыжкам","Сюжетно-игровой комплекс"], props:true, propsNote:"скакалка",
+  exercises:[
+    {title:"Скакалка тянется к небу", text:"И.п. — скакалка сложена вчетверо, в опущенных руках. Поднять руки вверх, потянуться, опустить. 8 раз."},
+    {title:"Повороты со скакалкой", text:"И.п. — скакалка перед грудью. Поворот вправо, вернуться, поворот влево. 6–8 раз в каждую сторону."},
+    {title:"Скакалка качается на ветру", text:"И.п. — ноги врозь, скакалка в руках. Наклоны в стороны. 6–8 раз."},
+    {title:"Наклон к ноге со скакалкой сидя", text:"И.п. — сидя, ноги врозь, скакалка в руках. Наклон к правой ноге, коснуться скакалкой стопы; то же к левой. 5–6 раз к каждой."},
+    {title:"Скакалка ползёт по дорожке", text:"Скакалка на полу. Перешагивание через неё приставным шагом вправо-влево. 8 раз."},
+    {title:"Приседаем, как пружинки", text:"И.п. — скакалка в поднятых руках. Присесть, не опуская скакалку, встать. 8 раз."},
+    {title:"Прыгаем через скакалку", text:"Вращение скакалки вперёд, прыжки на двух ногах подряд — 10–15 раз для владеющих техникой, либо перешагивание для начинающих."},
+    {title:"Скакалка отдыхает", text:"Спокойная ходьба со скакалкой в руках, восстановление дыхания. 20 секунд."}
+  ] },
+
+{ name:"Комплекс с платочками «Осенние листья»", groups:["подготовительная"], type:"ОРУ", category:"Платочки/султанчики", quality:["Гибкость","Координация движений","Сюжетно-игровой комплекс"], props:true, propsNote:"платочки или лёгкие ленты-листья",
+  exercises:[
+    {title:"Листья взлетают на ветру", text:"И.п. — платочки в опущенных руках. Поднять руки вверх через стороны, помахать платочками, опустить. 8 раз."},
+    {title:"Листья кружатся", text:"И.п. — руки в стороны. Плавные повороты корпуса вправо-влево с одновременным поворотом на носках. 6–8 раз в каждую сторону."},
+    {title:"Приседания с платочками над головой", text:"И.п. — платочки в поднятых руках. Присесть, не опуская руки, встать. 8 раз."},
+    {title:"Листья опускаются на землю", text:"И.п. — ноги врозь, платочки в руках. Наклон вперёд, плавно опустить платочки на пол, выпрямиться. 6–8 раз."},
+    {title:"Наклон к ноге с платочком", text:"И.п. — сидя, ноги врозь, платочки в руках. Наклон к правой ноге, коснуться платочком стопы; то же к левой. 6 раз к каждой."},
+    {title:"Листья собираются в кучу", text:"И.п. — стоя. Присесть, собрать «листья» руками к себе, встать. 8 раз."},
+    {title:"Ветер поднимает листья в прыжке", text:"Лёгкие подскоки на месте с взмахом платочков вверх. 8–10 раз."},
+    {title:"Листья засыпают под снегом", text:"Спокойное дыхание, платочки опущены, лёгкое покачивание. 4 раза."}
+  ] }
+
+];
+
+</script>
+<script>
+// ---------- extra prop categories available even without a pre-built complex yet ----------
+const EXTRA_CATEGORY_SUGGESTIONS = ["Мешочки","Косички (короткий шнур)","Платочки/султанчики","Погремушки"];
+
+// ---------- id assignment ----------
+items.forEach((g,i)=>{ g.id = 'b'+String(i+1).padStart(2,'0'); });
+
+// ---------- local storage layer ----------
+const LS_KEYS = { overrides:'oru_overrides_v1', custom:'oru_custom_v1', deleted:'oru_deleted_v1' };
+let storageOK = true;
+
+function lsGet(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ storageOK = false; return fallback; }
+}
+function lsSet(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ storageOK = false; return false; }
+}
+
+let overrides = lsGet(LS_KEYS.overrides, {});
+let customGames = lsGet(LS_KEYS.custom, []);
+let deletedIds = lsGet(LS_KEYS.deleted, []);
+
+function getAllGames(){
+  const base = items
+    .filter(g=>!deletedIds.includes(g.id))
+    .map(g=> Object.assign({}, g, overrides[g.id]||{}));
+  const custom = customGames.filter(g=>!deletedIds.includes(g.id));
+  return base.concat(custom);
+}
+
+function persistAll(){
+  lsSet(LS_KEYS.overrides, overrides);
+  lsSet(LS_KEYS.custom, customGames);
+  lsSet(LS_KEYS.deleted, deletedIds);
+  updateStorageStatus();
+}
+
+function updateStorageStatus(){
+  const el = document.getElementById('storageStatus');
+  if(!el) return;
+  el.textContent = storageOK ? '' : 'хранилище браузера недоступно — делайте экспорт после изменений';
+}
+
+// ---------- facet state ----------
+const allGroups = GROUP_ORDER;
+const state = { search:"", groups:new Set(), categories:new Set(), qualities:new Set(), sort:"name" };
+
+function buildChips(containerId, values, dataAttr, onToggle, labelFn, activeSet){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  values.forEach(v=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = labelFn ? labelFn(v) : v;
+    if(dataAttr) chip.setAttribute('data-'+dataAttr, v);
+    if(activeSet && activeSet.has(v)) chip.classList.add('active');
+    chip.addEventListener('click', ()=>{
+      chip.classList.toggle('active');
+      onToggle(v, chip.classList.contains('active'));
+      render();
+    });
+    el.appendChild(chip);
+  });
+}
+
+function refreshFacetChips(){
+  const all = getAllGames();
+  const categories = [...new Set(all.map(g=>g.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const qualities = [...new Set(all.flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+
+  buildChips('f-group', allGroups, 'group', (v,on)=>{ on? state.groups.add(v): state.groups.delete(v); }, null, state.groups);
+  buildChips('f-category', categories, null, (v,on)=>{ on? state.categories.add(v): state.categories.delete(v); }, null, state.categories);
+  buildChips('f-quality', qualities, null, (v,on)=>{ on? state.qualities.add(v): state.qualities.delete(v); }, null, state.qualities);
+
+  // datalist for the form — includes categories already used PLUS reserve categories not yet used in any complex
+  const catList = document.getElementById('categoryList');
+  const allCatOptions = [...new Set(categories.concat(EXTRA_CATEGORY_SUGGESTIONS))].sort((a,b)=>a.localeCompare(b,'ru'));
+  catList.innerHTML = allCatOptions.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">`).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('sortSelect').addEventListener('change', e=>{ state.sort = e.target.value; render(); });
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.search=""; state.groups.clear(); state.categories.clear(); state.qualities.clear(); state.sort="name";
+  document.getElementById('searchInput').value="";
+  document.getElementById('sortSelect').value="name";
+  refreshFacetChips();
+  render();
+});
+
+function matches(g){
+  if(state.search && !g.name.toLowerCase().includes(state.search)) return false;
+  if(state.groups.size && !g.groups.some(x=>state.groups.has(x))) return false;
+  if(state.categories.size && !state.categories.has(g.category)) return false;
+  if(state.qualities.size && !g.quality.some(x=>state.qualities.has(x))) return false;
+  return true;
+}
+
+function sortGames(list){
+  const copy=[...list];
+  if(state.sort==='name') copy.sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='group') copy.sort((a,b)=> GROUP_ORDER.indexOf(a.groups[0]) - GROUP_ORDER.indexOf(b.groups[0]) || a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='purpose') copy.sort((a,b)=> (a.quality[0]||'').localeCompare(b.quality[0]||'','ru') || a.name.localeCompare(b.name,'ru'));
+  return copy;
+}
+
+function render(){
+  const all = getAllGames();
+  const filtered = sortGames(all.filter(matches));
+  const grid = document.getElementById('grid');
+  grid.innerHTML='';
+  document.getElementById('countLabel').textContent = `показано ${filtered.length} из ${all.length}`;
+  const activeCount = state.groups.size + state.categories.size + state.qualities.size;
+  document.getElementById('activeFilterCount').textContent = activeCount ? String(activeCount) : '';
+  document.getElementById('emptyMsg').style.display = filtered.length? 'none':'block';
+
+  filtered.forEach((g, i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+
+    const tab = document.createElement('div');
+    tab.className = 'tab ' + g.groups[0];
+    card.appendChild(tab);
+
+    const no = document.createElement('div');
+    no.className='no';
+    no.textContent = '№ ' + String(i+1).padStart(2,'0');
+    if(g.id.startsWith('c')){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='добавлено вами'; no.appendChild(b);
+    } else if(overrides[g.id]){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='изменено'; no.appendChild(b);
+    }
+    card.appendChild(no);
+
+    const h3 = document.createElement('h3');
+    h3.textContent = g.name;
+    card.appendChild(h3);
+
+    const rule = document.createElement('div');
+    rule.className='rule';
+    card.appendChild(rule);
+
+    const glist = document.createElement('div');
+    glist.className='groups-list';
+    g.groups.forEach(gr=>{
+      const lab = document.createElement('span');
+      lab.className='glabel';
+      lab.style.background = GROUP_COLORS[gr] || '#8b5e3c';
+      lab.textContent = gr;
+      glist.appendChild(lab);
+    });
+    if(g.category){
+      const cat = document.createElement('span');
+      cat.className='glabel';
+      cat.style.background = '#8b5e3c';
+      cat.textContent = g.category;
+      glist.appendChild(cat);
+    }
+    card.appendChild(glist);
+
+    const qwrap = document.createElement('div');
+    qwrap.className='qtags';
+    g.quality.forEach(q=>{
+      const t=document.createElement('span');
+      t.className='qtag';
+      t.textContent=q;
+      qwrap.appendChild(t);
+    });
+    card.appendChild(qwrap);
+
+    const meta = document.createElement('p');
+    meta.className='meta-line';
+    meta.innerHTML = `<b>Инвентарь:</b> ${g.props? (g.propsNote||'да') : 'без предметов'}`;
+    card.appendChild(meta);
+
+    const details = document.createElement('details');
+    details.className='desc';
+    const summary = document.createElement('summary');
+    summary.textContent = g.exercises ? 'Комплекс упражнений (' + g.exercises.length + ')' : 'Техника выполнения';
+    details.appendChild(summary);
+
+    if(g.exercises && g.exercises.length){
+      const ol = document.createElement('ol');
+      ol.style.margin = '8px 0 0';
+      ol.style.paddingLeft = '20px';
+      g.exercises.forEach(ex=>{
+        const li = document.createElement('li');
+        li.style.marginBottom = '8px';
+        li.style.fontSize = '13.5px';
+        li.style.lineHeight = '1.5';
+        const strong = document.createElement('strong');
+        strong.textContent = ex.title + '. ';
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(ex.text));
+        ol.appendChild(li);
+      });
+      details.appendChild(ol);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = g.desc || '';
+      details.appendChild(p);
+    }
+    card.appendChild(details);
+
+    const actions = document.createElement('div');
+    actions.className='card-actions';
+    const editBtn = document.createElement('button');
+    editBtn.type='button'; editBtn.textContent='Изменить';
+    editBtn.addEventListener('click', ()=> openForm(g));
+    actions.appendChild(editBtn);
+    const delBtn = document.createElement('button');
+    delBtn.type='button'; delBtn.textContent='Удалить'; delBtn.className='danger';
+    delBtn.addEventListener('click', ()=>{
+      if(confirm(`Удалить «${g.name}»?`)){
+        deletedIds.push(g.id);
+        persistAll();
+        refreshFacetChips();
+        render();
+      }
+    });
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+
+    grid.appendChild(card);
+  });
+}
+
+// ---------- modal form ----------
+const overlay = document.getElementById('modalOverlay');
+const formEl = document.getElementById('gameForm');
+let editingId = null;
+let formQuality = [];
+
+function fillGroupCheckboxes(selected){
+  const wrap = document.getElementById('fGroups');
+  wrap.innerHTML='';
+  GROUP_ORDER.forEach(gr=>{
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type='checkbox'; cb.value=gr; cb.checked = selected.includes(gr);
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' '+gr));
+    wrap.appendChild(label);
+  });
+}
+
+function renderTagPills(pillsId, values, onRemove){
+  const wrap = document.getElementById(pillsId);
+  wrap.innerHTML='';
+  values.forEach(v=>{
+    const pill = document.createElement('span');
+    pill.className='pill';
+    pill.textContent = v;
+    const rm = document.createElement('button');
+    rm.type='button'; rm.textContent='×';
+    rm.addEventListener('click', ()=>{ onRemove(v); });
+    pill.appendChild(rm);
+    wrap.appendChild(pill);
+  });
+}
+
+function renderTagSuggestions(suggestId, all, current, onAdd){
+  const wrap = document.getElementById(suggestId);
+  wrap.innerHTML='';
+  all.filter(v=>!current.includes(v)).forEach(v=>{
+    const s = document.createElement('span');
+    s.textContent = '+ ' + v;
+    s.addEventListener('click', ()=> onAdd(v));
+    wrap.appendChild(s);
+  });
+}
+
+function refreshQualityUI(){
+  const all = [...new Set(getAllGames().flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+  renderTagPills('qualityPills', formQuality, v=>{ formQuality = formQuality.filter(x=>x!==v); refreshQualityUI(); });
+  renderTagSuggestions('qualitySuggest', all, formQuality, v=>{ formQuality.push(v); refreshQualityUI(); });
+}
+
+document.getElementById('qualityAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('qualityInput');
+  const v = inp.value.trim();
+  if(v && !formQuality.includes(v)){ formQuality.push(v); inp.value=''; refreshQualityUI(); }
+});
+document.getElementById('qualityInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('qualityAddBtn').click(); }
+});
+
+document.getElementById('fProps').addEventListener('change', e=>{
+  document.getElementById('propsNoteField').style.display = e.target.checked ? 'block' : 'none';
+});
+
+function openForm(game){
+  editingId = game ? game.id : null;
+  document.getElementById('modalTitle').textContent = game ? 'Изменить запись' : 'Новая запись';
+  document.getElementById('fName').value = game ? game.name : '';
+  fillGroupCheckboxes(game ? game.groups : []);
+  document.getElementById('fCategory').value = game ? (game.category||'') : '';
+  formQuality = game ? [...game.quality] : [];
+  refreshQualityUI();
+  document.getElementById('fProps').checked = game ? !!game.props : false;
+  document.getElementById('propsNoteField').style.display = (game && game.props) ? 'block' : 'none';
+  document.getElementById('fPropsNote').value = (game && game.propsNote) ? game.propsNote : '';
+  // for editing a structured complex, flatten exercises into the plain-text textarea for editing;
+  // saving will overwrite it as plain desc (structured per-exercise editing isn't available in the form)
+  if(game && game.exercises && game.exercises.length){
+    document.getElementById('fDesc').value = game.exercises.map((ex,idx)=> (idx+1)+'. '+ex.title+' — '+ex.text).join('\n');
+  } else {
+    document.getElementById('fDesc').value = game ? (game.desc||'') : '';
+  }
+  document.getElementById('deleteGameBtn').style.display = game ? 'inline' : 'none';
+  overlay.classList.add('open');
+  document.getElementById('fName').focus();
+}
+function closeForm(){
+  overlay.classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('addGameBtn').addEventListener('click', ()=> openForm(null));
+document.getElementById('cancelFormBtn').addEventListener('click', closeForm);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeForm(); });
+
+document.getElementById('deleteGameBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  if(confirm('Удалить эту запись из картотеки?')){
+    deletedIds.push(editingId);
+    persistAll();
+    refreshFacetChips();
+    render();
+    closeForm();
+  }
+});
+
+formEl.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('fName').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  if(!name || !desc){ return; }
+  const groups = [...document.querySelectorAll('#fGroups input:checked')].map(cb=>cb.value);
+  const props = document.getElementById('fProps').checked;
+  const type = 'ОРУ';
+  const fields = {
+    name,
+    type,
+    groups: groups.length? groups : [GROUP_ORDER[0]],
+    category: document.getElementById('fCategory').value.trim() || 'Без предметов',
+    quality: formQuality.length? formQuality : ['Без указания'],
+    props,
+    propsNote: props ? (document.getElementById('fPropsNote').value.trim() || null) : null,
+    desc,
+    exercises: null
+  };
+
+  if(editingId){
+    if(editingId.startsWith('c')){
+      const idx = customGames.findIndex(g=>g.id===editingId);
+      if(idx>-1) customGames[idx] = Object.assign({id:editingId}, fields);
+    } else {
+      overrides[editingId] = fields;
+    }
+  } else {
+    const newId = 'c' + Date.now();
+    customGames.push(Object.assign({id:newId}, fields));
+  }
+
+  persistAll();
+  refreshFacetChips();
+  render();
+  closeForm();
+});
+
+// ---------- export / import ----------
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const payload = { overrides, customGames, deletedIds, exportedAt: new Date().toISOString() };
+  const json = JSON.stringify(payload, null, 2);
+  let handled = false;
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        await downloads.save({ filename: 'oruovd-backup.json', data: json });
+        handled = true;
+      }
+    }
+  }catch(err){ /* fall through */ }
+  if(!handled){
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'oruovd-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!confirm('Заменить текущие изменения содержимым файла резервной копии?')) return;
+      overrides = data.overrides || {};
+      customGames = data.customGames || [];
+      deletedIds = data.deletedIds || [];
+      persistAll();
+      refreshFacetChips();
+      render();
+    }catch(err){
+      alert('Не удалось прочитать файл — проверьте, что это резервная копия картотеки (.json).');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---------- init ----------
+updateStorageStatus();
+refreshFacetChips();
+render();
+</script>
+
+</body>
+</html>

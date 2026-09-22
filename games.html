@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Картотека подвижных игр</title>
+<style>
+  :root{
+    --paper: #efe9da;
+    --paper-line: #d9cfb8;
+    --ink: #2a2723;
+    --ink-soft: #6b6154;
+    --wood: #8b5e3c;
+    --c-mladshaya: #c1614f;
+    --c-srednyaya: #b98b2e;
+    --c-starshaya: #3e7a6e;
+    --c-podgot: #4b5a82;
+    --card-bg: #f8f4e9;
+    --shadow: 0 1px 0 rgba(42,39,35,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f5efe0 0%, var(--paper) 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+
+  header.top{
+    padding:34px 20px 18px;
+    text-align:center;
+    border-bottom:1px solid var(--paper-line);
+    background:linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+  }
+
+  header.top .kicker{
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+
+  header.top h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:400;
+    font-size:clamp(26px,4.2vw,38px);
+    margin:0 0 8px;
+    letter-spacing:.01em;
+  }
+
+  header.top p.sub{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+
+  .drawer{
+    margin-top:22px;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    box-shadow:0 2px 10px rgba(42,39,35,0.06);
+    overflow:hidden;
+  }
+
+  .drawer-label{
+    background:linear-gradient(180deg,#efe4c9,#e6d9b8);
+    border-bottom:1px solid var(--paper-line);
+    padding:10px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .drawer-label .pull{
+    width:34px;height:8px;border-radius:6px;
+    background:var(--wood);
+    opacity:.55;
+  }
+
+  .drawer-label input[type="search"]{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:Georgia,serif;
+    font-size:17px;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px;
+  }
+  .drawer-label input[type="search"]::placeholder{color:#8a7f6c; font-style:italic;}
+
+  .facets{
+    padding:14px 16px 6px;
+  }
+
+  .facets-drawer{
+    border-bottom:1px solid var(--paper-line);
+  }
+  .facets-drawer summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 16px;
+    font-size:14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    user-select:none;
+  }
+  .facets-drawer summary::-webkit-details-marker{display:none;}
+  .facets-drawer summary:before{
+    content:"▸";
+    color:var(--wood);
+    font-size:12px;
+  }
+  .facets-drawer[open] summary:before{content:"▾";}
+  #activeFilterCount{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:#e9e1cc;
+    padding:1px 8px;
+    border-radius:10px;
+  }
+  #activeFilterCount:empty{display:none;}
+
+  .facet-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:8px 10px;
+    padding:8px 0;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .facet-row:last-child{border-bottom:none;}
+
+  .facet-row .flabel{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    min-width:96px;
+    padding-top:5px;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+
+  .chip{
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+    font-size:13px;
+    padding:5px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    user-select:none;
+    transition:background .12s, border-color .12s, color .12s;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:#bcae8e;}
+  .chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fbf7ec;
+  }
+  .chip.active[data-group="младшая"]{background:var(--c-mladshaya);border-color:var(--c-mladshaya);}
+  .chip.active[data-group="средняя"]{background:var(--c-srednyaya);border-color:var(--c-srednyaya);}
+  .chip.active[data-group="старшая"]{background:var(--c-starshaya);border-color:var(--c-starshaya);}
+  .chip.active[data-group="подготовительная"]{background:var(--c-podgot);border-color:var(--c-podgot);}
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:12px 16px 16px;
+  }
+
+  .toolbar .count{font-size:13px;color:var(--ink-soft);}
+  .toolbar .reset{
+    font-size:13px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  select#sortSelect{
+    font-family:inherit;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:14px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    color:var(--ink);
+  }
+
+  .grid{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+  }
+
+  .card .tab{
+    position:absolute;
+    top:-1px;
+    left:16px;
+    height:6px;
+    width:44px;
+    border-radius:0 0 3px 3px;
+  }
+  .tab.младшая{background:var(--c-mladshaya);}
+  .tab.средняя{background:var(--c-srednyaya);}
+  .tab.старшая{background:var(--c-starshaya);}
+  .tab.подготовительная{background:var(--c-podgot);}
+
+  .card .no{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  .card h3{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:19px;
+    margin:6px 0 8px;
+    line-height:1.25;
+  }
+
+  .card .rule{
+    border-top:1px dashed var(--paper-line);
+    margin:0 0 10px;
+  }
+
+  .meta-line{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+    line-height:1.5;
+  }
+  .meta-line b{color:var(--ink);font-weight:600;}
+
+  .groups-list{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 10px;}
+  .glabel{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    color:#fff;
+  }
+
+  .qtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .qtag{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    background:#e9e1cc;
+    color:var(--ink);
+  }
+
+  details.desc{margin-top:2px;}
+  details.desc summary{
+    cursor:pointer;
+    font-size:13px;
+    color:var(--wood);
+    list-style:none;
+  }
+  details.desc summary::-webkit-details-marker{display:none;}
+  details.desc summary:before{content:"▸ ";}
+  details.desc[open] summary:before{content:"▾ ";}
+  details.desc p{
+    font-size:13.5px;
+    line-height:1.55;
+    color:#3a3630;
+    margin:8px 0 0;
+  }
+
+  .rhyme{
+    margin:10px 0 0;
+    padding:9px 12px;
+    background:#f1e9d3;
+    border-left:2px solid var(--wood);
+    border-radius:0 2px 2px 0;
+  }
+  .rhyme .rlabel{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .rhyme .rtext{
+    font-family:Georgia,serif;
+    font-style:italic;
+    font-size:13px;
+    line-height:1.6;
+    white-space:pre-line;
+    color:#3a3630;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  .card-actions{
+    display:flex;
+    gap:14px;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .card-actions button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    color:var(--wood);
+    text-decoration:underline;
+  }
+  .card-actions button.danger{color:#a4453a;}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:8px;
+    background:#e3ddc6;
+    color:var(--ink-soft);
+    margin-left:6px;
+    vertical-align:middle;
+  }
+
+  .addbar{
+    display:flex;
+    justify-content:flex-end;
+    margin:18px 0 -4px;
+  }
+  .btn-primary{
+    font-family:inherit;
+    font-size:13.5px;
+    background:var(--ink);
+    color:#fbf7ec;
+    border:none;
+    padding:9px 16px;
+    border-radius:18px;
+    cursor:pointer;
+  }
+  .btn-primary:hover{opacity:.9;}
+
+  .databar{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    margin:14px 0 0;
+    font-size:12.5px;
+  }
+  .databar button{
+    font-family:inherit;
+    font-size:12.5px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(30,27,22,0.45);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 14px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+
+  .modal{
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    max-width:560px;
+    width:100%;
+    padding:22px 22px 20px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .modal h2{
+    font-family:Georgia,serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .field input[type="text"], .field textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    background:#fffdf7;
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field textarea{min-height:64px;}
+  .checkrow{display:flex;flex-wrap:wrap;gap:12px;}
+  .checkrow label{
+    display:flex; align-items:center; gap:5px;
+    font-size:13px; color:var(--ink);
+  }
+  .inline2{display:flex; gap:10px; align-items:center;}
+  .inline2 input[type="text"]{flex:1;}
+
+  .tagpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:#e3ddc6;
+    border-radius:12px;
+    padding:3px 6px 3px 10px;
+    font-size:12.5px;
+  }
+  .pill button{
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);font-size:13px;line-height:1;
+    padding:0 2px;
+  }
+  .tag-add-row{display:flex; gap:6px;}
+  .tag-add-row input{flex:1;}
+  .tag-add-row button{
+    font-family:inherit;font-size:13px;
+    border:1px solid var(--paper-line);
+    background:#fffdf7;
+    border-radius:4px;
+    padding:6px 10px;
+    cursor:pointer;
+  }
+  .tag-suggest{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;
+  }
+  .tag-suggest span{
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px dashed var(--paper-line);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tag-suggest span:hover{border-color:var(--wood);color:var(--ink);}
+
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-line);
+  }
+  .modal-actions .right{display:flex;gap:10px;}
+  .btn-ghost{
+    font-family:inherit;font-size:13.5px;
+    background:none;border:1px solid var(--paper-line);
+    border-radius:18px; padding:8px 15px; cursor:pointer;
+    color:var(--ink);
+  }
+  .btn-danger{
+    font-family:inherit;font-size:13px;
+    background:none;border:none;
+    color:#a4453a; text-decoration:underline;
+    cursor:pointer; padding:0;
+  }
+  .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+
+  @media (max-width:520px){
+    .facet-row{flex-direction:column;align-items:flex-start;}
+    .facet-row .flabel{min-width:auto;padding-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="kicker">офлайн-справочник для воспитателя</p>
+  <h1>Картотека подвижных игр</h1>
+  <p class="sub">20 игр из планов на сентябрь — ищите и фильтруйте по группе, качествам, сезону и содержанию</p>
+</header>
+
+<div class="wrap">
+
+  <div class="drawer">
+    <div class="drawer-label">
+      <div class="pull"></div>
+      <input type="search" id="searchInput" placeholder="искать игру по названию…">
+    </div>
+
+    <details class="facets-drawer">
+      <summary>Фильтры <span id="activeFilterCount"></span></summary>
+      <div class="facets">
+        <div class="facet-row">
+          <span class="flabel">Группа</span>
+          <div class="chips" id="f-group"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Качества</span>
+          <div class="chips" id="f-quality"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Сезон</span>
+          <div class="chips" id="f-season"></div>
+        </div>
+        <div class="facet-row">
+          <span class="flabel">Содержание</span>
+          <div class="chips" id="f-extra"></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar">
+      <span class="count" id="countLabel"></span>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="reset" id="resetBtn">сбросить фильтры</button>
+        <select id="sortSelect">
+          <option value="name">сортировать: по названию</option>
+          <option value="group">сортировать: по группе</option>
+          <option value="season">сортировать: по сезону</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="addbar">
+    <button class="btn-primary" id="addGameBtn">+ Добавить игру</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">Ничего не найдено — попробуйте снять часть фильтров.</div>
+
+  <div class="databar">
+    <span id="storageStatus"></span>
+    <button id="exportBtn">экспорт резервной копии</button>
+    <button id="importBtn">импорт из файла</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+  </div>
+
+</div>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Новая игра</h2>
+    <form id="gameForm">
+      <div class="field">
+        <label for="fName">Название</label>
+        <input type="text" id="fName" required>
+      </div>
+
+      <div class="field">
+        <label>Группа</label>
+        <div class="checkrow" id="fGroups"></div>
+      </div>
+
+      <div class="field">
+        <label>Качества (развиваемые навыки)</label>
+        <div class="tagpills" id="qualityPills"></div>
+        <div class="tag-add-row">
+          <input type="text" id="qualityInput" placeholder="ввести новое качество и нажать «Добавить»">
+          <button type="button" id="qualityAddBtn">Добавить</button>
+        </div>
+        <div class="tag-suggest" id="qualitySuggest"></div>
+      </div>
+
+      <div class="field">
+        <label>Сезон</label>
+        <div class="tagpills" id="seasonPills"></div>
+        <div class="tag-add-row">
+          <input type="text" id="seasonInput" placeholder="ввести новый вариант и нажать «Добавить»">
+          <button type="button" id="seasonAddBtn">Добавить</button>
+        </div>
+        <div class="tag-suggest" id="seasonSuggest"></div>
+      </div>
+
+      <div class="field">
+        <div class="checkrow">
+          <label><input type="checkbox" id="fAnimals"> сюжет с животными</label>
+          <label><input type="checkbox" id="fProps"> есть предметы</label>
+        </div>
+      </div>
+
+      <div class="field" id="propsNoteField" style="display:none;">
+        <label for="fPropsNote">Какие предметы</label>
+        <input type="text" id="fPropsNote" placeholder="например: мяч, флажки">
+      </div>
+
+      <div class="field">
+        <label for="fDesc">Ход игры</label>
+        <textarea id="fDesc" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="fRhyme">Текст потешки / приговорки (необязательно)</label>
+        <textarea id="fRhyme"></textarea>
+        <div class="field-hint">Народные потешки — можно указывать полностью. Авторские стихи (например, С. Маршака) под охраной авторского права — приводите не более одной короткой строки для узнавания.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-danger" id="deleteGameBtn" style="display:none;">Удалить игру</button>
+        <div class="right">
+          <button type="button" class="btn-ghost" id="cancelFormBtn">Отмена</button>
+          <button type="submit" class="btn-primary">Сохранить</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const GROUP_COLORS = {
+  "младшая":"var(--c-mladshaya)",
+  "средняя":"var(--c-srednyaya)",
+  "старшая":"var(--c-starshaya)",
+  "подготовительная":"var(--c-podgot)"
+};
+const GROUP_ORDER = ["младшая","средняя","старшая","подготовительная"];
+
+const games = [
+{ name:"Догони меня", groups:["младшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети садятся на стульчики/скамейку с одной стороны площадки. Воспитатель говорит «Догоните меня!» и убегает — дети бегут следом. Когда воспитатель останавливается и говорит «Убегайте, догоню!», дети бегут обратно на места, а воспитатель делает вид, что догоняет. Повторяется 3–4 раза." },
+
+{ name:"Птички в гнёздышках", groups:["младшая"], quality:["Реакция на сигнал","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"На площадке раскладываются обручи-«гнёздышки» по числу детей. Дети-«птички» садятся в свои гнёздышки. По сигналу «Птички полетели!» выбегают из обручей, машут «крылышками». По сигналу «Птички в гнёздышки!» бегут в свой обруч." },
+
+{ name:"Мой весёлый звонкий мяч", groups:["младшая"], quality:["Прыжки","Чувство ритма и текста"], season:["круглый год"], props:true, propsNote:"мяч (у воспитателя)", animals:false,
+  desc:"Воспитатель показывает мяч и читает стихотворение С. Маршака «Мяч», сопровождая словами прыжки мяча. Дети прыгают на месте на двух ногах, изображая мячик. На последних словах дети замирают или разбегаются от «догоняющего» воспитателя.",
+  rhyme:"Это стихотворение С. Маршака охраняется авторским правом, поэтому полный текст здесь не приводится — его легко найти в сборниках Маршака («Мой весёлый, звонкий мяч, ты куда пустился вскачь?..») или в любой книге для чтения дошкольникам.", rhymeNote:"О тексте:" },
+
+{ name:"Солнышко и дождик", groups:["младшая"], quality:["Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"На слово «Солнышко!» дети гуляют по площадке — ходьба, бег врассыпную. На слово «Дождик!» все бегут в обозначенное укрытие и присаживаются, «прячась от дождя». Повторяется со сменой темпа." },
+
+{ name:"Поезд", groups:["младшая"], quality:["Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом («вагончики»), первый — «паровозик». По сигналу «Поезд поехал!» все двигаются вперёд, изображая движение колёс руками, произнося «чух-чух». По сигналу «Остановка!» поезд останавливается." },
+
+{ name:"Кот и воробышки", groups:["младшая"], quality:["Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «кот», сидит в стороне. Дети-«воробышки» разлетаются по площадке, «клюют зёрнышки» (приседают). Когда воспитатель говорит «Кот идёт!» и встаёт, воробышки разлетаются на свои места, кот делает вид, что ловит." },
+
+{ name:"У медведя во бору", groups:["младшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Медведь» сидит в стороне («в бору»). Остальные дети идут к медведю, собирая воображаемые грибы-ягоды, приговаривая текст. После слов медведь встаёт и ловит детей — они разбегаются к своему «дому».",
+  rhyme:"У медведя во бору\nГрибы, ягоды беру,\nА медведь не спит,\nВсё на нас глядит,\nА потом как зарычит\nИ за нами побежит!" },
+
+{ name:"Пузырь", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети берутся за руки в маленьком кругу и произносят текст, постепенно отходя назад и расширяя круг. На слово «Лопнул!» опускают руки и сбегаются в маленький круг со словом «Хлоп!».",
+  rhyme:"Раздувайся, пузырь,\nРаздувайся большой,\nОставайся такой,\nДа не лопайся!" },
+
+{ name:"Найди себе пару", groups:["средняя"], quality:["Ориентировка в пространстве","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"флажки или платочки парами", animals:false,
+  desc:"Дети разбиваются на пары, у каждой пары — одинаковый атрибут. По сигналу «Побежали!» разбегаются врассыпную. На сигнал «Найди себе пару!» быстро находят партнёра с таким же атрибутом. При нечётном числе детей один остаётся без пары." },
+
+{ name:"У ребят порядок строгий", groups:["средняя"], quality:["Организованность (построения)"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети свободно двигаются по залу под слова воспитателя. На последнее слово или хлопок быстро строятся в условленном месте — в колонну по одному или в свои звенья.",
+  rhyme:"У ребят порядок строгий,\nЗнают все свои места.\nНу, трубите веселее:\nТра-та-та, тра-та-та!" },
+
+{ name:"Ловишки", groups:["средняя"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Выбирается «ловишка». Остальные дети разбегаются по площадке, ловишка старается догнать и осалить убегающих. Осаленный отходит в сторону. Проводится 3–4 раза со сменой ловишки." },
+
+{ name:"Мяч через сетку", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч, сетка/шнур", animals:false,
+  desc:"Между стойками натянута сетка на уровне поднятых рук ребёнка. Две команды по разные стороны сетки перебрасывают мяч друг другу двумя руками, стараясь не уронить его на своей стороне." },
+
+{ name:"Совушка", groups:["средняя","старшая"], quality:["Выдержка и торможение","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Совушка» сидит в «гнезде» в стороне. Остальные — «птички» — бегают и прыгают по площадке. Все двигаются под слова воспитателя, а на команду о наступлении ночи замирают на месте, и совушка вылетает и уводит в гнездо тех, кто шевелится.",
+  rhyme:"День наступает — всё оживает!\n(дети бегают, прыгают)\n\nНочь наступает — всё замирает!\n(дети замирают, совушка «вылетает» на охоту)" },
+
+{ name:"Огуречик, огуречик", groups:["средняя"], quality:["Реакция на сигнал","Быстрота бега"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Выбирается «мышка», садится в конце площадки. Остальные — «огуречики» — стоят на другом конце и хором произносят текст. На последнем слове мышка выбегает и ловит разбегающихся огуречиков.",
+  rhyme:"Огуречик, огуречик,\nНе ходи на тот конечик,\nТам мышка живёт,\nТебе хвостик отгрызёт." },
+
+{ name:"Гуси-лебеди", groups:["средняя","старшая"], quality:["Быстрота бега","Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"На одной стороне — «дом» гусей, на другой — «хозяин», сбоку — «логово волка». Идёт перекличка хозяина с гусями; после её окончания гуси бегут через поле мимо волка обратно в дом, а волк старается их осалить.",
+  rhyme:"Хозяин: Гуси-гуси!\nГуси: Га-га-га!\nХозяин: Есть хотите?\nГуси: Да-да-да!\nХозяин: Так летите!\nГуси: Нам нельзя: серый волк под горой не пускает нас домой.\nХозяин: Так летите, как хотите, только крылья берегите!" },
+
+{ name:"Самолёты", groups:["средняя"], quality:["Ориентировка в пространстве","Организованность (построения)"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети-«лётчики» стоят в колоннах-«звеньях». По сигналу «Завести моторы!» делают вращательные движения руками. По сигналу «Летите!» разбегаются врассыпную, разведя руки в стороны. По сигналу «На посадку!» строятся на прежнее место." },
+
+{ name:"Караси и щука", groups:["старшая","подготовительная"], quality:["Ловкость и увёртывание","Согласованность движений в группе"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Щука» встаёт в центр площадки. Часть детей образует круг («сеть», взявшись за руки), часть — «караси» плавают внутри и снаружи круга. По сигналу «Щука!» она ловит карасей, не успевших спрятаться в круг. Роли периодически меняются." },
+
+{ name:"Мышеловка", groups:["старшая","подготовительная"], quality:["Координация движений","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Меньшая часть детей — «мышки», большая образует круг-«мышеловку», держась за руки и приговаривая текст, поднимая и опуская руки. Пока звучит текст, мышки вбегают в круг и выбегают. На последнем слове круг «захлопывается» — оставшиеся внутри мышки встают в круг.",
+  rhyme:"Ах, как мыши надоели,\nРазвелось их просто страсть!\nВсё погрызли, всё поели,\nВсюду лезут — вот напасть!\nБерегитесь же, плутовки,\nДоберёмся мы до вас!\nВот поставим мышеловки,\nПереловим всех сейчас!" },
+
+{ name:"Летает — не летает", groups:["старшая","подготовительная"], quality:["Внимание","Кругозор"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят (сидят) в кругу. Воспитатель называет предметы, животных, явления, одновременно поднимая руки, как бы показывая полёт. Если названное действительно летает — дети поднимают руки; если нет — руки остаются опущенными. Ошибившийся выбывает на один кон." },
+
+{ name:"Съедобное — несъедобное", groups:["подготовительная"], quality:["Реакция на сигнал","Ловкость и увёртывание"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети стоят по кругу или в шеренге напротив ведущего. Ведущий бросает мяч по очереди каждому, называя предмет. Если предмет съедобный — ребёнок ловит мяч; если несъедобный — отбивает (не ловит). Ошибившийся меняется местом с ведущим или временно выбывает." },
+
+{ name:"Зайка беленький сидит", groups:["младшая"], quality:["Прыжки","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«зайки» сидят на корточках в кругу. Воспитатель произносит текст потешки, дети выполняют движения по тексту: шевелят «ушками», хлопают в ладоши («греют лапки»), подпрыгивают на месте. На словах о появлении «волка» зайки разбегаются врассыпную, воспитатель их догоняет.",
+  rhyme:"Зайка беленький сидит\nИ ушами шевелит.\nВот так, вот так,\nОн ушами шевелит.\n\nЗайке холодно сидеть,\nНадо лапочки погреть.\nХлоп-хлоп-хлоп-хлоп,\nНадо лапочки погреть.\n\nЗайке холодно стоять,\nНадо зайке поскакать.\nСкок-скок-скок-скок,\nНадо зайке поскакать.\n\nКто-то зайку испугал —\nЗайка прыг… и ускакал." },
+
+{ name:"Воробушки и автомобиль", groups:["младшая"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«воробушки» сидят на корточках в «гнёздышках». По сигналу «Воробушки полетели!» разбегаются по площадке, машут «крылышками». На сигнал «Автомобиль едет!» быстро улетают обратно в свои гнёздышки." },
+
+{ name:"Наседка и цыплята", groups:["младшая"], quality:["Согласованность движений в группе","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «наседка», дети — «цыплята» идут за ней вереницей, подлезают под верёвку-«забор», «клюют зёрнышки». На сигнал «Большая птица!» цыплята бегут обратно к наседке и прячутся за неё." },
+
+{ name:"Через ручеёк", groups:["младшая"], quality:["Равновесие","Ловкость и увёртывание"], season:["круглый год"], props:true, propsNote:"дощечки или шнуры-«камушки»", animals:false,
+  desc:"На полу выкладывается дорожка из досок или шнуров-«камушков» через «ручеёк». Дети по очереди переходят ручеёк, перешагивая или перепрыгивая с камушка на камушек. Кто оступился — «промочил ноги» и садится сушить обувь на скамейку." },
+
+{ name:"Лохматый пёс", groups:["младшая","средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"«Пёс» сидит в стороне, изображая сон. Дети тихонько подходят к нему, произнося текст про лохматого пса. На последних словах пёс вскакивает и «лает», дети разбегаются, а пёс их догоняет.",
+  rhyme:"Вот лежит лохматый пёс,\nВ лапы свой уткнувши нос.\nТихо, смирно он лежит,\nНе то дремлет, не то спит.\nПодойдём к нему, разбудим\nИ посмотрим, что-то будет." },
+
+{ name:"По ровненькой дорожке", groups:["младшая"], quality:["Согласованность движений в группе","Прыжки"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети идут «стайкой» за воспитателем, повторяя движения по тексту: шагают ровно, перешагивают через условные кочки, обходят «ямку». В конце — присаживаются или подпрыгивают на месте, изображая зайчиков.",
+  rhyme:"По ровненькой дорожке,\nПо ровненькой дорожке\nШагают наши ножки:\nРаз-два, раз-два.\n\nПо камешкам, по камешкам,\nПо камешкам, по камешкам…\nВ ямку — бух!" },
+
+{ name:"Флажок", groups:["младшая","средняя"], quality:["Внимание","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"флажок", animals:false,
+  desc:"Дети сидят полукругом, отвернувшись или закрыв глаза. Воспитатель незаметно кладёт флажок за спиной одного из детей. По сигналу дети открывают глаза, а тот, у кого флажок, бежит вперёд — остальные стараются догнать его до условной черты." },
+
+{ name:"Кто быстрее до флажка", groups:["средняя"], quality:["Быстрота бега","Организованность (построения)"], season:["тёплое время года"], props:true, propsNote:"флажки", animals:false,
+  desc:"Дети строятся в 2–3 колонны, напротив каждой на расстоянии — флажок. По сигналу первые из колонны бегут к флажку, обегают его и возвращаются, передавая эстафету следующему касанием руки." },
+
+{ name:"Пожарные на ученье", groups:["средняя","старшая"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:true, propsNote:"гимнастическая стенка, колокольчик", animals:false,
+  desc:"Дети строятся в колонны у гимнастической стенки, наверху каждого пролёта — колокольчик. По сигналу первые из колонны взбираются по стенке, звонят в колокольчик, спускаются и встают в конец колонны — до тех пор, пока не пробегут все." },
+
+{ name:"Не оставайся на полу", groups:["средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают врассыпную по залу. На сигнал «Лови!» нужно как можно быстрее забраться на любое возвышение (скамейку, кубик, мат) — не остаться на полу. Ловишка старается осалить тех, кто не успел." },
+
+{ name:"Удочка", groups:["средняя"], quality:["Прыжки","Внимание"], season:["круглый год"], props:true, propsNote:"скакалка или верёвка с мешочком", animals:false,
+  desc:"Дети стоят по кругу. Воспитатель в центре вращает по полу верёвку с мешочком на конце — «удочку». Дети подпрыгивают, чтобы верёвка не задела ноги. Задевший верёвку временно выходит из круга." },
+
+{ name:"Лягушки и цапля", groups:["средняя"], quality:["Прыжки","Ловкость и увёртывание"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"На площадке обозначено «болото» (обруч или очерченный круг). Дети-«лягушки» прыгают на двух ногах внутри и вокруг болота. По сигналу «Цапля!» появляется водящий-«цапля», который ловит лягушек, не успевших допрыгать до безопасного места." },
+
+{ name:"Жмурки", groups:["средняя","старшая"], quality:["Ориентировка в пространстве","Внимание"], season:["круглый год"], props:true, propsNote:"повязка на глаза", animals:false,
+  desc:"Водящему-«жмурке» завязывают глаза. Остальные дети тихо перемещаются вокруг него, иногда хлопая в ладоши. Жмурка пытается на слух поймать кого-то из детей и на ощупь угадать, кто это." },
+
+{ name:"Третий лишний", groups:["старшая","подготовительная"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают парами друг за другом по кругу, один водящий убегает, другой догоняет. Убегающий может встать третьим впереди любой пары — тогда «лишним» и убегающим становится стоявший сзади этой пары ребёнок." },
+
+{ name:"Волк во рву", groups:["старшая"], quality:["Прыжки","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Поперёк площадки обозначен «ров» (две параллельные линии), в нём сидит «волк». Дети-«козочки» перепрыгивают через ров с одной стороны на другую, стараясь, чтобы волк не осалил их в момент прыжка." },
+
+{ name:"Хитрая лиса", groups:["старшая"], quality:["Быстрота бега","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Дети стоят по кругу, один из них незаметно назначается «хитрой лисой» касанием по плечу. Все хором трижды задают вопрос; на третий раз лиса выбегает в круг, дети разбегаются, а лиса их ловит.",
+  rhyme:"Хитрая лиса, где ты?\n(повторяется три раза, на третий раз лиса выбегает в центр круга)" },
+
+{ name:"Два мороза", groups:["старшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Двое детей-«морозов» встают на середине площадки, остальные — на одной стороне. После общего приговора дети перебегают на другую сторону, а морозы стараются их «заморозить» (осалить) — осаленные замирают на месте до конца кона.",
+  rhyme:"Мы два брата молодые,\nДва мороза удалые:\nЯ — мороз Красный нос,\nЯ — мороз Синий нос.\nКто из вас решится\nВ путь-дороженьку пуститься?" },
+
+{ name:"Горелки", groups:["старшая","подготовительная"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят парами друг за другом в колонне, водящий-«горелка» впереди спиной к колонне. После общей считалки-приговорки последняя пара разбегается вдоль колонны в разные стороны, а горелка старается поймать одного из них раньше, чем они вновь возьмутся за руки впереди.",
+  rhyme:"Гори, гори ясно,\nЧтобы не погасло.\nГлянь на небо —\nПтички летят,\nКолокольчики звенят!\nРаз, два, три —\nБеги!" },
+
+{ name:"Змейка", groups:["старшая"], quality:["Координация движений","Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом, держась за пояс впереди стоящего, образуя «змейку». Ведущий плавно меняет направление движения — «змейка» повторяет за ним, стараясь не разорвать цепочку." },
+
+{ name:"День и ночь", groups:["старшая"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Две команды стоят спиной друг к другу на средней линии площадки — «день» и «ночь». Воспитатель называет одну из команд, и она убегает к своему «дому» на краю площадки, а другая команда догоняет, стараясь осалить убегающих." },
+
+{ name:"Перелёт птиц", groups:["старшая"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«птицы» бегают врассыпную по залу, имитируя полёт. По сигналу «Буря!» быстро взбираются на возвышение (гимнастическую стенку, скамейку) — «прячутся от бури». По сигналу «Буря прошла!» слетают вниз и снова летают по залу." },
+
+{ name:"Медведи и пчёлы", groups:["подготовительная"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Часть детей — «пчёлы» в «улье» (гимнастическая стенка или домик), часть — «медведи» в берлоге. По сигналу «Медведи идут!» медведи бегут к улью за мёдом, пчёлы вылетают и «жалят» (салят) убегающих обратно медведей." },
+
+{ name:"Караван", groups:["подготовительная"], quality:["Организованность (построения)","Согласованность движений в группе"], season:["круглый год"], props:true, propsNote:"обручи", animals:false,
+  desc:"Дети строятся в 2–3 команды. По сигналу первый участник каждой команды с обручем в руках бежит до ориентира и обратно, передаёт обруч следующему. Побеждает команда, закончившая эстафету первой." },
+
+{ name:"Затейники", groups:["подготовительная"], quality:["Координация движений","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят по кругу, водящий-«затейник» в центре придумывает и показывает разные движения (наклоны, прыжки, вращения руками), остальные повторяют за ним. Затем выбирается новый затейник." },
+
+{ name:"Эстафета парами", groups:["подготовительная"], quality:["Организованность (построения)","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч или обруч на пару", animals:false,
+  desc:"Дети делятся на пары, встают в колонны. По сигналу первая пара, держась за руки или держа мяч/обруч вдвоём, бежит до ориентира и обратно, передавая эстафету следующей паре." },
+
+{ name:"Чья команда быстрее", groups:["подготовительная"], quality:["Быстрота бега","Организованность (построения)"], season:["тёплое время года"], props:true, propsNote:"флажки", animals:false,
+  desc:"Две-три команды выстраиваются в колонны на старте, на финише — флажки. По сигналу по очереди каждый участник бежит до флажка, огибает его и возвращается, передавая эстафету касанием руки следующему игроку." },
+
+{ name:"Успей выбежать", groups:["подготовительная"], quality:["Реакция на сигнал","Быстрота бега"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят в кругу, взявшись за руки, водящий — внутри круга. По сигналу дети поочерёдно поднимают и опускают сцепленные руки, изображая «ворота», а водящий должен успеть выбежать из круга через открытые «ворота»." },
+
+{ name:"Бег с препятствиями", groups:["подготовительная"], quality:["Ловкость и увёртывание","Координация движений"], season:["круглый год"], props:true, propsNote:"кегли, дуги, скамейка", animals:false,
+  desc:"На дистанции расставлены препятствия: кегли для обегания змейкой, дуги для подлезания, скамейка для перешагивания. Дети по очереди или командами-эстафетой преодолевают полосу препятствий на скорость, соблюдая технику каждого элемента." },
+
+{ name:"Ловкая пара", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети разбиваются на пары, у каждой пары один мяч. Пары встают лицом друг к другу на расстоянии 2–3 м и перебрасывают мяч друг другу разными способами (снизу, от груди, с отскоком от пола), стараясь не уронить его." },
+
+{ name:"Снежинки и ветер", groups:["младшая","средняя"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["зимой, на снегу"], props:false, propsNote:null, animals:false,
+  desc:"Дети-«снежинки» легко бегают и кружатся по площадке под слова воспитателя про лёгкий ветерок. На сигнал «Сильный ветер!» снежинки разбегаются врассыпную быстрее, кружась. На сигнал «Ветер стих!» останавливаются и приседают, «опускаясь на землю»." },
+{ name:"Курочка-хохлатка", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Воспитатель — «курочка», дети — «цыплятки» идут за ней стайкой, «клюют зёрнышки», перешагивают через «лужицы». Дети повторяют движения по тексту — машут «крылышками», приседают. В конце курочка зовёт цыплят обратно в «домик».",
+  rhyme:"Вышла курочка-хохлатка,\nС нею жёлтые цыплятки.\nКвохчет курочка: «Ко-ко,\nНе ходите далеко!»" },
+
+{ name:"Кто тише", groups:["младшая"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети идут по кругу друг за другом на носочках, стараясь ступать бесшумно. Воспитатель хвалит тех, кто идёт тише всех. Развивает самоконтроль и плавность движений." },
+
+{ name:"Поймай комара", groups:["младшая"], quality:["Прыжки","Реакция на сигнал"], season:["круглый год"], props:true, propsNote:"прут с бумажным «комариком» на нитке", animals:true,
+  desc:"Воспитатель держит прут с привязанным на нитке бумажным «комаром» и водит им по кругу невысоко над головами детей. Дети подпрыгивают, стараясь поймать комара обеими руками." },
+
+{ name:"Мыши водят хоровод", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети берутся за руки, образуя круг — «мышки», один ребёнок в центре — «кот», который дремлет. Хоровод движется по кругу под текст. На последних словах кот просыпается, мышки разбегаются врассыпную.",
+  rhyme:"Мыши водят хоровод,\nНа лежанке дремлет кот.\nТише, мыши, не шумите,\nКота Ваську не будите,\nВот проснётся Васька-кот,\nРазобьёт весь хоровод!" },
+
+{ name:"Заинька, выйди в сад", groups:["младшая"], quality:["Согласованность движений в группе","Чувство ритма и текста"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети стоят по кругу, один ребёнок — «заинька» — в центре. Хоровод двигается по кругу и приговаривает текст, а заинька в центре выполняет движения по смыслу песенки (кланяется, топает, пляшет). Затем выбирается новый заинька.",
+  rhyme:"Заинька, выйди в сад,\nСеренький, выйди в сад,\nВот так, вот сяк, выйди в сад." },
+
+{ name:"Прокати мяч", groups:["младшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети сидят по кругу или парами напротив друг друга, ноги врозь. Прокатывают мяч друг другу по полу двумя руками, стараясь направить точно в руки партнёра." },
+
+{ name:"Догони мяч", groups:["младшая"], quality:["Быстрота бега"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Воспитатель прокатывает мяч по полу в разных направлениях, дети бегут за мячом наперегонки и стараются поймать его первыми, затем приносят обратно воспитателю." },
+
+{ name:"Попади в круг", groups:["младшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком, обруч", animals:false,
+  desc:"На полу лежит большой обруч на небольшом расстоянии от детей. Дети по очереди бросают мешочки с песком, стараясь попасть внутрь обруча." },
+
+{ name:"Пройди — не задень", groups:["младшая"], quality:["Равновесие","Координация движений"], season:["круглый год"], props:true, propsNote:"кубики или кегли", animals:false,
+  desc:"На полу расставлены кубики или кегли в один ряд с промежутками. Дети идут между ними змейкой, стараясь не задеть предметы ногами." },
+
+{ name:"Целься вернее", groups:["младшая","средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком, корзина или обруч", animals:false,
+  desc:"На расстоянии от детей ставится корзина или обруч-мишень. Дети по очереди бросают мешочки с песком, стараясь попасть в цель, — можно вести подсчёт удачных попаданий." },
+
+{ name:"Солнечные зайчики", groups:["младшая"], quality:["Внимание","Реакция на сигнал"], season:["тёплое время года"], props:true, propsNote:"зеркальце", animals:false,
+  desc:"Воспитатель зеркальцем пускает солнечный «зайчик» по полу и стенам. Дети бегают и стараются наступить на светлое пятно или дотронуться до него рукой, пока воспитатель им управляет." },
+
+{ name:"Мяч в кругу", groups:["младшая"], quality:["Глазомер и работа с мячом","Согласованность движений в группе"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети стоят по кругу, водящий в центре с мячом. Водящий катит мяч кому-то из детей по полу, тот ловит и катит обратно. Постепенно можно ускорять темп." },
+
+{ name:"Снежки в цель", groups:["младшая","средняя"], quality:["Глазомер и работа с мячом"], season:["зимой, на снегу"], props:true, propsNote:"снежки или мягкие мячики", animals:false,
+  desc:"Дети по очереди бросают мягкие мячики-«снежки» в большую цель (корзину, обруч, нарисованный круг на снегу) с небольшого расстояния, соревнуясь в меткости." },
+
+{ name:"Кегли", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кегли, мяч", animals:false,
+  desc:"На полу расставляются кегли. Дети по очереди катят мяч, стараясь сбить как можно больше кеглей с одного–двух бросков." },
+
+{ name:"Точно в цель", groups:["средняя"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочки с песком или мячи, мишень", animals:false,
+  desc:"На стене или на полу обозначена мишень из кругов разного размера. Дети бросают мешочки с песком или маленькие мячи, стараясь попасть в центр." },
+
+{ name:"Ловишки с ленточками", groups:["средняя"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:true, propsNote:"ленточки", animals:false,
+  desc:"У каждого ребёнка за поясом лента-«хвостик». Водящий-ловишка старается вытянуть ленту у убегающих детей. Потерявший ленту временно выходит из игры или садится на скамейку." },
+
+{ name:"Мы весёлые ребята", groups:["средняя"], quality:["Быстрота бега","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят на одной стороне площадки за чертой, водящий — на середине. После общего текста дети перебегают на другую сторону, а водящий пытается осалить кого-то из перебегающих.",
+  rhyme:"Мы весёлые ребята,\nЛюбим бегать и играть.\nНу, попробуй нас догнать!\nРаз, два, три — лови!" },
+
+{ name:"Пастух и стадо", groups:["средняя"], quality:["Согласованность движений в группе","Ориентировка в пространстве"], season:["круглый год"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«стадо» идут вереницей за «пастухом», повторяя за ним разные движения (перешагивание, ходьба на носках, бег). По сигналу «Волк!» стадо быстро собирается вокруг пастуха." },
+
+{ name:"Кролики", groups:["средняя"], quality:["Прыжки","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"Дети-«кролики» сидят на корточках в своих «клетках» (обручах). По сигналу кролики выбегают из клеток и прыгают по площадке, а по сигналу «Сторож идёт!» быстро возвращаются в свои клетки." },
+
+{ name:"Лиса в курятнике", groups:["средняя"], quality:["Ловкость и увёртывание","Реакция на сигнал"], season:["тёплое время года"], props:false, propsNote:null, animals:true,
+  desc:"На одной стороне площадки — «курятник» (скамейка), где сидят «куры». «Лиса» прячется в стороне. По сигналу куры слетают погулять, а лиса старается поймать зазевавшихся; пойманные куры сами становятся лисами." },
+
+{ name:"Быстро возьми, быстро положи", groups:["средняя"], quality:["Быстрота бега","Внимание"], season:["круглый год"], props:true, propsNote:"кубики или мешочки", animals:false,
+  desc:"На полу по кругу разложены кубики — их на 1–2 меньше, чем детей. Дети бегают по кругу, а на команду «Бери!» каждый должен быстро схватить один предмет. Кому не хватило — на один кон наблюдает со стороны." },
+
+{ name:"Успей присесть", groups:["средняя"], quality:["Реакция на сигнал","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают врассыпную по залу. Ведущий периодически подаёт сигнал, на который нужно мгновенно присесть на корточки. Не успевший выполняет небольшое дополнительное задание." },
+
+{ name:"Догони свою пару", groups:["средняя"], quality:["Быстрота бега","Ориентировка в пространстве"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети делятся на пары и запоминают друг друга. По сигналу разбегаются врассыпную по всему залу, по следующему сигналу каждый должен как можно быстрее найти и добежать до своей пары." },
+
+{ name:"Сделай фигуру", groups:["средняя","старшая"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети бегают, прыгают или танцуют под музыку. Как только музыка обрывается, каждый должен замереть в необычной позе-«фигуре» и не шевелиться, пока не разрешат." },
+
+{ name:"Ниточка с иголочкой", groups:["средняя","старшая"], quality:["Координация движений","Согласованность движений в группе"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети встают друг за другом, держась за плечи впереди стоящего — «нитка», ведущий впереди — «иголочка». Иголочка водит нитку между расставленными предметами, под дугами, вокруг стоек, а нитка повторяет весь путь, стараясь не разорваться." },
+
+{ name:"Ключи", groups:["старшая"], quality:["Быстрота бега","Реакция на сигнал"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети стоят по кругу парами, взявшись за руки, водящий без пары — в центре. Водящий обращается к любому ребёнку без пары, после чего свободные дети перебегают и ищут себе новую пару, а водящий старается успеть занять место первым — оставшийся без пары становится водящим." },
+
+{ name:"Али-Баба", groups:["старшая"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Две команды стоят в шеренгах друг напротив друга, взявшись за руки. По очереди команды переговариваются считалкой-вызовом, после чего названный игрок разбегается и должен разорвать сцепленные руки соперников; получилось — забирает игрока в свою команду, нет — сам остаётся у соперников.",
+  rhyme:"Али-Баба, о чём слуга?\nПро пятого-десятого,\nЦаревича любимого,\nПришли нам!\n(зачин игры — в разных областях звучит с небольшими отличиями)" },
+
+{ name:"Казаки-разбойники", groups:["старшая","подготовительная"], quality:["Ловкость и увёртывание","Ориентировка в пространстве"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Дети делятся на две команды — «казаки» и «разбойники». Разбойники прячутся и оставляют условные метки на пути, казаки ищут их по следам и, найдя, «берут в плен», отводя в обозначенный «острог»." },
+
+{ name:"Классики", groups:["старшая"], quality:["Прыжки","Равновесие"], season:["тёплое время года"], props:true, propsNote:"мел, битка (камешек или мешочек)", animals:false,
+  desc:"На асфальте или полу расчерчены пронумерованные квадраты-«классики». Ребёнок бросает битку в квадрат по порядку и прыгает по клеткам на одной или двух ногах, не наступая на клетку с биткой и не задевая линии." },
+
+{ name:"Верёвочка", groups:["старшая"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"скакалка", animals:false,
+  desc:"Каждый ребёнок со своей скакалкой выполняет прыжки на месте или с продвижением вперёд, стараясь прыгать без остановки как можно дольше или выполнить заданное число прыжков подряд." },
+
+{ name:"Пятнашки", groups:["старшая"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Водящий-«пятнашка» догоняет остальных детей по всей площадке. Осаленный игрок сам становится пятнашкой. Можно договориться о «домиках» — местах, где ловить нельзя." },
+
+{ name:"Знамя", groups:["старшая","подготовительная"], quality:["Быстрота бега","Ловкость и увёртывание"], season:["тёплое время года"], props:true, propsNote:"флажок", animals:false,
+  desc:"Две команды располагаются на своих половинах площадки, в глубине каждой — «знамя» (флажок на подставке). Задача каждой команды — пробраться на территорию соперника и унести знамя, не будучи осаленным." },
+
+{ name:"Кто дальше бросит", groups:["старшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мешочек с песком или мяч", animals:false,
+  desc:"Дети по очереди выполняют бросок мешочка с песком или мяча способом из-за спины через плечо, стараясь бросить как можно дальше. Результат каждого фиксируется меткой на полу." },
+
+{ name:"Скакалка-десяточка", groups:["старшая"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"скакалка", animals:false,
+  desc:"Ребёнок прыгает через скакалку, а вся группа хором считает прыжки до десяти. Кто сбился или зацепил скакалку раньше — уступает место следующему." },
+
+{ name:"Море волнуется раз", groups:["старшая","подготовительная"], quality:["Внимание","Координация движений"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Дети хаотично двигаются по залу, изображая волны руками. На словах ведущего все замирают в позе какой-либо фигуры и держат её, пока ведущий не назовёт, чья фигура интереснее.",
+  rhyme:"Море волнуется раз,\nМоре волнуется два,\nМоре волнуется три —\nМорская фигура, на месте замри!" },
+
+{ name:"Кто быстрее соберёт", groups:["старшая"], quality:["Быстрота бега","Организованность (построения)"], season:["круглый год"], props:true, propsNote:"кубики или кегли", animals:false,
+  desc:"На полу в стороне разбросаны кубики. Команды по очереди высылают участников, которые должны добежать, взять один предмет и вернуться, сложив его в свою корзину. Побеждает команда, собравшая предметы быстрее." },
+
+{ name:"Меткий стрелок", groups:["старшая"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кольца или мешочки, мишень", animals:false,
+  desc:"На стойке закреплены кольца или расставлена мишень. Дети по очереди бросают мешочки с песком или кольца, стараясь попасть точно в цель с обозначенного расстояния." },
+
+{ name:"Штандер", groups:["подготовительная"], quality:["Ловкость и увёртывание","Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети встают в круг, водящий подбрасывает мяч вверх и называет чьё-то имя — названный должен поймать мяч, а остальные в это время разбегаются. Поймав мяч, ребёнок кричит «Штандер!» — все замирают, и он делает один шаг к ближайшему игроку, стараясь попасть в него мячом." },
+
+{ name:"Вышибалы", groups:["подготовительная"], quality:["Ловкость и увёртывание","Быстрота бега"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Двое водящих встают по разные стороны площадки, остальные дети — в середине. Водящие перебрасывают мяч друг другу, стараясь попасть в кого-то из стоящих в середине; задетый выходит из игры, а поймавший мяч на лету получает право вернуть выбывшего игрока в игру." },
+
+{ name:"Разведчики", groups:["подготовительная"], quality:["Ориентировка в пространстве","Внимание"], season:["тёплое время года"], props:false, propsNote:null, animals:false,
+  desc:"Одна группа детей — «разведчики» — должна незаметно, тихо и скрытно приблизиться к обозначенному «штабу», где сидит «часовой». Часовой, услышав шум или заметив движение, называет, кого он засёк, — тот выбывает из разведки." },
+
+{ name:"Точное приземление", groups:["подготовительная"], quality:["Прыжки","Равновесие"], season:["круглый год"], props:true, propsNote:"маты, разметка", animals:false,
+  desc:"На полу размечены круги-мишени. Ребёнок выполняет прыжок в длину или спрыгивание с небольшого возвышения, стараясь приземлиться точно внутри размеченного круга, сохранив равновесие." },
+
+{ name:"Кто самый меткий", groups:["подготовительная"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"кольца или мешочки", animals:false,
+  desc:"Дети по очереди бросают кольца или мешочки на разные по удалённости стойки-цели, за попадание в дальнюю цель начисляется больше очков. Ведётся общий подсчёт по итогам нескольких бросков." },
+
+{ name:"Резиночка", groups:["подготовительная"], quality:["Прыжки","Координация движений"], season:["круглый год"], props:true, propsNote:"резинка-эспандер", animals:false,
+  desc:"Двое детей держат натянутую резинку на разной высоте (у щиколоток, у колен, у пояса), остальные по очереди прыгают через неё по определённой схеме движений, не задевая резинку." },
+
+{ name:"Лапта", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Быстрота бега"], season:["тёплое время года"], props:true, propsNote:"мяч, бита", animals:false,
+  desc:"Площадка делится на «город» и «поле». Игрок из команды города бьёт битой по мячу и бежит через поле до условленной черты и обратно, а игроки поля стараются поймать мяч на лету или осалить им перебегающего." },
+
+{ name:"Снайпер", groups:["подготовительная"], quality:["Глазомер и работа с мячом"], season:["круглый год"], props:true, propsNote:"мяч", animals:false,
+  desc:"Дети встают по кругу, в центре — водящий с мячом. Задача водящего — попасть мячом в ноги кому-то из стоящих по кругу; те могут уворачиваться, приседать, подпрыгивать, но не имеют права покидать круг." },
+
+{ name:"Прятки", groups:["подготовительная"], quality:["Ориентировка в пространстве","Внимание"], season:["круглый год"], props:false, propsNote:null, animals:false,
+  desc:"Водящий закрывает глаза у обозначенного места и громко произносит считалку, пока остальные прячутся. Затем идёт искать спрятавшихся; тот, кого нашли первым, в следующий раз водит.",
+  rhyme:"Раз, два, три, четыре, пять,\nЯ иду искать!\nКто не спрятался,\nЯ не виноват!" },
+
+{ name:"Волейбол через шнур", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["круглый год"], props:true, propsNote:"мяч, шнур", animals:false,
+  desc:"Между стойками натянут шнур на уровне поднятых рук. Две команды перебрасывают мяч через шнур, стараясь, чтобы он коснулся площадки соперника; вводятся простые правила подачи и счёта." },
+
+{ name:"Хвостики", groups:["подготовительная"], quality:["Ловкость и увёртывание","Быстрота бега"], season:["тёплое время года"], props:true, propsNote:"ленточки-хвостики", animals:false,
+  desc:"У каждого ребёнка за поясом лента-«хвостик». По сигналу все бегают по площадке, стараясь сорвать хвостик у других, одновременно защищая свой. Побеждает тот, кто дольше всех сохранит свой хвостик." },
+
+{ name:"Весёлые старты", groups:["подготовительная"], quality:["Организованность (построения)","Быстрота бега"], season:["круглый год"], props:true, propsNote:"разный инвентарь по этапам", animals:false,
+  desc:"Дети делятся на 2–3 команды и по очереди проходят несколько эстафетных этапов подряд (бег с мячом, прыжки в мешке, полоса препятствий, передача эстафеты) — командное соревнование с общим подсчётом результатов на финише." },
+
+{ name:"Городки", groups:["подготовительная"], quality:["Глазомер и работа с мячом","Координация движений"], season:["тёплое время года"], props:true, propsNote:"биты, городки", animals:false,
+  desc:"Из небольших чурок-«городков» на площадке выставляется фигура. Игроки по очереди бросают биту с обозначенной черты, стараясь выбить все городки за фигуры за минимальное число бросков." }
+];
+
+// ---------- id assignment for built-in games ----------
+games.forEach((g,i)=>{ g.id = 'b'+String(i+1).padStart(2,'0'); });
+
+// ---------- local storage layer ----------
+const LS_KEYS = { overrides:'kartoteka_overrides_v1', custom:'kartoteka_custom_v1', deleted:'kartoteka_deleted_v1' };
+let storageOK = true;
+
+function lsGet(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ storageOK = false; return fallback; }
+}
+function lsSet(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ storageOK = false; return false; }
+}
+
+let overrides = lsGet(LS_KEYS.overrides, {});
+let customGames = lsGet(LS_KEYS.custom, []);
+let deletedIds = lsGet(LS_KEYS.deleted, []);
+
+function getAllGames(){
+  const base = games
+    .filter(g=>!deletedIds.includes(g.id))
+    .map(g=> Object.assign({}, g, overrides[g.id]||{}));
+  const custom = customGames.filter(g=>!deletedIds.includes(g.id));
+  return base.concat(custom);
+}
+
+function persistAll(){
+  lsSet(LS_KEYS.overrides, overrides);
+  lsSet(LS_KEYS.custom, customGames);
+  lsSet(LS_KEYS.deleted, deletedIds);
+  updateStorageStatus();
+}
+
+function updateStorageStatus(){
+  const el = document.getElementById('storageStatus');
+  if(!el) return;
+  el.textContent = storageOK ? '' : 'хранилище браузера недоступно — делайте экспорт после изменений';
+}
+
+// ---------- facet state ----------
+const allGroups = GROUP_ORDER;
+const state = { search:"", groups:new Set(), qualities:new Set(), seasons:new Set(), extras:new Set(), sort:"name" };
+
+function buildChips(containerId, values, dataAttr, onToggle, labelFn, activeSet){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  values.forEach(v=>{
+    const chip = document.createElement('div');
+    chip.className='chip';
+    chip.textContent = labelFn ? labelFn(v) : v;
+    if(dataAttr) chip.setAttribute('data-'+dataAttr, v);
+    if(activeSet && activeSet.has(v)) chip.classList.add('active');
+    chip.addEventListener('click', ()=>{
+      chip.classList.toggle('active');
+      onToggle(v, chip.classList.contains('active'));
+      render();
+    });
+    el.appendChild(chip);
+  });
+}
+
+function refreshFacetChips(){
+  const all = getAllGames();
+  const qualities = [...new Set(all.flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const seasons = [...new Set(all.flatMap(g=>g.season))].sort((a,b)=>a.localeCompare(b,'ru'));
+  buildChips('f-group', allGroups, 'group', (v,on)=>{ on? state.groups.add(v): state.groups.delete(v); }, null, state.groups);
+  buildChips('f-quality', qualities, null, (v,on)=>{ on? state.qualities.add(v): state.qualities.delete(v); }, null, state.qualities);
+  buildChips('f-season', seasons, null, (v,on)=>{ on? state.seasons.add(v): state.seasons.delete(v); }, null, state.seasons);
+  buildChips('f-extra', ['с животными','с предметами','без предметов'], null, (v,on)=>{ on? state.extras.add(v): state.extras.delete(v); }, null, state.extras);
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('sortSelect').addEventListener('change', e=>{ state.sort = e.target.value; render(); });
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.search=""; state.groups.clear(); state.qualities.clear(); state.seasons.clear(); state.extras.clear(); state.sort="name";
+  document.getElementById('searchInput').value="";
+  document.getElementById('sortSelect').value="name";
+  refreshFacetChips();
+  render();
+});
+
+function matches(g){
+  if(state.search && !g.name.toLowerCase().includes(state.search)) return false;
+  if(state.groups.size && !g.groups.some(x=>state.groups.has(x))) return false;
+  if(state.qualities.size && !g.quality.some(x=>state.qualities.has(x))) return false;
+  if(state.seasons.size && !g.season.some(x=>state.seasons.has(x))) return false;
+  if(state.extras.size){
+    for(const ex of state.extras){
+      if(ex==='с животными' && !g.animals) return false;
+      if(ex==='с предметами' && !g.props) return false;
+      if(ex==='без предметов' && g.props) return false;
+    }
+  }
+  return true;
+}
+
+function sortGames(list){
+  const copy=[...list];
+  if(state.sort==='name') copy.sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='group') copy.sort((a,b)=> GROUP_ORDER.indexOf(a.groups[0]) - GROUP_ORDER.indexOf(b.groups[0]) || a.name.localeCompare(b.name,'ru'));
+  if(state.sort==='season') copy.sort((a,b)=> (a.season[0]||'').localeCompare(b.season[0]||'','ru') || a.name.localeCompare(b.name,'ru'));
+  return copy;
+}
+
+function render(){
+  const all = getAllGames();
+  const filtered = sortGames(all.filter(matches));
+  const grid = document.getElementById('grid');
+  grid.innerHTML='';
+  document.getElementById('countLabel').textContent = `показано ${filtered.length} из ${all.length}`;
+  const activeCount = state.groups.size + state.qualities.size + state.seasons.size + state.extras.size;
+  document.getElementById('activeFilterCount').textContent = activeCount ? String(activeCount) : '';
+  document.getElementById('emptyMsg').style.display = filtered.length? 'none':'block';
+
+  filtered.forEach((g, i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+
+    const tab = document.createElement('div');
+    tab.className = 'tab ' + g.groups[0];
+    card.appendChild(tab);
+
+    const no = document.createElement('div');
+    no.className='no';
+    no.textContent = '№ ' + String(i+1).padStart(2,'0');
+    if(g.id.startsWith('c')){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='добавлено вами'; no.appendChild(b);
+    } else if(overrides[g.id]){
+      const b = document.createElement('span'); b.className='badge'; b.textContent='изменено'; no.appendChild(b);
+    }
+    card.appendChild(no);
+
+    const h3 = document.createElement('h3');
+    h3.textContent = g.name;
+    card.appendChild(h3);
+
+    const rule = document.createElement('div');
+    rule.className='rule';
+    card.appendChild(rule);
+
+    const glist = document.createElement('div');
+    glist.className='groups-list';
+    g.groups.forEach(gr=>{
+      const lab = document.createElement('span');
+      lab.className='glabel';
+      lab.style.background = GROUP_COLORS[gr] || '#8b5e3c';
+      lab.textContent = gr;
+      glist.appendChild(lab);
+    });
+    card.appendChild(glist);
+
+    const qwrap = document.createElement('div');
+    qwrap.className='qtags';
+    g.quality.forEach(q=>{
+      const t=document.createElement('span');
+      t.className='qtag';
+      t.textContent=q;
+      qwrap.appendChild(t);
+    });
+    card.appendChild(qwrap);
+
+    const meta = document.createElement('p');
+    meta.className='meta-line';
+    meta.innerHTML = `<b>Сезон:</b> ${g.season.join(', ')} &nbsp;·&nbsp; <b>Животные:</b> ${g.animals?'да':'нет'} &nbsp;·&nbsp; <b>Предметы:</b> ${g.props? (g.propsNote||'да') : 'нет'}`;
+    card.appendChild(meta);
+
+    const details = document.createElement('details');
+    details.className='desc';
+    const summary = document.createElement('summary');
+    summary.textContent='Ход игры';
+    const p = document.createElement('p');
+    p.textContent = g.desc;
+    details.appendChild(summary);
+    details.appendChild(p);
+    if(g.rhyme){
+      const rblock = document.createElement('div');
+      rblock.className='rhyme';
+      const rlabel = document.createElement('span');
+      rlabel.className='rlabel';
+      rlabel.textContent = g.rhymeNote || 'Текст потешки / приговорки:';
+      const rtext = document.createElement('div');
+      rtext.className='rtext';
+      rtext.textContent = g.rhyme;
+      rblock.appendChild(rlabel);
+      rblock.appendChild(rtext);
+      details.appendChild(rblock);
+    }
+    card.appendChild(details);
+
+    const actions = document.createElement('div');
+    actions.className='card-actions';
+    const editBtn = document.createElement('button');
+    editBtn.type='button'; editBtn.textContent='Изменить';
+    editBtn.addEventListener('click', ()=> openForm(g));
+    actions.appendChild(editBtn);
+    const delBtn = document.createElement('button');
+    delBtn.type='button'; delBtn.textContent='Удалить'; delBtn.className='danger';
+    delBtn.addEventListener('click', ()=>{
+      if(confirm(`Удалить игру «${g.name}»?`)){
+        deletedIds.push(g.id);
+        persistAll();
+        refreshFacetChips();
+        render();
+      }
+    });
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+
+    grid.appendChild(card);
+  });
+}
+
+// ---------- modal form ----------
+const overlay = document.getElementById('modalOverlay');
+const formEl = document.getElementById('gameForm');
+let editingId = null;
+let formQuality = [];
+let formSeason = [];
+
+function fillGroupCheckboxes(selected){
+  const wrap = document.getElementById('fGroups');
+  wrap.innerHTML='';
+  GROUP_ORDER.forEach(gr=>{
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type='checkbox'; cb.value=gr; cb.checked = selected.includes(gr);
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' '+gr));
+    wrap.appendChild(label);
+  });
+}
+
+function renderTagPills(pillsId, values, onRemove){
+  const wrap = document.getElementById(pillsId);
+  wrap.innerHTML='';
+  values.forEach(v=>{
+    const pill = document.createElement('span');
+    pill.className='pill';
+    pill.textContent = v;
+    const rm = document.createElement('button');
+    rm.type='button'; rm.textContent='×';
+    rm.addEventListener('click', ()=>{ onRemove(v); });
+    pill.appendChild(rm);
+    wrap.appendChild(pill);
+  });
+}
+
+function renderTagSuggestions(suggestId, all, current, onAdd){
+  const wrap = document.getElementById(suggestId);
+  wrap.innerHTML='';
+  all.filter(v=>!current.includes(v)).forEach(v=>{
+    const s = document.createElement('span');
+    s.textContent = '+ ' + v;
+    s.addEventListener('click', ()=> onAdd(v));
+    wrap.appendChild(s);
+  });
+}
+
+function refreshQualityUI(){
+  const all = [...new Set(getAllGames().flatMap(g=>g.quality))].sort((a,b)=>a.localeCompare(b,'ru'));
+  renderTagPills('qualityPills', formQuality, v=>{ formQuality = formQuality.filter(x=>x!==v); refreshQualityUI(); });
+  renderTagSuggestions('qualitySuggest', all, formQuality, v=>{ formQuality.push(v); refreshQualityUI(); });
+}
+function refreshSeasonUI(){
+  const all = [...new Set(getAllGames().flatMap(g=>g.season))].sort((a,b)=>a.localeCompare(b,'ru'));
+  renderTagPills('seasonPills', formSeason, v=>{ formSeason = formSeason.filter(x=>x!==v); refreshSeasonUI(); });
+  renderTagSuggestions('seasonSuggest', all, formSeason, v=>{ formSeason.push(v); refreshSeasonUI(); });
+}
+
+document.getElementById('qualityAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('qualityInput');
+  const v = inp.value.trim();
+  if(v && !formQuality.includes(v)){ formQuality.push(v); inp.value=''; refreshQualityUI(); }
+});
+document.getElementById('seasonAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('seasonInput');
+  const v = inp.value.trim();
+  if(v && !formSeason.includes(v)){ formSeason.push(v); inp.value=''; refreshSeasonUI(); }
+});
+['qualityInput','seasonInput'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); document.getElementById(id==='qualityInput'?'qualityAddBtn':'seasonAddBtn').click(); }
+  });
+});
+
+document.getElementById('fProps').addEventListener('change', e=>{
+  document.getElementById('propsNoteField').style.display = e.target.checked ? 'block' : 'none';
+});
+
+function openForm(game){
+  editingId = game ? game.id : null;
+  document.getElementById('modalTitle').textContent = game ? 'Изменить игру' : 'Новая игра';
+  document.getElementById('fName').value = game ? game.name : '';
+  fillGroupCheckboxes(game ? game.groups : []);
+  formQuality = game ? [...game.quality] : [];
+  formSeason = game ? [...game.season] : [];
+  refreshQualityUI();
+  refreshSeasonUI();
+  document.getElementById('fAnimals').checked = game ? !!game.animals : false;
+  document.getElementById('fProps').checked = game ? !!game.props : false;
+  document.getElementById('propsNoteField').style.display = (game && game.props) ? 'block' : 'none';
+  document.getElementById('fPropsNote').value = (game && game.propsNote) ? game.propsNote : '';
+  document.getElementById('fDesc').value = game ? game.desc : '';
+  document.getElementById('fRhyme').value = (game && game.rhyme) ? game.rhyme : '';
+  document.getElementById('deleteGameBtn').style.display = game ? 'inline' : 'none';
+  overlay.classList.add('open');
+  document.getElementById('fName').focus();
+}
+function closeForm(){
+  overlay.classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('addGameBtn').addEventListener('click', ()=> openForm(null));
+document.getElementById('cancelFormBtn').addEventListener('click', closeForm);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeForm(); });
+
+document.getElementById('deleteGameBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  if(confirm('Удалить эту игру из картотеки?')){
+    deletedIds.push(editingId);
+    persistAll();
+    refreshFacetChips();
+    render();
+    closeForm();
+  }
+});
+
+formEl.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('fName').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  if(!name || !desc){ return; }
+  const groups = [...document.querySelectorAll('#fGroups input:checked')].map(cb=>cb.value);
+  const props = document.getElementById('fProps').checked;
+  const fields = {
+    name,
+    groups: groups.length? groups : [GROUP_ORDER[0]],
+    quality: formQuality.length? formQuality : ['Без указания'],
+    season: formSeason.length? formSeason : ['круглый год'],
+    animals: document.getElementById('fAnimals').checked,
+    props,
+    propsNote: props ? (document.getElementById('fPropsNote').value.trim() || null) : null,
+    desc,
+    rhyme: document.getElementById('fRhyme').value.trim() || null
+  };
+
+  if(editingId){
+    if(editingId.startsWith('c')){
+      const idx = customGames.findIndex(g=>g.id===editingId);
+      if(idx>-1) customGames[idx] = Object.assign({id:editingId}, fields);
+    } else {
+      overrides[editingId] = fields;
+    }
+  } else {
+    const newId = 'c' + Date.now();
+    customGames.push(Object.assign({id:newId}, fields));
+  }
+
+  persistAll();
+  refreshFacetChips();
+  render();
+  closeForm();
+});
+
+// ---------- export / import ----------
+document.getElementById('exportBtn').addEventListener('click', async ()=>{
+  const payload = { overrides, customGames, deletedIds, exportedAt: new Date().toISOString() };
+  const json = JSON.stringify(payload, null, 2);
+  let handled = false;
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        await downloads.save({ filename: 'kartoteka-backup.json', data: json });
+        handled = true;
+      }
+    }
+  }catch(err){ /* fall through to local download */ }
+  if(!handled){
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'kartoteka-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!confirm('Заменить текущие изменения содержимым файла резервной копии?')) return;
+      overrides = data.overrides || {};
+      customGames = data.customGames || [];
+      deletedIds = data.deletedIds || [];
+      persistAll();
+      refreshFacetChips();
+      render();
+    }catch(err){
+      alert('Не удалось прочитать файл — проверьте, что это резервная копия картотеки (.json).');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---------- init ----------
+updateStorageStatus();
+refreshFacetChips();
+render();
+</script>
+</body>
+</html>
